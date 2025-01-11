@@ -50,19 +50,17 @@ class RamTypeOfCpuAndMotherboardCompRule(CompatibilityRuleInterface):
         self, selected_components: list[object], new_component: object
     ) -> bool:
         for component in selected_components:
-            # if isinstance(component, MotherBoard) and isinstance(new_component, RAM):
             if (
                 component._type == ComponentType.motherboard
-                and new_component._type == ComponentType.ram
+                and new_component._type == ComponentType.cpu
             ):
                 if component.ram_type == new_component.ram_type:
                     return True
                 raise ex.RamTypeCompatibilityException(
                     component.ram_type, new_component.ram_type
                 )
-            # if isinstance(component, RAM) and isinstance(new_component, MotherBoard):
             if (
-                component._type == ComponentType.ram
+                component._type == ComponentType.cpu
                 and new_component._type == ComponentType.motherboard
             ):
                 if component.ram_type == new_component.ram_type:

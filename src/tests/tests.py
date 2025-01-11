@@ -65,7 +65,7 @@ class TestCpuCompatibilitiesRules(TestCase):
         rule = RamTypeOfCpuAndMotherboardCompRule()
         selected = [mb_gigabyte_am5_ddr5_X870E]
 
-        with self.assertRaises(e.SocketCompatibilityException):
+        with self.assertRaises(e.RamTypeCompatibilityException):
             rule.is_compatible(selected, cpu_amd_r5_am4_tdp65)
-        with self.assertRaises(e.SocketCompatibilityException):
+        with self.assertRaises(e.RamTypeCompatibilityException):
             rule.is_compatible(selected, cpu_intel_i9_10900F_tdp65)
