@@ -4,7 +4,7 @@ from src.domain.enums import ComponentType
 
 @dataclass
 class MotherBoard:
-    _type = ComponentType.mother_board
+    _type = ComponentType.motherboard
 
     # art: str | None = None
     model: str

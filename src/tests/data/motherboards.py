@@ -1,4 +1,4 @@
-from src.domain.mb import MotherBoard
+from src.domain.motherboard import MotherBoard
 
 
 mb_gigabyte_am5_ddr5_X870E = MotherBoard(

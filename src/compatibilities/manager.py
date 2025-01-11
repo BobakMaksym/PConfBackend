@@ -1,5 +1,5 @@
 from src.domain.cpu import CPU, cpu_db
-from src.domain.mb import MotherBoard, motherboard_db
+from src.domain.motherboard import MotherBoard, motherboard_db
 from src.domain.ram import RAM, ram_db
 
 from src.compatibilities import exceptions as ex

@@ -6,4 +6,4 @@ class ComponentType(str, Enum):
     gpu = "gpu"
     ram = "ram"
     pcu = "pcu"
-    mother_board = "mother board"
+    motherboard = "motherboard"

@@ -26,7 +26,7 @@ class SocketCompatibilityRule(CompatibilityRuleInterface):
         for component in selected_components:
             if (
                 component._type == ComponentType.cpu
-                and new_component._type == ComponentType.mother_board
+                and new_component._type == ComponentType.motherboard
             ):
                 if component.socket == new_component.socket:
                     return True
@@ -34,7 +34,7 @@ class SocketCompatibilityRule(CompatibilityRuleInterface):
                     component.socket, new_component.socket
                 )
             if (
-                component._type == ComponentType.mother_board
+                component._type == ComponentType.motherboard
                 and new_component._type == ComponentType.cpu
             ):
                 if component.socket == new_component.socket:
