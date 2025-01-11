@@ -29,6 +29,11 @@ class SocketCompatibilityException(CompatibilityException):
         super().__init__("Incompatible sockets", *args)
 
 
+class RamTypeCompatibilityException(CompatibilityException):
+    def __init__(self, *args):
+        super().__init__("Incompatible ram type", *args)
+
+
 if __name__ == "__main__":
     from dataclasses import dataclass
 

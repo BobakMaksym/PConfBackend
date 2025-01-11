@@ -45,13 +45,29 @@ class SocketCompatibilityRule(CompatibilityRuleInterface):
         return True
 
 
-# class RamTypeOfCpuAndMotherboardCompRule(CompatibilityRuleInterface):
-#     def is_compatible(
-#         self, selected_components: list[object], new_component: object
-#     ) -> bool:
-#         for component in selected_components:
-#             if isinstance(component, MotherBoard) and isinstance(new_component, RAM):
-#                 return component.ram_type == new_component.ram_type
-#             if isinstance(component, RAM) and isinstance(new_component, MotherBoard):
-#                 return component.ram_type == new_component.ram_type
-#         return True
+class RamTypeOfCpuAndMotherboardCompRule(CompatibilityRuleInterface):
+    def is_compatible(
+        self, selected_components: list[object], new_component: object
+    ) -> bool:
+        for component in selected_components:
+            # if isinstance(component, MotherBoard) and isinstance(new_component, RAM):
+            if (
+                component._type == ComponentType.motherboard
+                and new_component._type == ComponentType.ram
+            ):
+                if component.ram_type == new_component.ram_type:
+                    return True
+                raise ex.RamTypeCompatibilityException(
+                    component.ram_type, new_component.ram_type
+                )
+            # if isinstance(component, RAM) and isinstance(new_component, MotherBoard):
+            if (
+                component._type == ComponentType.ram
+                and new_component._type == ComponentType.motherboard
+            ):
+                if component.ram_type == new_component.ram_type:
+                    return True
+                raise ex.RamTypeCompatibilityException(
+                    component.ram_type, new_component.ram_type
+                )
+        return True
