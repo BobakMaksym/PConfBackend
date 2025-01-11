@@ -45,7 +45,7 @@ class SocketCompatibilityRule(CompatibilityRuleInterface):
         return True
 
 
-# class RamTypeCompatibilityRule(CompatibilityRuleInterface):
+# class RamTypeOfCpuAndMotherboardCompRule(CompatibilityRuleInterface):
 #     def is_compatible(
 #         self, selected_components: list[object], new_component: object
 #     ) -> bool:

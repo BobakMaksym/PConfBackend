@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from src.compatibilities.rules import (
     SocketCompatibilityRule,
+    RamTypeOfCpuAndMotherboardCompRule,
 )
 from src.compatibilities import exceptions as e
 from src.tests.data.cpus import *
@@ -9,6 +10,8 @@ from src.tests.data.motherboards import *
 
 
 class TestCpuCompatibilitiesRules(TestCase):
+
+    # Test socket compatibility
 
     def test_aa_given_cpu_and_motherboard_when_socket_matches_then_compatibility_is_true(
         self,
@@ -36,3 +39,33 @@ class TestCpuCompatibilitiesRules(TestCase):
             socket_rule.is_compatible(selected_components, cpu_intel_i9_10900F_tdp65)
         with self.assertRaises(e.SocketCompatibilityException):
             socket_rule.is_compatible(selected_components, cpu_amd_r5_am4_tdp65)
+
+    # Test RAM type compatibility
+
+    def test_ba_given_cpu_and_motherboard_when_ram_type_matches_then_compatibility_is_true(
+        self,
+    ):
+        """test: checks for incompatibility of the cpu memory type with the selected motherboard"""
+
+        # check the compatibility of the motherboard and CPU with support for the same types of memory
+        # motherboard & cpu - DDR5
+
+        rule = RamTypeOfCpuAndMotherboardCompRule()
+        selected = [mb_gigabyte_am5_ddr5_X870E]
+
+        self.assertTrue(rule.is_compatible(selected, cpu_amd_r7_am5_tdp105))
+        self.assertTrue(rule.is_compatible(selected, cpu_intel_i5_12400_tdp65))
+
+    def test_bb_given_cpu_and_motherboard_when_ram_type_not_matches_then_except(self):
+        """test: checks for incompatibility of the cpu memory type with the selected motherboard"""
+
+        # check the compatibility of the motherboard and CPU with support with support for different types of memory
+        # motherboard - DDR5, cpu - DDR4
+
+        rule = RamTypeOfCpuAndMotherboardCompRule()
+        selected = [mb_gigabyte_am5_ddr5_X870E]
+
+        with self.assertRaises(e.SocketCompatibilityException):
+            rule.is_compatible(selected, cpu_amd_r5_am4_tdp65)
+        with self.assertRaises(e.SocketCompatibilityException):
+            rule.is_compatible(selected, cpu_intel_i9_10900F_tdp65)
