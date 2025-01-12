@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from src.compatibilities import exceptions as e
+from src.domain.base import Component
 from src.domain.enums import ComponentType
 
 
@@ -8,8 +9,8 @@ class CompatibilityRuleInterface(ABC):
     @abstractmethod
     def is_compatible(
         self,
-        selected_components: list[object],
-        new_component: object,
+        selected_components: list[Component],
+        new_component: Component,
     ) -> bool:
         """checks if the new component is compatible with the already selected ones"""
         pass
@@ -18,8 +19,8 @@ class CompatibilityRuleInterface(ABC):
 class SocketCompatibilityRule(CompatibilityRuleInterface):
     def is_compatible(
         self,
-        selected_components: list[object],
-        new_component: object,
+        selected_components: list[Component],
+        new_component: Component,
     ) -> bool:
         """checks the socket compatibility of cpu and motherboard"""
 
@@ -41,7 +42,7 @@ class SocketCompatibilityRule(CompatibilityRuleInterface):
 
 class RamTypeOfCpuAndMotherboardCompRule(CompatibilityRuleInterface):
     def is_compatible(
-        self, selected_components: list[object], new_component: object
+        self, selected_components: list[Component], new_component: Component
     ) -> bool:
         """checks the RAM type compatibility of cpu and motherboard"""
 

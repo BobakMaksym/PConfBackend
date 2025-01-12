@@ -1,14 +1,13 @@
-from src.domain.cpu import CPU, cpu_db
-from src.domain.motherboard import MotherBoard, motherboard_db
-from src.domain.ram import RAM, ram_db
-
 from src.compatibilities import exceptions as ex
 from src.compatibilities.rules import (
     CompatibilityRuleInterface,
     SocketCompatibilityRule,
 )
 
-# , RamTypeCompatibilityRule
+from src.domain.base import Component
+from src.domain.cpu import CPU, cpu_db
+from src.domain.motherboard import MotherBoard, motherboard_db
+from src.domain.ram import RAM, ram_db
 
 
 class CompatibilityManager:
@@ -19,8 +18,10 @@ class CompatibilityManager:
         self.rules.append(rule)
 
     def check_compatibility(
-        self, selected_components: list[object], new_component: object
+        self, selected_components: list[Component], new_component: Component
     ) -> bool:
+        """checks the compatibility of the new component with the list of selected
+        `through all added rules`"""
         return all(
             rule.is_compatible(selected_components, new_component)
             for rule in self.rules

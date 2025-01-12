@@ -1,3 +1,4 @@
+from src.domain.base import Component
 from src.domain.cpu import CPU, cpu_db
 from src.domain.motherboard import MotherBoard, motherboard_db
 
@@ -6,10 +7,10 @@ from src.compatibilities.manager import CompatibilityManager, compatibility_mana
 
 class PCConfigurator:
     def __init__(self, compatibility_manager: CompatibilityManager):
-        self.selected_components: list[object] = []
+        self.selected_components: list[Component] = []
         self.compatibility_manager = compatibility_manager
 
-    def add_components(self, new_component):
+    def add_components(self, new_component: Component):
         if self.compatibility_manager.check_compatibility(
             self.selected_components,
             new_component,
@@ -18,7 +19,7 @@ class PCConfigurator:
             return True
         return False
 
-    def get_selected_components(self):
+    def get_selected_components(self) -> list[Component]:
         return self.selected_components
 
 
