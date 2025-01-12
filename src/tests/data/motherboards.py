@@ -13,7 +13,7 @@ mb_gigabyte_am5_ddr5_X870E = MotherBoard(
 )
 
 
-motherboard_1 = MotherBoard(
+mb_asus_am4_ddr4_B550 = MotherBoard(
     model="ROG STRIX B550-F GAMING",
     manufacturer="ASUS",
     series="ROG",
@@ -24,7 +24,7 @@ motherboard_1 = MotherBoard(
     chipset="B550",
 )
 
-motherboard_2 = MotherBoard(
+mb_msi_lga1700_z690 = MotherBoard(
     model="MSI MPG Z690 EDGE WIFI",
     manufacturer="MSI",
     series="MPG",
@@ -35,7 +35,7 @@ motherboard_2 = MotherBoard(
     chipset="Z690",
 )
 
-motherboard_3 = MotherBoard(
+mb_gigabyte_am4_ddr4_B450 = MotherBoard(
     model="GIGABYTE B450M DS3H",
     manufacturer="GIGABYTE",
     series="Ultra Durable",
@@ -46,7 +46,7 @@ motherboard_3 = MotherBoard(
     chipset="B450",
 )
 
-motherboard_4 = MotherBoard(
+mb_asrock_lga1200_ddr4_Z590 = MotherBoard(
     model="ASROCK Z590 EXTREME",
     manufacturer="ASRock",
     series="Extreme",
@@ -57,7 +57,7 @@ motherboard_4 = MotherBoard(
     chipset="Z590",
 )
 
-motherboard_5 = MotherBoard(
+mb_aorus_am5_ddr5_X670E = MotherBoard(
     model="AORUS X670E MASTER",
     manufacturer="GIGABYTE",
     series="AORUS",
@@ -68,7 +68,7 @@ motherboard_5 = MotherBoard(
     chipset="X670E",
 )
 
-motherboard_6 = MotherBoard(
+mb_asus_lga1700_ddr5_Z790 = MotherBoard(
     model="TUF GAMING Z790-PLUS",
     manufacturer="ASUS",
     series="TUF",
@@ -80,12 +80,13 @@ motherboard_6 = MotherBoard(
 )
 
 motherboard_db = [
-    motherboard_1,
-    motherboard_2,
-    motherboard_3,
-    motherboard_4,
-    motherboard_5,
-    motherboard_6,
+    mb_gigabyte_am5_ddr5_X870E,
+    mb_asus_am4_ddr4_B550,
+    mb_msi_lga1700_z690,
+    mb_gigabyte_am4_ddr4_B450,
+    mb_asrock_lga1200_ddr4_Z590,
+    mb_aorus_am5_ddr5_X670E,
+    mb_asus_lga1700_ddr5_Z790,
 ]
 
 

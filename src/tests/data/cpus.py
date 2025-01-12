@@ -46,87 +46,106 @@ cpu_intel_i9_10900F_tdp65 = CPU(
 )
 
 
-cpu_1 = CPU(
-    art="100-100000597MPK",
-    manufacturer="AMD",
-    model="7500F",
-    series="Ryzen 5",
-    socket="AM5",
-    tdp=65,
-    ram_type="DDR5",
-    max_ram=128,
-    # cores=6,
-    # threads=12,
-)
+# ############################################################
 
-cpu_2 = CPU(
+cpu_intel_i5_13600kf_ddr5 = CPU(
     art="BX8071513600KF",
     manufacturer="Intel",
     model="i5-13600KF",
     series="Core i5",
     socket="LGA1700",
     tdp=125,
-    ram_type="DDR5",
-    max_ram=128,
-    # cores=14,
-    # threads=20,
+    ram_type="DDR4/DDR5",
+    memory_channels=2,
 )
 
-cpu_3 = CPU(
+cpu_intel_i9_13900k_ddr5 = CPU(
+    art="BX8071513900K",
+    manufacturer="Intel",
+    model="i9-13900K",
+    series="Core i9",
+    socket="LGA1700",
+    tdp=125,
+    ram_type="DDR4/DDR5",
+    memory_channels=2,
+)
+
+cpu_intel_i7_13700k_ddr5 = CPU(
     art="BX8071513700K",
     manufacturer="Intel",
     model="i7-13700K",
     series="Core i7",
     socket="LGA1700",
     tdp=125,
-    ram_type="DDR4",
-    max_ram=128,
-    # cores=16,
-    # threads=24,
+    ram_type="DDR4/DDR5",
+    memory_channels=2,
 )
 
-cpu_4 = CPU(
-    art="100-100000589WOF",
-    manufacturer="AMD",
-    model="5800X",
-    series="Ryzen 7",
-    socket="AM4",
-    tdp=105,
-    ram_type="DDR5",
-    max_ram=128,
-    # cores=8,
-    # threads=16,
-)
-
-cpu_5 = CPU(
-    art="BX8071512900K",
+cpu_intel_i5_12400f_ddr4 = CPU(
+    art="BX8071512400F",
     manufacturer="Intel",
-    model="i9-12900K",
-    series="Core i9",
+    model="i5-12400F",
+    series="Core i5",
     socket="LGA1700",
-    tdp=125,
+    tdp=65,
+    ram_type="DDR4/DDR5",
+    memory_channels=2,
+)
+
+cpu_intel_i3_12100f_ddr4 = CPU(
+    art="BX8071512100F",
+    manufacturer="Intel",
+    model="i3-12100F",
+    series="Core i3",
+    socket="LGA1700",
+    tdp=65,
+    ram_type="DDR4/DDR5",  # Підтримує обидва типи
+    memory_channels=2,
+)
+
+cpu_intel_xeon_w9_3495x = CPU(
+    art="CD8071905118700",
+    manufacturer="Intel",
+    model="Xeon w9-3495X",
+    series="Xeon W",
+    socket="LGA4677",
+    tdp=350,
     ram_type="DDR5",
-    max_ram=128,
-    # cores=16,
-    # threads=24,
+    memory_channels=8,
+)
+cpu_intel_xeon_w7_2495x = CPU(
+    art="CD8071905202800",
+    manufacturer="Intel",
+    model="Xeon w7-2495X",
+    series="Xeon W",
+    socket="LGA1700",
+    tdp=200,
+    ram_type="DDR5",
+    memory_channels=4,
+)
+cpu_intel_xeon_w5_2465x = CPU(
+    art="CD8071905202900",
+    manufacturer="Intel",
+    model="Xeon w5-2465X",
+    series="Xeon W",
+    socket="LGA1700",
+    tdp=165,
+    ram_type="DDR5",
+    memory_channels=4,
 )
 
-cpu_6 = CPU(
-    art="100-100000795WOF",
-    manufacturer="AMD",
-    model="7950X",
-    series="Ryzen 9",
-    socket="AM5",
-    tdp=170,
-    ram_type="DDR4",
-    max_ram=128,
-    # cores=16,
-    # threads=32,
-)
-
-cpu_db = [cpu_1, cpu_2, cpu_3, cpu_4, cpu_5, cpu_6]
+cpus = [
+    cpu_intel_i5_13600kf_ddr5,
+    cpu_intel_i9_13900k_ddr5,
+    cpu_intel_i7_13700k_ddr5,
+    cpu_intel_i5_12400f_ddr4,
+    cpu_intel_i3_12100f_ddr4,
+    cpu_intel_xeon_w9_3495x,
+    cpu_intel_xeon_w7_2495x,
+    cpu_intel_xeon_w5_2465x,
+]
 
 
 if __name__ == "__main__":
-    for item in cpu_db:
+    for item in cpus:
         print(item)
