@@ -1,7 +1,7 @@
-from src.domain.models import MotherBoard
+from src.domain.models import Motherboard
 
 
-mb_gigabyte_am5_ddr5_X870E = MotherBoard(
+mb_gigabyte_am5_ddr5_X870E = Motherboard(
     "Gigabyte X870E AORUS XTREME",
     "Gigabyte",
     "AORUS",
@@ -13,7 +13,7 @@ mb_gigabyte_am5_ddr5_X870E = MotherBoard(
 )
 
 
-mb_asus_am4_ddr4_B550 = MotherBoard(
+mb_asus_am4_ddr4_B550 = Motherboard(
     model="ROG STRIX B550-F GAMING",
     manufacturer="ASUS",
     series="ROG",
@@ -24,7 +24,7 @@ mb_asus_am4_ddr4_B550 = MotherBoard(
     chipset="B550",
 )
 
-mb_msi_lga1700_z690 = MotherBoard(
+mb_msi_lga1700_z690 = Motherboard(
     model="MSI MPG Z690 EDGE WIFI",
     manufacturer="MSI",
     series="MPG",
@@ -35,7 +35,7 @@ mb_msi_lga1700_z690 = MotherBoard(
     chipset="Z690",
 )
 
-mb_gigabyte_am4_ddr4_B450 = MotherBoard(
+mb_gigabyte_am4_ddr4_B450 = Motherboard(
     model="GIGABYTE B450M DS3H",
     manufacturer="GIGABYTE",
     series="Ultra Durable",
@@ -46,7 +46,7 @@ mb_gigabyte_am4_ddr4_B450 = MotherBoard(
     chipset="B450",
 )
 
-mb_asrock_lga1200_ddr4_Z590 = MotherBoard(
+mb_asrock_lga1200_ddr4_Z590 = Motherboard(
     model="ASROCK Z590 EXTREME",
     manufacturer="ASRock",
     series="Extreme",
@@ -57,7 +57,7 @@ mb_asrock_lga1200_ddr4_Z590 = MotherBoard(
     chipset="Z590",
 )
 
-mb_aorus_am5_ddr5_X670E = MotherBoard(
+mb_aorus_am5_ddr5_X670E = Motherboard(
     model="AORUS X670E MASTER",
     manufacturer="GIGABYTE",
     series="AORUS",
@@ -68,7 +68,7 @@ mb_aorus_am5_ddr5_X670E = MotherBoard(
     chipset="X670E",
 )
 
-mb_asus_lga1700_ddr5_Z790 = MotherBoard(
+mb_asus_lga1700_ddr5_Z790 = Motherboard(
     model="TUF GAMING Z790-PLUS",
     manufacturer="ASUS",
     series="TUF",

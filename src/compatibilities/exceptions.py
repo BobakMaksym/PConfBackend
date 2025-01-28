@@ -38,15 +38,15 @@ if __name__ == "__main__":
     from dataclasses import dataclass
 
     @dataclass
-    class MotherBoard:
+    class Motherboard:
         socket: str
 
     @dataclass
     class Cpu:
         socket: str
 
-    mb = MotherBoard("am4")
-    cpu = MotherBoard("am5")
+    mb = Motherboard("am4")
+    cpu = Motherboard("am5")
 
     ex = BaseCompatibilityException("Incompatible components", mb.socket, cpu.socket)
     print(ex)

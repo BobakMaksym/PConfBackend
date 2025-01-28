@@ -38,7 +38,7 @@ class Ram:
 
 
 @dataclass
-class MotherBoard:
+class Motherboard:
     _type = ComponentType.motherboard
 
     # art: str | None = None

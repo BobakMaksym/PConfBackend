@@ -1,137 +1,126 @@
 from abc import ABC, abstractmethod
 from copy import deepcopy
+from dataclasses import dataclass, field
 from typing import Annotated, Optional
 
 from src.compatibilities import exceptions as e
 from src.domain.base import Component
 from src.domain.build import Build
-from src.domain.enums import ComponentType
+from src.domain.enums import ComponentType as CT
+
+
+@dataclass
+class CompRuleResponse:
+    compatible: bool
+    errors: dict[str, str] = field(default_factory=dict)
 
 
 class CompatibilityRuleInterface(ABC):
     @abstractmethod
-    def is_compatible(
-        self,
-        build: Build,
-        new_component: Component,
-        component_count: int = 1,
-    ) -> bool:
+    def check(self, build: Build, component_count: int = 1) -> CompRuleResponse:
         """checks if the new component is compatible with the already selected ones"""
         pass
 
 
-class SocketCompatibilityRule(CompatibilityRuleInterface):
-    def is_compatible(
-        self,
-        build: Build,
-        new_component: Component | None = None,
-    ) -> bool:
-        """checks the socket compatibility of cpu and motherboard"""
+class SocketCpuAndMotherboardCompRule(CompatibilityRuleInterface):
+    def check(self, build: Build) -> CompRuleResponse:
+        """checks the `socket` compatibility of `cpu` and `motherboard`"""
 
-        # якщо компонент НЕ підходящого типу, то немає сенсу перевіряти далі
-        # тобто якщо ми перевіряємо cpu і motherboard, то не тре перевіряти збірку з ram
-        if not new_component._type in (ComponentType.cpu, ComponentType.motherboard):
-            return True
+        cpu, mb = build.cpu, build.motherboard
 
-        """
-
-        """
-
-        # якщо немає нового, то тре перевірити додане
-        if not new_component:
-
-            cpu, mb = build.cpu, build.motherboard
-
-            # якщо додані всі (cpu, motherboard)
-            if all((cpu, mb)):
-                cpu_sock, mb_sock = cpu.socket, mb.socket
-
-                if cpu_sock == mb_sock:
-                    return True
-                else:
-                    # тут потрібно буде генерувати помилки
-                    errors = {}
-                    return {"compatible": False, "errors": errors}
-            # якщо потірбні компоенети не додані, значить помилок буде не може
+        # якщо додані всі (cpu, motherboard)
+        if all((cpu, mb)):
+            cpu_sock, mb_sock = cpu.socket, mb.socket
+            if cpu_sock == mb_sock:  # порівняння значень
+                return CompRuleResponse(True)
             else:
-                return True
+                err = f"сокет cpu ({cpu_sock}) не сумісний з сокетом плати ({mb_sock})"
+                errors = {CT.cpu: err, CT.motherboard: err}
 
-        """
+                return CompRuleResponse(False, errors)
 
-        """
-
-        
-        
-        # додаю новий компонент до temp збірки
-        temp_build = deepcopy(build)
-        new_component_type = new_component._type
-        setattr(temp_build, new_component_type, new_component)
-
-        # items to check: CPU, Motherboard, RAM
-        items_to_check = (ComponentType.cpu, ComponentType.motherboard)
-
-        cpu = build.cpu
-        motherboard = build.motherboard
-        # якщо не всі ко
-        if not all((cpu, motherboard)):
-            return True
-
-        """
-
-        """
-
-        build.motherboard.socket
-
-        component_exception = {
-            ComponentType.cpu: [
-                "сокет cpu (LGA1700) не сумісний з сокетом плати (AM4)"
-            ],
-            ComponentType.motherboard: [
-                "сокет плати (AM4) не сумісний з сокетом cpu (LGA1700)"
-            ],
-        }
-
-        return {
-            "compatible": bool,
-        }
+        # якщо потірбні компоенети не додані, значить помилок буде не може
+        return CompRuleResponse(True)
 
 
-class SocketCompatibilityRule(CompatibilityRuleInterface):
-    def is_compatible(
-        self,
-        selected_components: list[Component],
-        new_component: Component,
-    ) -> bool:
-        """checks the socket compatibility of cpu and motherboard"""
+class PlatformCpuAndMotherboardCompRule(CompatibilityRuleInterface):
+    def check(self, build: Build) -> CompRuleResponse:
+        """checks the `platform` compatibility of `cpu` and `motherboard`"""
 
-        component_types_to_check = {ComponentType.motherboard, ComponentType.cpu}
+        cpu, mb = build.cpu, build.motherboard
 
-        # ітеруємося по доданих компонентах, для знаходження потрібного, і порівняння з новим
-        for component in selected_components:
-            """перевірка поточного, доданого в збірку, компонента
-            з новим компонентом, який хочемо додати, на правильність типів
-            """
-            if {component._type, new_component._type} == component_types_to_check:
-                # перевірка сумісності по одному параметру
-                if component.socket != new_component.socket:
-                    raise e.SocketCompatibilityException(
-                        component.socket, new_component.socket
-                    )
-        return True
+        if all((cpu, mb)):
+            # cpu.manufacturer == mb.platform; should be like `amd` & `amd`
+            cpu_val, mb_val = cpu.manufacturer, mb.platform
+            if cpu_val == mb_val:  # порівняння значень
+                return CompRuleResponse(True)
+            else:
+                err = f"cpu platform ({cpu_val}) not compatible with mb platform ({mb_val})"
+                errors = {CT.cpu: err, CT.motherboard: err}
+
+                return CompRuleResponse(False, errors)
+
+        return CompRuleResponse(True)
 
 
-# class RamTypeOfCpuAndMotherboardCompRule(CompatibilityRuleInterface):
-#     def is_compatible(
-#         self, selected_components: list[Component], new_component: Component
-#     ) -> bool:
-#         """checks the RAM type compatibility of cpu and motherboard"""
+# RAM TYPE IN CPU, MOTHERBOARD, RAM
 
-#         component_types_to_check = {ComponentType.motherboard, ComponentType.cpu}
 
-#         for component in selected_components:
-#             if {component._type, new_component._type} == component_types_to_check:
-#                 if component.ram_type != new_component.ram_type:
-#                     raise e.RamTypeCompatibilityException(
-#                         component.ram_type, new_component.ram_type
-#                     )
-#         return True
+class RamTypeInCpuAndMotherboardCompRule(CompatibilityRuleInterface):
+    def check(self, build: Build) -> CompRuleResponse:
+        """checks the `ram type` compatibility of `cpu` and `motherboard`"""
+
+        # cpu, mb, ram = build.cpu, build.motherboard, build.ram
+        cpu, mb = build.cpu, build.motherboard
+
+        if all((cpu, mb)):
+            # cpu.ram_type == mb.ram_type; should be like `DDR4` & `DDR4`
+            val_1, val_2 = cpu.ram_type, mb.ram_type
+            if val_1 == val_2:  # порівняння значень
+                return CompRuleResponse(True)
+            else:
+                err = f"cpu's ram type ({val_1}) != motherboard's ram type ({val_2})"
+                errors = {CT.cpu: err, CT.motherboard: err}
+
+                return CompRuleResponse(False, errors)
+
+        return CompRuleResponse(True)
+
+
+class RamTypeInCpuAndRamCompRule(CompatibilityRuleInterface):
+    def check(self, build: Build) -> CompRuleResponse:
+        """checks the `ram type` compatibility of `cpu` and `ram`"""
+
+        cpu, ram = build.cpu, build.ram
+
+        if all((cpu, ram)):
+            # cpu.ram_type == ram.ram_type; should be like `DDR4` & `DDR4`
+            val_1, val_2 = cpu.ram_type, ram.ram_type
+            if val_1 == val_2:  # порівняння значень
+                return CompRuleResponse(True)
+            else:
+                err = f"cpu's ram type ({val_1}) != ram's type ({val_2})"
+                errors = {CT.cpu: err, CT.ram: err}
+
+                return CompRuleResponse(False, errors)
+
+        return CompRuleResponse(True)
+
+
+class RamTypeInMotherboardAndRamCompRule(CompatibilityRuleInterface):
+    def check(self, build: Build) -> CompRuleResponse:
+        """checks the `ram type` compatibility of `motherboard` and `ram`"""
+
+        motherboard, ram = build.motherboard, build.ram
+
+        if all((motherboard, ram)):
+            val_1, val_2 = motherboard.ram_type, ram.ram_type
+            if val_1 == val_2:
+                return CompRuleResponse(True)
+            else:
+                err = f"motherboard's ram type ({val_1}) != ram's type ({val_2})"
+                errors = {CT.motherboard: err, CT.ram: err}
+
+                return CompRuleResponse(False, errors)
+
+        return CompRuleResponse(True)

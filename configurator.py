@@ -1,7 +1,7 @@
 from src.domain.base import Component
 from src.domain.build import Build
 from src.domain.models import Cpu
-from src.domain.models import MotherBoard
+from src.domain.models import Motherboard
 
 from src.compatibilities.manager import CompatibilityManager, compatibility_manager
 
@@ -28,9 +28,6 @@ class Configurator:
 
     def get_selected_components(self) -> list[Component]:
         return self.selected_components
-
-
-
 
 
 # amd_am5_ddr5 = cpu_db[0]
