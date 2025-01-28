@@ -1,10 +1,10 @@
-from src.domain.cpu import CPU
+from src.domain.models import Cpu
 
 
-cpu_amd_r5_am4_tdp65 = CPU(
+cpu_amd_r5_am4_tdp65 = Cpu(
     "100-000001801", "AMD", "AMD Ryzen™ 5 5605G", "Ryzen 5000", "AM4", 65, "DDR4", 128
 )
-cpu_amd_r7_am4_tdp105 = CPU(
+cpu_amd_r7_am4_tdp105 = Cpu(
     "100-000001503",
     "AMD",
     "AMD Ryzen™ 7 5700X3D",
@@ -14,7 +14,7 @@ cpu_amd_r7_am4_tdp105 = CPU(
     "DDR4",
     128,
 )
-cpu_amd_r7_am5_tdp105 = CPU(
+cpu_amd_r7_am5_tdp105 = Cpu(
     "100-000000599",
     "AMD",
     "AMD Ryzen™ 7 PRO 7745",
@@ -24,7 +24,7 @@ cpu_amd_r7_am5_tdp105 = CPU(
     "DDR5",
     128,
 )
-cpu_intel_i5_12400_tdp65 = CPU(
+cpu_intel_i5_12400_tdp65 = Cpu(
     "BX8071512400",
     "Intel",
     "Intel Core i5 12400",
@@ -34,7 +34,7 @@ cpu_intel_i5_12400_tdp65 = CPU(
     "DDR5",
     128,
 )
-cpu_intel_i9_10900F_tdp65 = CPU(
+cpu_intel_i9_10900F_tdp65 = Cpu(
     "CM8070104282625",
     "Intel",
     "Intel Core i9-10900F",
@@ -48,7 +48,7 @@ cpu_intel_i9_10900F_tdp65 = CPU(
 
 # ############################################################
 
-cpu_intel_i5_13600kf_ddr5 = CPU(
+cpu_intel_i5_13600kf_ddr5 = Cpu(
     art="BX8071513600KF",
     manufacturer="Intel",
     model="i5-13600KF",
@@ -59,7 +59,7 @@ cpu_intel_i5_13600kf_ddr5 = CPU(
     memory_channels=2,
 )
 
-cpu_intel_i9_13900k_ddr5 = CPU(
+cpu_intel_i9_13900k_ddr5 = Cpu(
     art="BX8071513900K",
     manufacturer="Intel",
     model="i9-13900K",
@@ -70,7 +70,7 @@ cpu_intel_i9_13900k_ddr5 = CPU(
     memory_channels=2,
 )
 
-cpu_intel_i7_13700k_ddr5 = CPU(
+cpu_intel_i7_13700k_ddr5 = Cpu(
     art="BX8071513700K",
     manufacturer="Intel",
     model="i7-13700K",
@@ -81,7 +81,7 @@ cpu_intel_i7_13700k_ddr5 = CPU(
     memory_channels=2,
 )
 
-cpu_intel_i5_12400f_ddr4 = CPU(
+cpu_intel_i5_12400f_ddr4 = Cpu(
     art="BX8071512400F",
     manufacturer="Intel",
     model="i5-12400F",
@@ -92,7 +92,7 @@ cpu_intel_i5_12400f_ddr4 = CPU(
     memory_channels=2,
 )
 
-cpu_intel_i3_12100f_ddr4 = CPU(
+cpu_intel_i3_12100f_ddr4 = Cpu(
     art="BX8071512100F",
     manufacturer="Intel",
     model="i3-12100F",
@@ -103,7 +103,7 @@ cpu_intel_i3_12100f_ddr4 = CPU(
     memory_channels=2,
 )
 
-cpu_intel_xeon_w9_3495x = CPU(
+cpu_intel_xeon_w9_3495x = Cpu(
     art="CD8071905118700",
     manufacturer="Intel",
     model="Xeon w9-3495X",
@@ -113,7 +113,7 @@ cpu_intel_xeon_w9_3495x = CPU(
     ram_type="DDR5",
     memory_channels=8,
 )
-cpu_intel_xeon_w7_2495x = CPU(
+cpu_intel_xeon_w7_2495x = Cpu(
     art="CD8071905202800",
     manufacturer="Intel",
     model="Xeon w7-2495X",
@@ -123,7 +123,7 @@ cpu_intel_xeon_w7_2495x = CPU(
     ram_type="DDR5",
     memory_channels=4,
 )
-cpu_intel_xeon_w5_2465x = CPU(
+cpu_intel_xeon_w5_2465x = Cpu(
     art="CD8071905202900",
     manufacturer="Intel",
     model="Xeon w5-2465X",

@@ -42,7 +42,7 @@ if __name__ == "__main__":
         socket: str
 
     @dataclass
-    class CPU:
+    class Cpu:
         socket: str
 
     mb = MotherBoard("am4")

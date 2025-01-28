@@ -1,7 +1,7 @@
-from src.domain.ram import RAM
+from src.domain.models import Ram
 
 
-ram_1 = RAM(
+ram_1 = Ram(
     art="F4-3600C18D-16GTZRX",
     model="Trident Z RGB",
     manufacturer="G.SKILL",
@@ -12,7 +12,7 @@ ram_1 = RAM(
     kit_total_capacity=16,
 )
 
-ram_2 = RAM(
+ram_2 = Ram(
     art="CMW32GX4M2E3200C16",
     model="Vengeance RGB Pro",
     manufacturer="Corsair",
@@ -23,7 +23,7 @@ ram_2 = RAM(
     kit_total_capacity=32,
 )
 
-ram_3 = RAM(
+ram_3 = Ram(
     art="KF552C40BBK2-32",
     model="Fury Beast",
     manufacturer="Kingston",
@@ -34,7 +34,7 @@ ram_3 = RAM(
     kit_total_capacity=32,
 )
 
-ram_4 = RAM(
+ram_4 = Ram(
     art="HX432C16FB3K2/16",
     model="HyperX Fury",
     manufacturer="HyperX",
@@ -45,7 +45,7 @@ ram_4 = RAM(
     kit_total_capacity=16,
 )
 
-ram_5 = RAM(
+ram_5 = Ram(
     art="BL2K16G36C16U4R",
     model="Ballistix",
     manufacturer="Crucial",
@@ -56,7 +56,7 @@ ram_5 = RAM(
     kit_total_capacity=32,
 )
 
-ram_6 = RAM(
+ram_6 = Ram(
     art="CMK32GX5M2B5200C40",
     model="Vengeance",
     manufacturer="Corsair",

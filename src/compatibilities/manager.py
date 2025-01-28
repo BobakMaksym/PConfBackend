@@ -5,9 +5,7 @@ from src.compatibilities.rules import (
 )
 
 from src.domain.base import Component
-from src.domain.cpu import CPU, cpu_db
-from src.domain.motherboard import MotherBoard, motherboard_db
-from src.domain.ram import RAM, ram_db
+from src.domain.models import Cpu, Ram, MotherBoard
 
 
 class CompatibilityManager:

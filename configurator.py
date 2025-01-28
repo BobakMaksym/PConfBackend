@@ -1,12 +1,19 @@
 from src.domain.base import Component
-from src.domain.cpu import CPU, cpu_db
-from src.domain.motherboard import MotherBoard, motherboard_db
+from src.domain.build import Build
+from src.domain.models import Cpu
+from src.domain.models import MotherBoard
 
 from src.compatibilities.manager import CompatibilityManager, compatibility_manager
 
 
-class PCConfigurator:
-    def __init__(self, compatibility_manager: CompatibilityManager):
+class Configurator:
+    def __init__(
+        self,
+        components: list[Component],
+        compatibility_manager: CompatibilityManager,
+    ):
+        self.build = Build()
+
         self.selected_components: list[Component] = []
         self.compatibility_manager = compatibility_manager
 
@@ -23,20 +30,14 @@ class PCConfigurator:
         return self.selected_components
 
 
-configurator = PCConfigurator(compatibility_manager)
 
 
-amd_am5_ddr5 = cpu_db[0]
-aorus_amd_am5 = motherboard_db[4]
+
+# amd_am5_ddr5 = cpu_db[0]
+# aorus_amd_am5 = motherboard_db[4]
 
 
-res = configurator.add_components(amd_am5_ddr5)
-print(res)
-res = configurator.add_components(aorus_amd_am5)
-print(res)
-
-
-# res = compatibility_manager.check_compatibility([amd_am5_ddr5], aorus_amd_am5)
+# res = configurator.add_components(amd_am5_ddr5)
 # print(res)
-
-# # print(amd_am5_ddr5, mb)
+# res = configurator.add_components(aorus_amd_am5)
+# print(res)

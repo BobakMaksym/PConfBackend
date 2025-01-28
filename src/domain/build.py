@@ -1,15 +1,13 @@
 from dataclasses import dataclass
 
-from src.domain.cpu import CPU
-from src.domain.motherboard import MotherBoard
-from src.domain.ram import RAM
+from src.domain.enums import ComponentType
+from src.domain.models import Cpu
+from src.domain.models import MotherBoard
+from src.domain.models import Ram
 
 
 @dataclass
 class Build:
-    cpu: CPU | None = None
-    ram: RAM | None = None
+    cpu: Cpu | None = None
+    ram: Ram | None = None
     motherboard: MotherBoard | None = None
-
-    # gpu: Optional[GPU] = None
-    # psu: Optional[PSU] = None
