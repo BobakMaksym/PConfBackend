@@ -1,5 +1,5 @@
-from src.domain.base import Component
-from src.domain.build import Build
+from src.domain.models import Component
+from src.domain.models import Build
 from src.domain.models import Cpu
 from src.domain.models import Motherboard
 

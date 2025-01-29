@@ -1,12 +1,8 @@
 from abc import ABC, abstractmethod
-from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Annotated, Optional
 
-from src.compatibilities import exceptions as e
-from src.domain.base import Component
-from src.domain.build import Build
-from src.domain.enums import ComponentType as CT
+from src.domain.models import Build
+from src.domain.models import ComponentType as CT
 
 
 @dataclass
@@ -35,7 +31,7 @@ class SocketCpuAndMotherboardCompRule(CompatibilityRuleInterface):
                 return CompRuleResponse(True)
             else:
                 err = f"сокет cpu ({cpu_sock}) не сумісний з сокетом плати ({mb_sock})"
-                errors = {CT.cpu: err, CT.motherboard: err}
+                errors = {CT.cpu.value: err, CT.motherboard.value: err}
 
                 return CompRuleResponse(False, errors)
 
@@ -56,7 +52,7 @@ class PlatformCpuAndMotherboardCompRule(CompatibilityRuleInterface):
                 return CompRuleResponse(True)
             else:
                 err = f"cpu platform ({cpu_val}) not compatible with mb platform ({mb_val})"
-                errors = {CT.cpu: err, CT.motherboard: err}
+                errors = {CT.cpu.value: err, CT.motherboard.value: err}
 
                 return CompRuleResponse(False, errors)
 
@@ -80,7 +76,7 @@ class RamTypeInCpuAndMotherboardCompRule(CompatibilityRuleInterface):
                 return CompRuleResponse(True)
             else:
                 err = f"cpu's ram type ({val_1}) != motherboard's ram type ({val_2})"
-                errors = {CT.cpu: err, CT.motherboard: err}
+                errors = {CT.cpu.value: err, CT.motherboard.value: err}
 
                 return CompRuleResponse(False, errors)
 
@@ -100,7 +96,7 @@ class RamTypeInCpuAndRamCompRule(CompatibilityRuleInterface):
                 return CompRuleResponse(True)
             else:
                 err = f"cpu's ram type ({val_1}) != ram's type ({val_2})"
-                errors = {CT.cpu: err, CT.ram: err}
+                errors = {CT.cpu.value: err, CT.ram.value: err}
 
                 return CompRuleResponse(False, errors)
 
@@ -119,8 +115,17 @@ class RamTypeInMotherboardAndRamCompRule(CompatibilityRuleInterface):
                 return CompRuleResponse(True)
             else:
                 err = f"motherboard's ram type ({val_1}) != ram's type ({val_2})"
-                errors = {CT.motherboard: err, CT.ram: err}
+                errors = {CT.motherboard.value: err, CT.ram.value: err}
 
                 return CompRuleResponse(False, errors)
 
         return CompRuleResponse(True)
+
+
+rules = (
+    PlatformCpuAndMotherboardCompRule,
+    SocketCpuAndMotherboardCompRule,
+    RamTypeInCpuAndMotherboardCompRule,
+    RamTypeInCpuAndRamCompRule,
+    RamTypeInMotherboardAndRamCompRule,
+)

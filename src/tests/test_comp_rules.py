@@ -11,40 +11,13 @@ from src.compatibilities.rules import (
     RamTypeInCpuAndMotherboardCompRule,
     RamTypeInCpuAndRamCompRule,
     RamTypeInMotherboardAndRamCompRule,
+    rules as compatibility_rules,
 )
-from src.compatibilities import exceptions as e
-from src.domain.base import Component
-from src.domain.build import Build
-from src.domain.enums import ComponentType
+from src.domain.models import Component
+from src.domain.models import Build
+from src.domain.models import ComponentType, Cpu, Motherboard, Ram
 
-
-@dataclass
-class Cpu:
-    art: str = None
-    manufacturer: str = None
-    model: str = None
-    series: str = None
-
-    socket: str = None
-    tdp: int = None
-    ram_type: str = None
-    max_ram: int = None
-    _type = ComponentType.cpu
-
-
-@dataclass
-class Ram:
-    art: str | None = None
-    model: str | None = None
-    manufacturer: str | None = None
-    series: str | None = None
-
-    ram_type: str | None = None
-    speed: int | None = None
-    kit: int | None = None
-    kit_total_capacity: int | None = None
-
-    _type = ComponentType.ram
+# from .test_models import *
 
 
 @dataclass
@@ -252,67 +225,48 @@ class TestBbRamType(CommonMixin, TestCase):
 
 class TestBuildRules(TestCase):
     def setUp(self):
-        self.rules = (
-            SocketCpuAndMotherboardCompRule,
-            PlatformCpuAndMotherboardCompRule,
-            RamTypeInCpuAndMotherboardCompRule,
-            RamTypeInCpuAndRamCompRule,
-            RamTypeInMotherboardAndRamCompRule,
-        )
+        self.rules = compatibility_rules
 
         print(end="\n\n")
 
     def test_aa_build_with_many_components_and_rules_true(self):
         """"""
 
-        build = Build()
-
         cpu_manufacturer, mb_platform = "AMD", "AMD"
         socket = "AM4"
         ram_type = "DDR4"
 
-        cpu = Cpu(manufacturer=cpu_manufacturer, socket=socket, ram_type=ram_type)
-        mb = Motherboard(platform=mb_platform, socket=socket, ram_type=ram_type)
-        ram = Ram(ram_type=ram_type)
-
-        build.cpu = cpu
-        build.motherboard = mb
-        build.ram = ram
+        build = Build(
+            cpu=Cpu(manufacturer=cpu_manufacturer, socket=socket, ram_type=ram_type),
+            motherboard=Motherboard(
+                platform=mb_platform, socket=socket, ram_type=ram_type
+            ),
+            ram=Ram(ram_type=ram_type),
+        )
 
         for rule in self.rules:
             rule = rule()
             comp = rule.check(build).compatible
 
-            print(rule.__class__.__name__, comp)
+            self.assertTrue(comp)
 
     def test_ab_build_with_many_components_and_rules_false(self):
         """"""
-
-        build = Build()
 
         cpu_man, mb_platform = "Intel", "AMD"
         cpu_socket, mb_socket = "LGA1200", "AM4"
         cpu_ram_type, mb_ram_type, ram_type = "DDR4", "DDR5", "DDR3"
 
-        cpu = Cpu(manufacturer=cpu_man, socket=cpu_socket, ram_type=cpu_ram_type)
-        mb = Motherboard(platform=mb_platform, socket=mb_socket, ram_type=mb_ram_type)
-        ram = Ram(ram_type=ram_type)
-
-        build.cpu = cpu
-        build.motherboard = mb
-        build.ram = ram
+        build = Build(
+            cpu=Cpu(manufacturer=cpu_man, socket=cpu_socket, ram_type=cpu_ram_type),
+            motherboard=Motherboard(
+                platform=mb_platform, socket=mb_socket, ram_type=mb_ram_type
+            ),
+            ram=Ram(ram_type=ram_type),
+        )
 
         for rule in self.rules:
             rule = rule()
             comp = rule.check(build).compatible
 
-            print(rule.__class__.__name__, comp)
-
-
-"""
-int_cpu = Cpu("Intel", "LGA1200")
-amd_cpu = Cpu("AMD", "AM4")
-
-amd_mb = Motherboard("MSI", "AM4")
-int_mb = Motherboard("Acer", "LGA1200")
-"""
+            self.assertFalse(comp)
