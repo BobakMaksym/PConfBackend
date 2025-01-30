@@ -23,6 +23,8 @@ class Cpu:
     series: str = None
 
     socket: str = None
+    # core name / codename / family
+    codename: str = None  # Raptor Lake | Picasso
     tdp: int = None
     ram_type: str = None
     max_ram: int = None
@@ -52,10 +54,10 @@ class Motherboard:
 
     platform: str = None  # Intel/AMD
     socket: str = None
+    chipset: str = None
+    cpu_codenames: list[str] = None  # [Raptor Lake, Alder Lake]
     ram_type: str = None
     max_ram: int = None
-
-    chipset: str = None
     _type = ComponentType.motherboard.value
 
 

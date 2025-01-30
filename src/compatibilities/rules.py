@@ -55,6 +55,24 @@ class PlatformCpuAndMotherboardCompRule(CompatibilityRuleInterface):
         return CompRuleResponse(True)
 
 
+class MotherboardChipsetSupportsCpuRule(CompatibilityRuleInterface):
+    def check(self, build: Build) -> CompRuleResponse:
+        """checks whether the `motherboard` supports the `cpu` by `codename`, for example, Raptor Lake"""
+
+        cpu, mb = build.cpu, build.motherboard
+
+        if all((cpu, mb)):
+            codename, codenames = cpu.codename, mb.cpu_codenames
+            if codename not in codenames:
+                err = f"""The "{codename}" cpu core is not supported by the
+                motherboard chipset that supports "{codenames}" """
+                errors = {CT.cpu.value: err, CT.motherboard.value: err}
+
+                return CompRuleResponse(False, errors)
+
+        return CompRuleResponse(True)
+
+
 # RAM TYPE IN CPU, MOTHERBOARD, RAM
 
 
