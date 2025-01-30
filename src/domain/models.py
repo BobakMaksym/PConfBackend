@@ -26,7 +26,7 @@ class Cpu:
     # core name / codename / family
     codename: str = None  # Raptor Lake | Picasso
     tdp: int = None
-    ram_type: str = None
+    ram_types: list[str] = None
     max_ram: int = None
     _type = ComponentType.cpu.value
 

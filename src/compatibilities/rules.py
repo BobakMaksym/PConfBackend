@@ -85,9 +85,9 @@ class RamTypeInCpuAndMotherboardCompRule(CompatibilityRuleInterface):
 
         if all((cpu, mb)):
             # cpu.ram_type == mb.ram_type; should be like `DDR4` & `DDR4`
-            val_1, val_2 = cpu.ram_type, mb.ram_type
-            if val_1 != val_2:  # порівняння значень
-                err = f"cpu's ram type ({val_1}) != motherboard's ram type ({val_2})"
+            types, type_ = cpu.ram_types, mb.ram_type
+            if type_ not in types:  # порівняння значень
+                err = f"cpu's ram type ({types}) != motherboard's ram type ({type_})"
                 errors = {CT.cpu.value: err, CT.motherboard.value: err}
 
                 return CompRuleResponse(False, errors)
@@ -103,9 +103,9 @@ class RamTypeInCpuAndRamCompRule(CompatibilityRuleInterface):
 
         if all((cpu, ram)):
             # cpu.ram_type == ram.ram_type; should be like `DDR4` & `DDR4`
-            val_1, val_2 = cpu.ram_type, ram.ram_type
-            if val_1 != val_2:  # порівняння значень
-                err = f"cpu's ram type ({val_1}) != ram's type ({val_2})"
+            types, type_ = cpu.ram_types, ram.ram_type
+            if type_ not in types:  # порівняння значень
+                err = f"cpu's ram type ({types}) != ram's type ({type_})"
                 errors = {CT.cpu.value: err, CT.ram.value: err}
 
                 return CompRuleResponse(False, errors)

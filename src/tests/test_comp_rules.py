@@ -152,11 +152,11 @@ class TestBbRamType(CommonMixin, TestCase):
     def test_ram_type_in_cpu_and_mb_comp_is_true(self):
         """check `RAM type` of `cpu` & `motherboard` compatibility"""
 
-        first = "DDR4"
+        first = ("DDR4", "DDR3")
         second = "DDR4"
 
         self.base(
-            Cpu(ram_type=first),
+            Cpu(ram_types=first),
             Motherboard(ram_type=second),
             RamTypeInCpuAndMotherboardCompRule(),
             f"ram type in `cpu` ({first}) and `motherboard` ({second})",
@@ -165,11 +165,11 @@ class TestBbRamType(CommonMixin, TestCase):
     def test_ram_type_in_cpu_and_ram_comp_is_true(self):
         """check `RAM type` of `cpu` & `ram` compatibility"""
 
-        first = "DDR4"
+        first = ("DDR4", "DDR3")
         second = "DDR4"
 
         self.base(
-            Cpu(ram_type=first),
+            Cpu(ram_types=first),
             Ram(ram_type=second),
             RamTypeInCpuAndRamCompRule(),
             f"ram type in `cpu` ({first}) and `ram` ({second})",
@@ -193,11 +193,11 @@ class TestBbRamType(CommonMixin, TestCase):
     def test_ram_type_in_cpu_and_mb_comp_is_false(self):
         """check `RAM type` of `cpu` & `motherboard` compatibility"""
 
-        first = "DDR4"
+        first = ("DDR4", "DDR3")
         second = "DDR5"
 
         self.base(
-            Cpu(ram_type=first),
+            Cpu(ram_types=first),
             Motherboard(ram_type=second),
             RamTypeInCpuAndMotherboardCompRule(),
             f"ram type in `cpu` ({first}) and `motherboard` ({second})",
@@ -207,11 +207,11 @@ class TestBbRamType(CommonMixin, TestCase):
     def test_ram_type_in_cpu_and_ram_comp_is_false(self):
         """check `RAM type` of `cpu` & `ram` compatibility"""
 
-        first = "DDR4"
+        first = ("DDR4", "DDR3")
         second = "DDR5"
 
         self.base(
-            Cpu(ram_type=first),
+            Cpu(ram_types=first),
             Ram(ram_type=second),
             RamTypeInCpuAndRamCompRule(),
             f"ram type in `cpu` ({first}) and `ram` ({second})",
@@ -244,10 +244,12 @@ class TestBuildRules(TestCase):
 
         cpu_manufacturer, mb_platform = "AMD", "AMD"
         socket = "AM4"
-        ram_type = "DDR4"
+        cpu_ram_types, ram_type = ("DDR4",), "DDR4"
 
         build = Build(
-            cpu=Cpu(manufacturer=cpu_manufacturer, socket=socket, ram_type=ram_type),
+            cpu=Cpu(
+                manufacturer=cpu_manufacturer, socket=socket, ram_types=cpu_ram_types
+            ),
             motherboard=Motherboard(
                 platform=mb_platform, socket=socket, ram_type=ram_type
             ),
@@ -265,10 +267,10 @@ class TestBuildRules(TestCase):
 
         cpu_man, mb_platform = "Intel", "AMD"
         cpu_socket, mb_socket = "LGA1200", "AM4"
-        cpu_ram_type, mb_ram_type, ram_type = "DDR4", "DDR5", "DDR3"
+        cpu_ram_types, mb_ram_type, ram_type = ("DDR4",), "DDR5", "DDR3"
 
         build = Build(
-            cpu=Cpu(manufacturer=cpu_man, socket=cpu_socket, ram_type=cpu_ram_type),
+            cpu=Cpu(manufacturer=cpu_man, socket=cpu_socket, ram_types=cpu_ram_types),
             motherboard=Motherboard(
                 platform=mb_platform, socket=mb_socket, ram_type=mb_ram_type
             ),
