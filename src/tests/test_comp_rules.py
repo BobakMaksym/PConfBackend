@@ -7,6 +7,8 @@ from src.compatibilities.rules import (
     PlatformCpuAndMotherboardCompRule,
     # socket
     SocketCpuAndMotherboardCompRule,
+    # mb
+    MotherboardChipsetSupportsCpuRule,
     # ram
     RamTypeInCpuAndMotherboardCompRule,
     RamTypeInCpuAndRamCompRule,
@@ -16,23 +18,6 @@ from src.compatibilities.rules import (
 from src.domain.models import Component
 from src.domain.models import Build
 from src.domain.models import ComponentType, Cpu, Motherboard, Ram
-
-# from .test_models import *
-
-
-@dataclass
-class Motherboard:
-    model: str = None
-    manufacturer: str = None
-    series: str = None  # Aorus/Gaming/Tuf
-
-    platform: str = None  # Intel/AMD
-    socket: str = None
-    ram_type: str = None
-    max_ram: int = None
-
-    chipset: str = None
-    _type = ComponentType.motherboard
 
 
 class CommonMixin:
@@ -126,6 +111,31 @@ class TestCpuCompatibilitiesRules(CommonMixin, TestCase):
             Motherboard(socket=second),
             SocketCpuAndMotherboardCompRule(),
             f"socket in `cpu` ({first}) and `motherboard` ({second})",
+            exp_compatibility=False,
+        )
+
+    # Test of supported processors, chipsets
+
+    def test_mb_supports_cpu_is_true(self):
+        codename = "Rocket Lake"
+        codenames = ("Rocket Lake", "Comet Lake")
+
+        self.base(
+            Cpu(codename=codename),
+            Motherboard(cpu_codenames=codenames),
+            MotherboardChipsetSupportsCpuRule(),
+            f"`motherboard` ({codenames}) and `cpu` ({codename})",
+        )
+
+    def test_mb_supports_cpu_is_false(self):
+        codename = "Picasso"
+        codenames = ("Rocket Lake", "Comet Lake")
+
+        self.base(
+            Cpu(codename=codename),
+            Motherboard(cpu_codenames=codenames),
+            MotherboardChipsetSupportsCpuRule(),
+            f"`motherboard` ({codenames}) and `cpu` ({codename})",
             exp_compatibility=False,
         )
 
