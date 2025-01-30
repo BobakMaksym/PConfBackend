@@ -27,9 +27,7 @@ class SocketCpuAndMotherboardCompRule(CompatibilityRuleInterface):
         # якщо додані всі (cpu, motherboard)
         if all((cpu, mb)):
             cpu_sock, mb_sock = cpu.socket, mb.socket
-            if cpu_sock == mb_sock:  # порівняння значень
-                return CompRuleResponse(True)
-            else:
+            if cpu_sock != mb_sock:  # порівняння значень
                 err = f"сокет cpu ({cpu_sock}) не сумісний з сокетом плати ({mb_sock})"
                 errors = {CT.cpu.value: err, CT.motherboard.value: err}
 
@@ -48,9 +46,7 @@ class PlatformCpuAndMotherboardCompRule(CompatibilityRuleInterface):
         if all((cpu, mb)):
             # cpu.manufacturer == mb.platform; should be like `amd` & `amd`
             cpu_val, mb_val = cpu.manufacturer, mb.platform
-            if cpu_val == mb_val:  # порівняння значень
-                return CompRuleResponse(True)
-            else:
+            if cpu_val != mb_val:  # порівняння значень
                 err = f"cpu platform ({cpu_val}) not compatible with mb platform ({mb_val})"
                 errors = {CT.cpu.value: err, CT.motherboard.value: err}
 
@@ -72,9 +68,7 @@ class RamTypeInCpuAndMotherboardCompRule(CompatibilityRuleInterface):
         if all((cpu, mb)):
             # cpu.ram_type == mb.ram_type; should be like `DDR4` & `DDR4`
             val_1, val_2 = cpu.ram_type, mb.ram_type
-            if val_1 == val_2:  # порівняння значень
-                return CompRuleResponse(True)
-            else:
+            if val_1 != val_2:  # порівняння значень
                 err = f"cpu's ram type ({val_1}) != motherboard's ram type ({val_2})"
                 errors = {CT.cpu.value: err, CT.motherboard.value: err}
 
@@ -92,9 +86,7 @@ class RamTypeInCpuAndRamCompRule(CompatibilityRuleInterface):
         if all((cpu, ram)):
             # cpu.ram_type == ram.ram_type; should be like `DDR4` & `DDR4`
             val_1, val_2 = cpu.ram_type, ram.ram_type
-            if val_1 == val_2:  # порівняння значень
-                return CompRuleResponse(True)
-            else:
+            if val_1 != val_2:  # порівняння значень
                 err = f"cpu's ram type ({val_1}) != ram's type ({val_2})"
                 errors = {CT.cpu.value: err, CT.ram.value: err}
 
@@ -111,9 +103,7 @@ class RamTypeInMotherboardAndRamCompRule(CompatibilityRuleInterface):
 
         if all((motherboard, ram)):
             val_1, val_2 = motherboard.ram_type, ram.ram_type
-            if val_1 == val_2:
-                return CompRuleResponse(True)
-            else:
+            if val_1 != val_2:
                 err = f"motherboard's ram type ({val_1}) != ram's type ({val_2})"
                 errors = {CT.motherboard.value: err, CT.ram.value: err}
 
