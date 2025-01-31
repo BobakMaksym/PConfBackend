@@ -133,6 +133,7 @@ class RamTypeInMotherboardAndRamCompRule(CompatibilityRuleInterface):
 rules = (
     PlatformCpuAndMotherboardCompRule,
     SocketCpuAndMotherboardCompRule,
+    MotherboardChipsetSupportsCpuRule,
     RamTypeInCpuAndMotherboardCompRule,
     RamTypeInCpuAndRamCompRule,
     RamTypeInMotherboardAndRamCompRule,
