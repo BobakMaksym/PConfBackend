@@ -1,14 +1,9 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
 
+from src.compatibilities.rule.utils import allocate_requirements, get_cables
+from src.compatibilities.rule.response import CompRuleResponse
 from src.domain.models import Build
 from src.domain.models import ComponentType as CT
-
-
-@dataclass
-class CompRuleResponse:
-    compatible: bool
-    errors: dict[str, str] = field(default_factory=dict)
 
 
 class CompatibilityRuleInterface(ABC):
@@ -130,6 +125,61 @@ class RamTypeInMotherboardAndRamCompRule(CompatibilityRuleInterface):
         return CompRuleResponse(True)
 
 
+# PSU connectors
+
+
+class MotherboardPowerCompRule(CompatibilityRuleInterface):
+    """Перевірка сумісності живлення материнської плати (ATX)."""
+
+    def check(self, build: Build) -> CompRuleResponse:
+        md, psu = build.motherboard, build.psu
+
+        if not (md and psu):
+            return CompRuleResponse(True)
+        # наприклад, [24] або [20] (якщо використовується лише 20 пінів)
+        requirements = md.power_atx_slots.slots
+        cables = get_cables(psu, "ATX")
+        if allocate_requirements(requirements, cables):
+            return CompRuleResponse(True)
+        else:
+            msg = f"БЖ не має сумісного ATX живлення для {requirements}"
+            return CompRuleResponse(False, {"motherboard": msg})
+
+
+class MotherboardCpuPowerCompRule(CompatibilityRuleInterface):
+    """Перевірка живлення процесора (EPS)."""
+
+    def check(self, build: Build) -> CompRuleResponse:
+        mb, psu = build.motherboard, build.psu
+
+        if not (mb and psu):
+            return CompRuleResponse(True)
+        requirements = mb.power_eps_slots.slots  # наприклад, [8] або [8, 8]
+        cables = get_cables(psu, "EPS")
+        if allocate_requirements(requirements, cables):
+            return CompRuleResponse(True)
+        else:
+            msg = f"БЖ не має сумісного EPS живлення для {requirements}"
+            return CompRuleResponse(False, {"cpu": msg})
+
+
+class GpuPowerCompRule(CompatibilityRuleInterface):
+    """Перевірка живлення відеокарти (PCIe)."""
+
+    def check(self, build: Build) -> CompRuleResponse:
+        gpu, psu = build.gpu, build.psu
+
+        if not (gpu and psu):
+            return CompRuleResponse(True)
+        requirements = gpu.power_slots.slots  # наприклад, [8, 6]
+        cables = get_cables(psu, "PCIe")
+        if allocate_requirements(requirements, cables):
+            return CompRuleResponse(True)
+        else:
+            msg = f"БЖ не має сумісного PCIe живлення для {requirements}"
+            return CompRuleResponse(False, {"gpu": msg})
+
+
 rules = (
     PlatformCpuAndMotherboardCompRule,
     SocketCpuAndMotherboardCompRule,
@@ -137,4 +187,7 @@ rules = (
     RamTypeInCpuAndMotherboardCompRule,
     RamTypeInCpuAndRamCompRule,
     RamTypeInMotherboardAndRamCompRule,
+    MotherboardPowerCompRule,
+    MotherboardCpuPowerCompRule,
+    GpuPowerCompRule,
 )

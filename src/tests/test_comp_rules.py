@@ -13,11 +13,16 @@ from src.compatibilities.rules import (
     RamTypeInCpuAndMotherboardCompRule,
     RamTypeInCpuAndRamCompRule,
     RamTypeInMotherboardAndRamCompRule,
+    # psu
+    MotherboardPowerCompRule,
+    MotherboardCpuPowerCompRule,
+    GpuPowerCompRule,
     rules as compatibility_rules,
 )
 from src.domain.models import Component
 from src.domain.models import Build
-from src.domain.models import ComponentType, Cpu, Motherboard, Ram
+from src.domain.models import ComponentType, Cpu, Motherboard, Ram, Gpu
+from src.domain.models import PowerSupply, PowerConnector, ComponentPowerSlots
 
 
 class CommonMixin:
@@ -233,6 +238,100 @@ class TestBbRamType(CommonMixin, TestCase):
         )
 
 
+#######
+# PSU #
+#######
+
+
+class TestPsuCompatibilityRules(CommonMixin, TestCase):
+
+    # ATX
+
+    def test_atx_slot_in_psu_and_mb_comp_is_true(self):
+        rule = MotherboardPowerCompRule()
+        build = Build(
+            motherboard=Motherboard(power_atx_slots=ComponentPowerSlots("ATX", [24]))
+        )
+
+        build.psu = PowerSupply(connectors=[PowerConnector("ATX", (20, 4))])
+        self.assertTrue(rule.check(build).compatible)
+
+        build.psu = PowerSupply(connectors=[PowerConnector("ATX", (24,))])
+        self.assertTrue(rule.check(build).compatible)
+
+    def test_atx_slot_in_psu_and_mb_comp_is_false(self):
+        rule = MotherboardPowerCompRule()
+        build = Build(
+            motherboard=Motherboard(power_atx_slots=ComponentPowerSlots("ATX", [20]))
+        )
+
+        build.psu = PowerSupply(connectors=[PowerConnector("ATX", (24,))])
+        self.assertFalse(rule.check(build).compatible)
+
+    # EPS
+
+    def test_eps_slot_in_psu_and_mb_comp_is_true(self):
+        rule = MotherboardCpuPowerCompRule()
+        build = Build(
+            motherboard=Motherboard(power_eps_slots=ComponentPowerSlots("EPS", [8, 4])),
+        )
+
+        build.psu = PowerSupply(connectors=[PowerConnector("EPS", (8, 4))])
+        self.assertTrue(rule.check(build).compatible)
+
+        build.psu = PowerSupply(
+            connectors=[PowerConnector("EPS", (4, 4)), PowerConnector("EPS", (4, 4))]
+        )
+        self.assertTrue(rule.check(build).compatible)
+
+        build.psu = PowerSupply(
+            connectors=[PowerConnector("EPS", (8, 8)), PowerConnector("EPS", (4, 4))]
+        )
+        self.assertTrue(rule.check(build).compatible)
+
+    def test_eps_slot_in_psu_and_mb_comp_is_false(self):
+        rule = MotherboardCpuPowerCompRule()
+        build = Build(
+            motherboard=Motherboard(power_eps_slots=ComponentPowerSlots("EPS", [8, 8])),
+        )
+
+        build.psu = PowerSupply(connectors=[PowerConnector("EPS", (8, 4))])
+        self.assertFalse(rule.check(build).compatible)
+
+        build.psu = PowerSupply(
+            connectors=[PowerConnector("EPS", (4, 4)), PowerConnector("EPS", (10,))]
+        )
+        self.assertFalse(rule.check(build).compatible)
+
+    # GPU
+
+    def test_gpu_slot_in_psu_and_mb_comp_is_true(self):
+        rule = GpuPowerCompRule()
+        build = Build(gpu=Gpu(power_slots=ComponentPowerSlots("PCIe", [8, 6])))
+        pcie = PowerConnector("PCIe", (6, 2))
+
+        build.psu = PowerSupply(connectors=[pcie, pcie, pcie])
+        self.assertTrue(rule.check(build).compatible)
+
+        build.psu = PowerSupply(connectors=[pcie, pcie])
+        self.assertTrue(rule.check(build).compatible)
+
+    def test_gpu_slot_in_psu_and_mb_comp_is_false(self):
+        rule = GpuPowerCompRule()
+        build = Build(gpu=Gpu(power_slots=ComponentPowerSlots("PCIe", [8, 8, 6])))
+        pcie = PowerConnector("PCIe", (6, 2))
+        pcie6 = PowerConnector("PCIe", (6,))
+
+        build.psu = PowerSupply(connectors=[pcie, pcie])
+        self.assertFalse(rule.check(build).compatible)
+
+        build.psu = PowerSupply(connectors=[pcie, pcie6, pcie6])
+        self.assertFalse(rule.check(build).compatible)
+
+        build.psu = PowerSupply(connectors=[pcie, pcie, PowerConnector("PCIe", (20,))])
+        self.assertFalse(rule.check(build).compatible)
+
+
 class TestBuildRules(TestCase):
     def setUp(self):
         self.rules = compatibility_rules
@@ -247,6 +346,17 @@ class TestBuildRules(TestCase):
         cpu_ram_types, ram_type = ("DDR4",), "DDR4"
         cpu_codename, mb_codenames = "Rocket Lake", ("Rocket Lake", "Comet Lake")
 
+        psu_pcie_conn = PowerConnector("PCIe", (6, 2))
+        psu_atx_conn = PowerConnector("ATX", [20, 4])
+        psu_epc_conn = PowerConnector("EPS", [8, 4])
+        mb_power_atx_slots = ComponentPowerSlots("ATX", [24])
+        mb_power_eps_slots = ComponentPowerSlots("EPS", [8, 4])
+        gpu_power_slots = ComponentPowerSlots("EPS", [8, 6])
+
+        psu = PowerSupply(
+            connectors=[psu_atx_conn, psu_epc_conn, psu_pcie_conn, psu_pcie_conn]
+        )
+
         build = Build(
             cpu=Cpu(
                 manufacturer=cpu_manufacturer,
@@ -259,14 +369,18 @@ class TestBuildRules(TestCase):
                 socket=socket,
                 ram_type=ram_type,
                 cpu_codenames=mb_codenames,
+                power_atx_slots=mb_power_atx_slots,
+                power_eps_slots=mb_power_eps_slots,
             ),
             ram=Ram(ram_type=ram_type),
+            gpu=Gpu(power_slots=gpu_power_slots),
+            psu=psu,
         )
 
         for rule in self.rules:
             rule = rule()
             comp = rule.check(build).compatible
-
+            # print(rule, "\t\t", rule.check(build).compatible)
             self.assertTrue(comp)
 
     def test_ab_build_with_many_components_and_rules_false(self):
@@ -276,6 +390,17 @@ class TestBuildRules(TestCase):
         cpu_socket, mb_socket = "LGA1200", "AM4"
         cpu_ram_types, mb_ram_type, ram_type = ("DDR4",), "DDR5", "DDR3"
         cpu_codename, mb_codenames = "Picasso", ("Rocket Lake", "Comet Lake")
+
+        psu_pcie_conn = PowerConnector("PCIe", (6,))
+        psu_atx_conn = PowerConnector("ATX", [20])
+        psu_epc_conn = PowerConnector("EPS", [8, 4])
+        mb_power_atx_slots = ComponentPowerSlots("ATX", [24])
+        mb_power_eps_slots = ComponentPowerSlots("EPS", [8, 8])
+        gpu_power_slots = ComponentPowerSlots("EPS", [8, 8, 8])
+
+        psu = PowerSupply(
+            connectors=[psu_atx_conn, psu_epc_conn, psu_pcie_conn, psu_pcie_conn]
+        )
 
         build = Build(
             cpu=Cpu(
@@ -289,8 +414,12 @@ class TestBuildRules(TestCase):
                 socket=mb_socket,
                 ram_type=mb_ram_type,
                 cpu_codenames=mb_codenames,
+                power_atx_slots=mb_power_atx_slots,
+                power_eps_slots=mb_power_eps_slots,
             ),
             ram=Ram(ram_type=ram_type),
+            gpu=Gpu(power_slots=gpu_power_slots),
+            psu=psu,
         )
 
         for rule in self.rules:
