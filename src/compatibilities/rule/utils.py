@@ -1,4 +1,13 @@
-from src.domain.models import PowerSupply, PSUCable
+from src.domain.models import (
+    Build,
+    PowerSupply,
+    PSUCable,
+    ComponentType as CT,
+    Cpu,
+    Motherboard,
+    Gpu,
+    Ram,
+)
 
 
 # ==================== Нова модель для кабелю БЖ ====================
@@ -85,3 +94,45 @@ def allocate_requirements(requirements: list[int], cables: list[PSUCable]) -> bo
     # Щоб не змінювати початкові дані, клонуватимемо кожен кабель
     cables_state = [cable.clone() for cable in cables]
     return backtrack(reqs_sorted, cables_state)
+
+
+# ==================== Допоміжні функції для розрахунку потужності PSU ====================
+
+
+def calculate_components_power_sum(build: Build) -> int:
+    """
+    Обчислює споживання всіх компонентів збірки.
+    Компоненти, для яких важко знайти значення споживання, мають стандартні значення
+    """
+
+    MB_POWER = 80
+    RAM_MODULE_POWER = 4
+    M2_SSD_POWER = 9
+    SATA_POWER = 15
+    FUN_POWER = 5
+
+    components_power = []
+
+    cpu: Cpu = getattr(build, CT.cpu.value)
+    if cpu:
+        if cpu.tdp_max:
+            components_power.append(cpu.tdp_max)
+        elif cpu.tdp:
+            components_power.append(cpu.tdp)
+
+    mb: Motherboard = getattr(build, CT.motherboard.value)
+    if mb:
+        components_power.append(MB_POWER)
+
+    ram: Ram = getattr(build, CT.ram.value)
+    if ram:
+        # modules count in the kit * number of kit * power draw
+        ram_power = ram.memory_modules * ram.count * RAM_MODULE_POWER
+        components_power.append(ram_power)
+
+    gpu: Gpu = getattr(build, CT.gpu.value)
+    if gpu:
+        components_power.append(gpu.power)
+
+    total_power_draw = sum(components_power)
+    return int(total_power_draw)

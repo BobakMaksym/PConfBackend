@@ -19,6 +19,7 @@ from src.compatibilities.rules import (
     MotherboardCpuPowerCompRule,
     GpuPowerCompRule,
     PsuWattageRule,
+    PsuEfficiencyRule,
     rules as compatibility_rules,
 )
 from src.domain.models import Component
@@ -367,6 +368,50 @@ class TestPsuWattageCompatibilityRules(TestCase):
 
         response = self.rule.check(self.build)
         self.assertFalse(response.compatible)
+        pprint(response)
+
+
+class TestPsuEfficiencyRules(TestCase):
+    """перевірка вибраного PSU на оптимальність"""
+
+    def setUp(self):
+        self.rule = PsuEfficiencyRule()
+        build = Build()
+
+        cpu_power_draw = 200
+        gpu_power_draw = 300
+
+        build.cpu = Cpu(tdp_max=cpu_power_draw)
+        build.motherboard = Motherboard(manufacturer="MSI")
+        build.ram = Ram(memory_modules=2, count=2)  # 4 modules
+        build.gpu = Gpu(power=gpu_power_draw)
+
+        self.build = build
+
+        return super().setUp()
+
+    def test_a(self):
+        self.build.psu = PowerSupply(power=1_500)
+
+        response = self.rule.check(self.build)
+        self.assertFalse(response.compatible)
+
+        pprint(response)
+
+    def test_b(self):
+        self.build.psu = PowerSupply(power=400)
+
+        response = self.rule.check(self.build)
+        self.assertFalse(response.compatible)
+
+        pprint(response)
+
+    def test_c(self):
+        self.build.psu = PowerSupply(power=800)
+
+        response = self.rule.check(self.build)
+        self.assertTrue(response.compatible)
+
         pprint(response)
 
 
