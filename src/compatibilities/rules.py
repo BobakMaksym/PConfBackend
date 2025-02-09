@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from src.compatibilities.rule.utils import allocate_requirements, get_cables
 from src.compatibilities.rule.response import CompRuleResponse
-from src.domain.models import Build
+from src.domain.models import Build, Cpu, Gpu, Motherboard, Ram
 from src.domain.models import ComponentType as CT
 
 
@@ -178,6 +178,56 @@ class GpuPowerCompRule(CompatibilityRuleInterface):
         else:
             msg = f"БЖ не має сумісного PCIe живлення для {requirements}"
             return CompRuleResponse(False, {"gpu": msg})
+
+
+class PsuWattageRule(CompatibilityRuleInterface):
+    """Перевіряє, чи потужність БЖ достатня для всіх компонентів збірки"""
+
+    SAFETY_MARGIN = 1.2  # recommended power reserve (20%)
+
+    def check(self, build: Build) -> CompRuleResponse:
+        if not build.psu:
+            return CompRuleResponse(True)  # Якщо БЖ немає, немає сенсу перевіряти
+
+        mb_power = 80
+        ram_module_power = 4
+        m2_ssd_power = 9
+        sata_power = 15
+        fun_power = 5
+
+        component_power = []
+
+        cpu: Cpu = getattr(build, CT.cpu.value)
+        if cpu:
+            if cpu.tdp_max:
+                component_power.append(cpu.tdp_max)
+            elif cpu.tdp:
+                component_power.append(cpu.tdp)
+
+        mb: Motherboard = getattr(build, CT.motherboard.value)
+        if mb:
+            component_power.append(mb_power)
+
+        ram: Ram = getattr(build, CT.ram.value)
+        if ram:
+            # modules count in the kit * number of kit * power draw
+            ram_power = ram.memory_modules * ram.count * ram_module_power
+            component_power.append(ram_power)
+
+        gpu: Gpu = getattr(build, CT.gpu.value)
+        if gpu:
+            component_power.append(gpu.power)
+
+        total_power_draw = sum(component_power)
+
+        required_wattage = total_power_draw * self.SAFETY_MARGIN
+        psu_power = build.psu.power
+
+        if psu_power < required_wattage:
+            err = f"БЖ ({psu_power}W) занадто слабкий. Мінімум потрібно {required_wattage:.0f}W."
+            return CompRuleResponse(False, {CT.psu.value: err})
+
+        return CompRuleResponse(True)
 
 
 rules = (

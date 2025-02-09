@@ -8,8 +8,8 @@ ram_1 = Ram(
     series="Trident Z",
     ram_type="DDR4",
     speed=3600,
-    kit=2,
-    kit_total_capacity=16,
+    memory_modules=2,
+    memory_capacity=16,
 )
 
 ram_2 = Ram(
@@ -19,8 +19,8 @@ ram_2 = Ram(
     series="Vengeance RGB Pro",
     ram_type="DDR4",
     speed=3200,
-    kit=2,
-    kit_total_capacity=32,
+    memory_modules=2,
+    memory_capacity=32,
 )
 
 ram_3 = Ram(
@@ -30,8 +30,8 @@ ram_3 = Ram(
     series="Fury Beast",
     ram_type="DDR5",
     speed=5200,
-    kit=2,
-    kit_total_capacity=32,
+    memory_modules=2,
+    memory_capacity=32,
 )
 
 ram_4 = Ram(
@@ -41,8 +41,8 @@ ram_4 = Ram(
     series="Fury",
     ram_type="DDR4",
     speed=3200,
-    kit=2,
-    kit_total_capacity=16,
+    memory_modules=2,
+    memory_capacity=16,
 )
 
 ram_5 = Ram(
@@ -52,8 +52,8 @@ ram_5 = Ram(
     series="Ballistix",
     ram_type="DDR4",
     speed=3600,
-    kit=2,
-    kit_total_capacity=32,
+    memory_modules=2,
+    memory_capacity=32,
 )
 
 ram_6 = Ram(
@@ -63,8 +63,8 @@ ram_6 = Ram(
     series="Vengeance",
     ram_type="DDR5",
     speed=5200,
-    kit=2,
-    kit_total_capacity=32,
+    memory_modules=2,
+    memory_capacity=32,
 )
 
 ram_db = [ram_1, ram_2, ram_3, ram_4, ram_5, ram_6]

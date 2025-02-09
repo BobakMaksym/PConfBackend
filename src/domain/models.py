@@ -7,7 +7,7 @@ class ComponentType(str, Enum):
     cpu = "cpu"
     gpu = "gpu"
     ram = "ram"
-    pcu = "pcu"
+    psu = "psu"
     motherboard = "motherboard"
 
 
@@ -81,7 +81,8 @@ class PowerSupply:
     Описує БЖ і його вихідні кабелі.
     """
 
-    connectors: list[PowerConnector]
+    power: int = None
+    connectors: list[PowerConnector] = None
 
 
 # #########################################################
@@ -98,9 +99,14 @@ class Cpu:
     # core name / codename / family
     codename: str = None  # Raptor Lake | Picasso
     tdp: int = None
+    tdp_max: int = None
     ram_types: list[str] = None
     max_ram: int = None
     _type = ComponentType.cpu.value
+
+    def __post_init__(self):
+        if not self.tdp_max:
+            self.tdp_max = self.tdp
 
 
 @dataclass
@@ -112,8 +118,10 @@ class Ram:
 
     ram_type: str | None = None
     speed: int | None = None
-    kit: int | None = None
-    kit_total_capacity: int | None = None
+
+    memory_capacity: int | None = None
+    memory_modules: int | None = None
+    count: int = 0  # number of modules added to the assembly by the user
 
     _type = ComponentType.ram.value
 
@@ -122,6 +130,7 @@ class Ram:
 class Gpu:
     power: int | None = None
     power_slots: ComponentPowerSlots | None = None
+    count: int = 0  # number of gpu added to the assembly by the user
 
 
 @dataclass
@@ -141,6 +150,16 @@ class Motherboard:
     power_eps_slots: ComponentPowerSlots = None
 
     _type = ComponentType.motherboard.value
+
+
+@dataclass
+class SsdM2:
+    count: int = 0  # number of ssd added to the assembly by the user
+
+
+@dataclass
+class Hdd:
+    count: int = 0  # number of hdd added to the assembly by the user
 
 
 # #########################################################

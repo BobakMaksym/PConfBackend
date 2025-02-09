@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pprint import pprint
 from unittest import TestCase
 
 from src.compatibilities.rules import (
@@ -17,6 +18,7 @@ from src.compatibilities.rules import (
     MotherboardPowerCompRule,
     MotherboardCpuPowerCompRule,
     GpuPowerCompRule,
+    PsuWattageRule,
     rules as compatibility_rules,
 )
 from src.domain.models import Component
@@ -330,6 +332,42 @@ class TestPsuCompatibilityRules(CommonMixin, TestCase):
 
         build.psu = PowerSupply(connectors=[pcie, pcie, PowerConnector("PCIe", (20,))])
         self.assertFalse(rule.check(build).compatible)
+
+
+class TestPsuWattageCompatibilityRules(TestCase):
+    """Перевірка потужності PSU"""
+
+    def setUp(self):
+        self.rule = PsuWattageRule()
+        build = Build()
+
+        build.cpu = Cpu(tdp_max=200)
+        build.motherboard = Motherboard(manufacturer="MSI")
+        build.ram = Ram(memory_modules=2, count=2)  # 4 modules
+        build.gpu = Gpu(power=300)
+
+        self.build = build
+
+    def test_psu_wattage_when_not_psu_comp_is_true(self):
+        """перевіряє коли psu немає"""
+
+        self.assertTrue(self.rule.check(self.build).compatible)
+
+    def test_psu_wattage_comp_is_true(self):
+        """перевіряє коли Є psu"""
+
+        self.build.psu = PowerSupply(power=900)
+
+        self.assertTrue(self.rule.check(self.build).compatible)
+
+    def test_psu_wattage_comp_is_false(self):
+        """перевіряє коли psu слабкий"""
+
+        self.build.psu = PowerSupply(power=400)
+
+        response = self.rule.check(self.build)
+        self.assertFalse(response.compatible)
+        pprint(response)
 
 
 class TestBuildRules(TestCase):
