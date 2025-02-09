@@ -223,12 +223,12 @@ class PsuEfficiencyRule(CompatibilityRuleInterface):
         if load_ratio < self.MIN_LOAD:
             err = f"БЖ ({psu_wattage}W) занадто потужний. Використовується лише {load_ratio:.0%} його потужності."
             return CompRuleResponse(False, {CT.psu.value: err})
-
-        if load_ratio > self.MAX_LOAD:
+        elif load_ratio > self.MAX_LOAD:
             err = f"БЖ ({psu_wattage}W) може працювати на межі можливостей ({load_ratio:.0%} навантаження)."
             return CompRuleResponse(False, {CT.psu.value: err})
 
-        return CompRuleResponse(True)
+        msg = f"БЖ ({psu_wattage}W) є оптимальним, ({load_ratio:.0%} навантаження)."
+        return CompRuleResponse(True, {CT.psu.value: msg})
 
 
 rules = (

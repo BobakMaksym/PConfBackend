@@ -390,7 +390,8 @@ class TestPsuEfficiencyRules(TestCase):
 
         return super().setUp()
 
-    def test_a(self):
+    def test_psu_too_powerful(self):
+        """перевірка оптимальності Psu, коли він надто потужний"""
         self.build.psu = PowerSupply(power=1_500)
 
         response = self.rule.check(self.build)
@@ -398,7 +399,8 @@ class TestPsuEfficiencyRules(TestCase):
 
         pprint(response)
 
-    def test_b(self):
+    def test_psu_too_weak(self):
+        """перевірка оптимальності Psu, коли він надто слабкий"""
         self.build.psu = PowerSupply(power=400)
 
         response = self.rule.check(self.build)
@@ -406,7 +408,8 @@ class TestPsuEfficiencyRules(TestCase):
 
         pprint(response)
 
-    def test_c(self):
+    def test_psu_optimally_powered(self):
+        """перевірка Psu, коли його потужність оптимальна"""
         self.build.psu = PowerSupply(power=800)
 
         response = self.rule.check(self.build)
