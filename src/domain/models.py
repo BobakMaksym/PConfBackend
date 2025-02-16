@@ -133,6 +133,12 @@ class Gpu:
     count: int = 0  # number of gpu added to the assembly by the user
 
 
+class MbTypeEnum(str, Enum):
+    atx = "ATX"
+    mini_atx = "mini ATX"
+    micro_atx = "micro ATX"
+
+
 @dataclass
 class Motherboard:
     model: str = None
@@ -149,6 +155,8 @@ class Motherboard:
     power_atx_slots: ComponentPowerSlots = None
     power_eps_slots: ComponentPowerSlots = None
 
+    motherboard_type: MbTypeEnum = MbTypeEnum.atx.value
+
     _type = ComponentType.motherboard.value
 
 
@@ -160,6 +168,11 @@ class SsdM2:
 @dataclass
 class Hdd:
     count: int = 0  # number of hdd added to the assembly by the user
+
+
+@dataclass
+class Case:
+    motherboard_type: MbTypeEnum = MbTypeEnum.atx.value
 
 
 # #########################################################
@@ -185,6 +198,8 @@ class Build:
     motherboard: Motherboard | None = None
     gpu: Gpu | None = None
     psu: PowerSupply | None = None
+
+    case_: Case | None = None
 
     errors: CompatibilityErrors = field(default_factory=CompatibilityErrors)
 
