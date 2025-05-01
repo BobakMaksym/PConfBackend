@@ -14,30 +14,48 @@
 # """
 
 
+# CPU_SCHEMA = """
+# cpu collection schema:
+#   _id: ObjectID
+#   manufacturer: str: intel
+#   "product title": str: Intel Core i3 Raptor Lake Refresh 14100F OEM (CM8071505092207)
+#   Series: str: Ryzen 7, Xeon, Core Ultra 5
+#   Cores: int
+#   Threads: int
+#   IGP: bool
+#   Socket: str: AMD AM5
+#   ram_types: list[str]: [DDR4,DDR5]
+#   performance_level: enum: mid|low|high
+#   purpose_category: list[str]: [gaming,office,general,workstation,server]
+# """
+
+
 CPU_SCHEMA = """
 cpu collection schema:
   _id: ObjectID
-  manufacturer: str: intel
-  cores: int
-  threads: int
-  igp: bool
-  socket: str: AMD AM5
-  ram_types: list[str]: [DDR4,DDR5]
-  performance_level: enum: mid|low|high
-  purpose_category: list[str]: [gaming,office,general,workstation,server]
+  manufacturer: str. exmpl: intel, amd
+  product title: str. exmpl: Intel Core i3 Raptor Lake Refresh 14100F OEM
+  Series: str. exmpl: Ryzen 7, Xeon, Core Ultra 5
+  Cores: int
+  Threads: int
+  IGP: bool
+  Socket: str. exmpl: AMD AM5, Intel LGA 1200
+  RAM types: list[str]. exmpl: [DDR4,DDR5], [DDR5]
 """
+# performance_level: enum. exmpl: mid|low|high
+# Purpose category: list[str]. exmpl: [gaming,office,general,workstation,server]
 
 
 EXAMPLE = """
-User: "I want a very powerful processor for gaming and video editing, with at least 8 cores and integrated graphics, the processor should be amd"
+User: "I want a very powerful cpu for gaming and video editing, with at least 8 cores and integrated graphics, the processor should be amd"
 Response:
 ```json
-{"manufacturer": "amd", "cores": {">=": 8}, "igp": true, "performance_level": "high", "purpose_category": ["gaming","workstation"]}
+{"manufacturer": {"$regex": "amd", "$options": "i"}, "Cores": {"$gte": 8}, "IGP": true}
 ```
 User: "I need a simple processor for office tasks with lga 1200 socket"
 Response: 
 ```json
-{"socket": "lga 1200", "performance_level": "low", "purpose_category": ["office"]}
+{"Socket": {"$regex": "lga 1200", "$options": "i"}}
 ```"""
 
 
