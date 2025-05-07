@@ -32,62 +32,68 @@ GPU_SCHEMA = """GPU collection schema:
 
 ex = [
     {
-        "User": "I want a quiet and productive computer to work with video and photos. Preferably an Intel processor with iGPU, at least 12 threads. The video card should be NVIDIA with support for 2 monitors and 8 GB of memory.",
+        "User": "I want a quiet and productive computer to work with video and photos. Preferably an Intel core i5 13th generation processor with iGPU, at least 12 threads. The video card should be NVIDIA from MSI or Asus with support for 2 monitors and 8 GB of memory.",
         "Response": {
-            "general_requirements": "quiet and productive PC for working with video and photos",
             "cpu": {
                 "manufacturer": "Intel",
+                "fuzzy model": "Intel core i5 13th",
                 "Threads": {"$gte": 12},
                 "IGP": True,
             },
             "gpu": {
                 "GPU manufacturer": "NVIDIA",
+                "fuzzy model": "NVIDIA MSI|NVIDIA Asus",
                 "Monitors connection": {"$gte": 2},
                 "Memory size": 8,
             },
         },
     },
     {
-        "User": "I need an inexpensive PC for gaming and studying. Processor preferably AMD with 6 cores. Video card such as RTX 3050 or 3060, without backlight and a maximum of 2 fans",
+        "User": "I need an inexpensive PC for gaming and studying. Processor preferably AMD ryzen 5 3600 with 6 cores. Video card such as RTX 3050 or 3060, without backlight and a maximum of 2 fans",
         "Response": {
-            "general_requirements": "an inexpensive PC for gaming and studying",
-            "cpu": {"manufacturer": "AMD", "Cores": 6},
+            "cpu": {
+                "manufacturer": "AMD",
+                "fuzzy model": "AMD ryzen 5 3600",
+                "Cores": 6,
+            },
             "gpu": {
-                "fuzzy model": {"$regex": "rtx 3050|rtx 3060", "$options": "i"},
+                "fuzzy model": "rtx 3050|rtx 3060",
                 "Lighting": {"$ne": True},
                 "Fans": {"$lte": 2},
             },
         },
     },
     {
-        "User": "I want a stylish and powerful computer for streaming and video editing. Intel Core i7 or something from the new Ultra, preferably with LGA1700 socket. Video card - NVIDIA with 12+ GB, support for 4 HDMI and without a noisy cooler.",
+        "User": "I want a stylish and powerful computer for streaming and video editing. Intel Core i7 or something from the new Ultra, preferably with LGA1700 socket. Video card - NVIDIA 40 series with 12+ GB, support for 4 HDMI and without a noisy cooler.",
         "Response": {
-            "general_requirements": "stylish and powerful PC for streaming and video editing, without a noisy cooler",
             "cpu": {
                 "manufacturer": "Intel",
-                "Series": {"$regex": "core i7|ultra", "$options": "i"},
+                "fuzzy model": "Intel core i7 ultra",
+                "Series": {"$regex": "core i7|ultra 7", "$options": "i"},
                 "Socket": "LGA 1700",
             },
             "gpu": {
                 "GPU manufacturer": "NVIDIA",
+                "fuzzy model": "NVIDIA 40",
                 "Memory size": {"$gte": 12},
             },
         },
     },
     {
-        "User": "I need a work computer for CAD and 3D graphics. I want an AMD Ryzen with 8 cores and integrated graphics. Video card - without backlight, support for 3 monitors, preferably AMD or Intel, but not NVIDIA.",
+        "User": "I need a work computer for CAD and 3D graphics. I want an AMD Ryzen 7 with 8 cores and integrated graphics. Video card - without backlight, support for 3 monitors, preferably AMD or Intel, but not NVIDIA.",
         "Response": {
-            "general_requirements": "PC for CAD and 3D graphics, with AMD or Intel GPU, but not NVIDIA",
             "cpu": {
                 "manufacturer": "AMD",
+                "fuzzy model": "AMD Ryzen 7",
                 "Series": {"$regex": "ryzen", "$options": "i"},
                 "Cores": 8,
                 "IGP": True,
             },
             "gpu": {
+                "fuzzy model": "AMD|Intel",
                 "Lighting": {"$ne": True},
                 "Monitors connection": {"$gte": 3},
-                "GPU manufacturer": {"$in": ["AMD", "Intel"], "$nin": ["NVIDIA"]},
+                "GPU manufacturer": {"$in": ["AMD", "Intel"]},
             },
         },
     },
@@ -100,45 +106,47 @@ ex = [
 ]
 
 
-# USER_DATA = {
-#     "general_requirements": "workstation for CAD and 3D; CPU: AMD Ryzen, 8 cores with IGP; GPU: AMD or NVIDIA, not Intel, without backlight, support for 3 monitors",
-#     "cpu": {
-#         "manufacturer": {"$regex": "amd", "$options": "i"},
-#         "Series": {"$regex": "ryzen", "$options": "i"},
-#         "cores": 8,
-#         "IGP": True,
-#     },
-#     "gpu": {
-#         "Lighting": False,
-#         "Monitors connection": {"$gte": 3},
-#         "GPU manufacturer": {"$in": ["AMD", "NVIDIA"], "$nin": ["Intel"]},
-#     },
-# }
-
 USER_DATA = {
-    "general_requirements": "workstation for CAD and 3D; CPU: AMD Ryzen, 8 cores with IGP; GPU: AMD or NVIDIA, not Intel, without backlight, support for 3 monitors, with more than 8 GB of video memory",
+    "general_requirements": "workstation for CAD and 3D; CPU: AMD Ryzen, 8 cores with IGP; GPU: AMD or NVIDIA, not Intel, without backlight, support for 3 monitors",
     "cpu": {
-        "manufacturer": "AMD",
+        "manufacturer": {"$regex": "amd", "$options": "i"},
         "Series": {"$regex": "ryzen", "$options": "i"},
-        "Cores": 8,
+        "cores": 8,
         "IGP": True,
     },
     "gpu": {
         "Lighting": False,
         "Monitors connection": {"$gte": 3},
         "GPU manufacturer": {"$in": ["AMD", "NVIDIA"], "$nin": ["Intel"]},
-        "Memory size": {"$gt": 8},
     },
 }
 
+# USER_DATA = {
+#     "general_requirements": "workstation for CAD and 3D; CPU: AMD Ryzen, 8 cores with IGP; GPU: AMD or NVIDIA, not Intel, without backlight, support for 3 monitors, with more than 8 GB of video memory",
+#     "cpu": {
+#         "manufacturer": "AMD",
+#         "Series": {"$regex": "ryzen", "$options": "i"},
+#         "Cores": 8,
+#         "IGP": True,
+#     },
+#     "gpu": {
+#         "Lighting": False,
+#         "Monitors connection": {"$gte": 3},
+#         "GPU manufacturer": {"$in": ["AMD", "NVIDIA"], "$nin": ["Intel"]},
+#         "Memory size": {"$gt": 8},
+#     },
+# }
 
-# USER_REQUEST = "I want more than 8 gb of video memory"
-USER_REQUEST = "I have a budget of $3k, and I like the atx case"
 
+USER_REQUEST = "I want more than 8 gb of video memory"
+# USER_REQUEST = "I have a budget of $3k, and I like the atx case"
+
+
+# Your task is to understand the customer's wishes, create a query to mongodb for the data schemas below to get the right components.
 
 SYSTEM_PROMPT_TEMPLATE = """
-You are a technical consultant at a PC component store, who helps customers choose a CPU and GPU for a custom PC.
-Your task is to understand the customer's wishes, create a query to mongodb for the data schemas below to get the right components.
+You are a technical consultant at a PC component store, who helps customers choose components for a custom PC.
+Your task is to find out from the user his wishes regarding the PC and its components and to extract filters from his answers according to the data schemes:
 
 {{ cpu_schema }}
 {{ gpu_schema }}
