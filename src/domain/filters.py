@@ -44,9 +44,9 @@ class CpuStrategy(ComponentStrategy):
 
         mb = build.motherboard
         if mb:
-            set_filter(self._filters, mb.platform, "manufacturer")
+            # set_filter(self._filters, mb.platform, "manufacturer")
             set_filter(self._filters, mb.socket, "socket")
-            set_filter(self._filters, mb.cpu_codenames, "codename")
+            # set_filter(self._filters, mb.cpu_codenames, "codename")
             set_filter(self._filters, mb.ram_type, "ram_types")
 
         return self._filters

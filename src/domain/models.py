@@ -103,6 +103,16 @@ class Cpu:
     ram_types: list[str] = None
     max_ram: int = None
     _type = ComponentType.cpu.value
+    
+    
+    """
+    # manufacturer
+    Socket
+    RAM types
+    TDP
+    # +- IGP
+    
+    """
 
     def __post_init__(self):
         if not self.tdp_max:
