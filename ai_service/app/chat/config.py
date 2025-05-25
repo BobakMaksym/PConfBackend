@@ -1,4 +1,5 @@
 MODEL_GPT_4O_MINI = "gpt-4o-mini"
 MODEL_GPT_4O = "gpt-4o"
+MODEL_GPT_4_1_NANO = "gpt-4.1-nano"
 
 MODEL = MODEL_GPT_4O_MINI
