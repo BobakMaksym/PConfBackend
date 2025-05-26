@@ -63,7 +63,7 @@ async def main():
         model="gpt-4o-mini",
         name="Consultant",
         instructions=CONSULTANT_SYSTEM_PROMPT,
-        tools=[search_components],  # , add_component, remove_component, get_build],
+        tools=[search_components, add_component, remove_component, get_build],
     )
 
     print(f"consultant: {history[0]["content"]}")
@@ -76,7 +76,7 @@ async def main():
             user_input = input("you: ")
 
             if user_input.lower().strip() in ("q", "quit", "exit"):
-                with open("./history.json", "w+") as file:
+                with open("./ai_hist.json", "w+") as file:
                     json.dump(history, file, indent=2, ensure_ascii=False)
                 break
 
@@ -85,9 +85,14 @@ async def main():
             result = await Runner.run(agent, history)
 
             history = result.to_input_list()
-            # history.append({"role": "assistant", "content": result.final_output})
 
             print(f"consultant: {result.final_output}")
+
+            # кількість останніх повідомлень, що передаються як історія
+            MSG_COUNT = 40
+            history = history[-MSG_COUNT:]
+            
+            print(f"len history: {len(history)}")
 
     print("Buy !")
 

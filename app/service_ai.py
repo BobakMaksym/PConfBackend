@@ -1,12 +1,8 @@
-# from bson import int
-from typing import Dict, Any, List
-import subprocess
-
 from agents import function_tool
 from pymongo import MongoClient
 
 from app.helpers import COLLECTIONS, normalize_filters
-from app.models import Build as BuildState, Cpu, Gpu
+from app.models import Build as BuildState, Cpu, Gpu, PyObjectId
 from app.repo import BuildRepo, BaseComponentRepo, CpuRepo, GpuRepo
 
 
@@ -55,7 +51,8 @@ def search_components(
 
 # ---------- Операції зі збіркою ----------
 @function_tool
-def add_component(build_id: int, type_: str, component_id: int):
+def add_component(build_id: PyObjectId, type_: COLLECTIONS, component_id: PyObjectId):
+    """adds a component to the build"""
     build = build_repo.load(build_id)
     if not build:
         raise ValueError("Unknown build")
@@ -65,7 +62,8 @@ def add_component(build_id: int, type_: str, component_id: int):
 
 
 @function_tool
-def remove_component(build_id: int, type_: str):
+def remove_component(build_id: PyObjectId, type_: COLLECTIONS):
+    """removes a component from the assembly"""
     build = build_repo.load(build_id)
     if not build:
         raise ValueError("Unknown build")
@@ -75,8 +73,9 @@ def remove_component(build_id: int, type_: str):
 
 
 @function_tool
-def get_build(build_id: int) -> BuildState:
-    b = build_repo.load(build_id)
-    if not b:
+def get_build(build_id: PyObjectId) -> BuildState:
+    """get the user's PC from the database"""
+    build = build_repo.load(build_id)
+    if not build:
         raise ValueError("Unknown build")
-    return b
+    return build
