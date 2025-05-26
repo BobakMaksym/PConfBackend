@@ -3,7 +3,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field, model_validator
 
-from rules_engine import core as rules
+from rules_engine import rule_registrar as registrar
 
 
 class PyObjectId(ObjectId):
@@ -151,7 +151,7 @@ class Build(BaseComponentModel):
     @model_validator(mode="after")
     def _validate_build(cls, build):
         # Запускаємо rules engine
-        rules.run(build)
+        registrar.run(build)
         return build
 
 

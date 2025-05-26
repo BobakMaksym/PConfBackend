@@ -1,5 +1,5 @@
 # rules_engine/standard_rules.py
-from .core import Rule, register
+from .core import Rule
 from .utils import calculate_components_power_sum
 
 
@@ -58,8 +58,3 @@ class PsuPowerSufficiency(Rule):
             errors.append(msg)
 
         return errors
-
-
-register(SocketCompatibility())
-register(RamTypeMatches())
-register(PsuPowerSufficiency())
