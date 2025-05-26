@@ -15,7 +15,7 @@ class ComponentRepo:
         self.type_ = type_
         self.col = db[f"components.{self.type_}"]
 
-    def find(self, filters: dict, *, limit: int = 20) -> list[Component]:
+    def find(self, filters: dict, *, limit: ObjectId = 20) -> list[Component]:
         q = {"in_stock": True, **filters}
         docs = self.col.find(q, projection={"specs": 1, "price": 1}).limit(limit)
         return [Component(**d) for d in docs]

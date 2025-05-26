@@ -1,9 +1,13 @@
+import abc
 from bson import ObjectId
 from typing import Any
 
 from pydantic import BaseModel, Field, model_validator
 
-from rules_engine import rule_registrar as registrar
+if __name__ == "__main__":
+    from rules_engine import rule_registrar as registrar
+else:
+    from .rules_engine import rule_registrar as registrar
 
 
 class PyObjectId(ObjectId):
@@ -28,7 +32,7 @@ class PyObjectId(ObjectId):
         return {"title": "ObjectId", "type": "string", "pattern": "^[0-9a-fA-F]{24}$"}
 
 
-class BaseComponentModel(BaseModel):
+class BaseComponentModel(abc.ABC, BaseModel):
     id: PyObjectId | None = Field(alias="_id", default=None)
 
     @property

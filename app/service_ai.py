@@ -1,9 +1,9 @@
-from bson import ObjectId
+# from bson import int
 
 from agents import function_tool
 from pymongo import MongoClient
 
-from app.helpers import COLLECTIONS
+# from app.helpers import COLLECTIONS
 from app.models import Build as BuildState
 from app.repo import BuildRepo, ComponentRepo
 
@@ -39,7 +39,7 @@ def search_components(type_, filters: dict, *, limit=20):
 
 # ---------- Операції зі збіркою ----------
 @function_tool
-def add_component(build_id: ObjectId, type_, component_id: ObjectId):
+def add_component(build_id: int, type_, component_id: int):
     build = build_repo.load(build_id)
     if not build:
         raise ValueError("Unknown build")
@@ -49,7 +49,7 @@ def add_component(build_id: ObjectId, type_, component_id: ObjectId):
 
 
 @function_tool
-def remove_component(build_id: ObjectId, type_):
+def remove_component(build_id: int, type_):
     build = build_repo.load(build_id)
     if not build:
         raise ValueError("Unknown build")
@@ -59,8 +59,11 @@ def remove_component(build_id: ObjectId, type_):
 
 
 @function_tool
-def get_build(build_id: ObjectId) -> BuildState:
+def get_build(build_id: int) -> BuildState:
     b = build_repo.load(build_id)
     if not b:
         raise ValueError("Unknown build")
     return b
+
+
+
