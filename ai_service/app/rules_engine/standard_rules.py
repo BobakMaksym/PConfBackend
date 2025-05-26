@@ -1,5 +1,5 @@
 # rules_engine/standard_rules.py
-from app.rules_engine.core import Rule, register
+from .core import Rule, register
 from .utils import calculate_components_power_sum
 
 

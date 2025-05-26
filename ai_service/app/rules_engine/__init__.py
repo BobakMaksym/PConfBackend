@@ -3,3 +3,9 @@ from .standard_rules import (
     RamTypeMatches,
     PsuPowerSufficiency,
 )
+
+__all__ = (
+    "SocketCompatibility",
+    "RamTypeMatches",
+    "PsuPowerSufficiency",
+)
