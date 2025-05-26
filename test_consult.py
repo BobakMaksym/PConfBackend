@@ -2,8 +2,20 @@ import asyncio
 import json
 import subprocess
 
-from agents import Agent, Runner, function_tool, trace
-
+from agents import (
+    Agent,
+    HandoffOutputItem,
+    ItemHelpers,
+    MessageOutputItem,
+    # RunContextWrapper,
+    Runner,
+    ToolCallItem,
+    ToolCallOutputItem,
+    TResponseInputItem,
+    function_tool,
+    # handoff,
+    trace,
+)
 from app.service_ai import search_components, add_component, remove_component, get_build
 
 # CONSULTANT_SYSTEM_PROMPT = """
@@ -45,6 +57,8 @@ def build_pc():
 
 
 async def main():
+    global history
+
     agent = Agent(
         model="gpt-4o-mini",
         name="Consultant",
@@ -60,25 +74,25 @@ async def main():
         while True:
 
             user_input = input("you: ")
-            if user_input.lower() in ("q", "quit", "exit"):
 
+            if user_input.lower().strip() in ("q", "quit", "exit"):
                 with open("./history.json", "w+") as file:
                     json.dump(history, file, indent=2, ensure_ascii=False)
-
                 break
 
             history.append({"role": "user", "content": user_input})
 
             result = await Runner.run(agent, history)
 
-            print(f"consultant: {result.final_output}")
+            history = result.to_input_list()
+            # history.append({"role": "assistant", "content": result.final_output})
 
-            history.append({"role": "assistant", "content": result.final_output})
+            print(f"consultant: {result.final_output}")
 
     print("Buy !")
 
 
-history = []
+history: list[TResponseInputItem] = []
 history.append(
     {
         "role": "assistant",
