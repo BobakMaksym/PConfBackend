@@ -1,11 +1,10 @@
 import asyncio
 import json
-
 import subprocess
 
+from agents import Agent, Runner, function_tool, trace
 
-from agents import Agent, Runner, function_tool
-
+from app.service_ai import search_components, add_component, remove_component, get_build
 
 # CONSULTANT_SYSTEM_PROMPT = """
 # Тм — консультант у магазині комплектуючих для кастомних ПК.
@@ -47,28 +46,34 @@ def build_pc():
 
 async def main():
     agent = Agent(
-        name="Consultant", instructions=CONSULTANT_SYSTEM_PROMPT, tools=[build_pc]
+        model="gpt-4o-mini",
+        name="Consultant",
+        instructions=CONSULTANT_SYSTEM_PROMPT,
+        tools=[search_components],  # , add_component, remove_component, get_build],
     )
 
     print(f"consultant: {history[0]["content"]}")
 
-    while True:
+    with trace(workflow_name="Consultant") as trace_obj:
+        print(trace_obj.trace_id)
 
-        user_input = input("you: ")
-        if user_input.lower() in ("q", "quit", "exit"):
+        while True:
 
-            with open("./history.json", "w+") as file:
-                json.dump(history, file, indent=2, ensure_ascii=False)
+            user_input = input("you: ")
+            if user_input.lower() in ("q", "quit", "exit"):
 
-            break
+                with open("./history.json", "w+") as file:
+                    json.dump(history, file, indent=2, ensure_ascii=False)
 
-        history.append({"role": "user", "content": user_input})
+                break
 
-        result = await Runner.run(agent, history)
+            history.append({"role": "user", "content": user_input})
 
-        print(f"consultant: {result.final_output}")
+            result = await Runner.run(agent, history)
 
-        history.append({"role": "assistant", "content": result.final_output})
+            print(f"consultant: {result.final_output}")
+
+            history.append({"role": "assistant", "content": result.final_output})
 
     print("Buy !")
 

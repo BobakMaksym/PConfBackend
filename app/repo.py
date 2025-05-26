@@ -2,27 +2,46 @@ from bson import ObjectId
 from datetime import datetime
 from typing import Literal
 
+from pymongo.collection import Collection
+from pymongo.database import Database
+
 from app.helpers import COLLECTIONS
 from app.models import (
     BaseComponentModel as Component,
     Build as BuildState,
+    Cpu,
+    Gpu,
 )
 
 
-# repositories/components.py
-class ComponentRepo:
-    def __init__(self, db, type_: COLLECTIONS):
-        self.type_ = type_
-        self.col = db[f"components.{self.type_}"]
+class BaseComponentRepo:
+    model: Cpu = None
+    collection: str = None
 
-    def find(self, filters: dict, *, limit: ObjectId = 20) -> list[Component]:
-        q = {"in_stock": True, **filters}
-        docs = self.col.find(q, projection={"specs": 1, "price": 1}).limit(limit)
-        return [Component(**d) for d in docs]
+    def __init__(self, db: Database):
+        self.db = db["components"]
+        self.col = db[self.collection]
 
-    def by_id(self, _id: ObjectId) -> Component | None:
-        doc = self.col.find_one({"_id": _id})
-        return Component(**doc) if doc else None
+    def find(self, filters: dict, limit: int) -> list[Component]:
+        docs = self.col.find(filters).limit(limit)
+
+        components = []
+        for doc in docs:
+            components.append(self.model(**doc))
+
+        print(components)
+
+        return components
+
+
+class CpuRepo(BaseComponentRepo):
+    model = Cpu
+    collection = "cpu"
+
+
+class GpuRepo(BaseComponentRepo):
+    model = Gpu
+    collection = "gpu"
 
 
 # repositories/builds.py
