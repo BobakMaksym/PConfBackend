@@ -1,0 +1,36 @@
+[
+  {
+    "role": "assistant",
+    "content": "Я консультант, допоможу підібрати компоненти до кастомного ПК. Які у тебе побажання?"
+  },
+  {
+    "role": "user",
+    "content": "просто знайди процесор від intel у БД"
+  },
+  {
+    "arguments": "{\"component_type\":\"cpu\",\"filters\":{\"_id\":null,\"manufacturer\":\"Intel\",\"model\":null,\"socket\":null,\"ram_types\":null,\"igp\":null,\"tdp\":null,\"tdp_max\":null,\"cores\":null,\"threads\":null},\"count\":5}",
+    "call_id": "call_mJS3UHt5BAEkTrpsXSLuRX7p",
+    "name": "search_components",
+    "type": "function_call",
+    "id": "fc_6834e23c5f008198a0aa7a8dade70e5a0a8a77a74ea68b06",
+    "status": "completed"
+  },
+  {
+    "call_id": "call_mJS3UHt5BAEkTrpsXSLuRX7p",
+    "output": "An error occurred while running the tool. Please try again. Error: filter must be an instance of dict, bson.son.SON, or any other type that inherits from collections.Mapping",
+    "type": "function_call_output"
+  },
+  {
+    "id": "msg_6834e23e2bd48198978bf7a1d6f53fad0a8a77a74ea68b06",
+    "content": [
+      {
+        "annotations": [],
+        "text": "Я не можу зараз знайти процесор. Як щодо конкретних вимог? Який бюджет або характеристики ти шукаєш?",
+        "type": "output_text"
+      }
+    ],
+    "role": "assistant",
+    "status": "completed",
+    "type": "message"
+  }
+]

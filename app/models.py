@@ -73,18 +73,18 @@ class PowerSupply(BaseComponentModel):
 
 
 class Cpu(BaseComponentModel):
-    manufacturer: str
-    model: str
+    manufacturer: str | None = Field(default=None)
+    model: str | None = Field(default=None)
 
-    socket: str
-    ram_types: str
-    igp: bool
+    socket: str | None = Field(default=None)
+    ram_types: str | None = Field(default=None)
+    igp: bool | None = Field(default=None)
 
-    tdp: int
-    tdp_max: int
+    tdp: int | None = Field(default=None)
+    tdp_max: int | None = Field(default=None)
 
-    cores: int
-    threads: int
+    cores: int | None = Field(default=None)
+    threads: int | None = Field(default=None)
 
 
 class Ram(BaseComponentModel):

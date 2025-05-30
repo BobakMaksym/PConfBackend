@@ -89,6 +89,13 @@ async def main():
             print(f"consultant: {result.final_output}")
 
             # кількість останніх повідомлень, що передаються як історія
+            
+            """
+            якась проблема, після перевищення 40 повідомлень
+            
+            також тре додати до search ще інші типи компонентів
+            """            
+            
             MSG_COUNT = 40
             history = history[-MSG_COUNT:]
             

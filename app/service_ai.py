@@ -32,14 +32,18 @@ build_repo = BuildRepo(db)
 @function_tool
 def search_components(
     component_type: COLLECTIONS,
-    manufacturer: str | None = None,
-    cores: int | None = None,
+    filters: Cpu,
+    # manufacturer: str | None = None,
+    # cores: int | None = None,
     count: int = 5,
 ) -> list[Cpu]:  # List[Dict[str, Any]]:
     """finds components in the database"""
 
-    filters = {"manufacturer": manufacturer, "cores": cores}
-    filters = normalize_filters(filters)
+    print(f"\n\n\n{filters}\n\n")
+
+    # filters = {"manufacturer": manufacturer, "cores": cores}
+
+    filters = normalize_filters(filters.model_dump(exclude_none=True))
     print(component_type, count, filters, flush=True)
 
     repo: BaseComponentRepo = component_repos.get(component_type)
