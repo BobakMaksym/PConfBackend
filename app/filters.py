@@ -50,7 +50,7 @@ class CpuFilters(BaseModel):
 class GpuFilters(BaseModel):
     manufacturer: StrOrIn = None
     model: Str = field(ex=["gigabyte radeon rx 7700 xt gaming oc"])
-    fans: IntOrIn = field(ex=[3, {"$gte": 1, "$lte": 2}])
+    fans: IntOrIn = field(ex=[1, 2, 3, {"$gte": 1, "$lte": 2}])
     memory_size: IntOrIn = field(ex=[12, {"$gte": 16, "$lte": 24}])
 
     model_gpu: Str = None
@@ -59,7 +59,7 @@ class GpuFilters(BaseModel):
 
 class RamFilters(BaseModel):
     manufacturer: StrOrIn = None
-    model: Str = field(ex=["g.skill aegis ddr4 2x16gb f4-2400c15d-32gis"])
+    # model: Str = field(ex=["g.skill aegis ddr4 2x16gb f4-2400c15d-32gis"])
 
     type: Str = field(ex=["ddr4", "ddr5"])
     modules: Int = field(ex=[1, 2, 4], desc="quantity of modules")
@@ -75,7 +75,7 @@ class RamFilters(BaseModel):
 
 class MotherboardFilters(BaseModel):
     manufacturer: StrOrIn = None
-    model: Str = field(ex=["asus tuf gaming b550m-plus (90mb14a0-m0eay0)"])
+    # model: Str = field(ex=["asus tuf gaming b550m-plus (90mb14a0-m0eay0)"])
 
     socket: Str = field(ex=["amd am4", "intel lga 1700"])
     form_factor: Str = field(ex=["micro-atx", "atx", "e-atx", "mini-itx"])
@@ -90,10 +90,10 @@ class MotherboardFilters(BaseModel):
     # wifi: Bool = None
 
 
-class PowerSupply(BaseModel):
+class PsuFilters(BaseModel):
 
     manufacturer: StrOrIn = None
-    model: Str = field(ex=["be quiet! pure power 12 m bn341"])
+    # model: Str = field(ex=["be quiet! pure power 12 m bn341"])
     form_factor: Str = field(ex=["atx", "sfx"])
     power: IntOrIn = field(ex=[600, {"$gte": 800, "$lte": 1100}])
 
