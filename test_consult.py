@@ -19,6 +19,9 @@ from agents import (
 from app.service_ai import (
     find_cpu,
     find_gpu,
+    find_ram,
+    find_motherboard,
+    find_psu,
     add_component,
     remove_component,
     get_build,
@@ -39,7 +42,11 @@ from app.service_ai import (
 #     'якщо ні — почни алгоритм спочатку, тобто виясни що користувач хоче змінити, після чого перезбери ПК з "build_pc".'
 # )
 
-CONSULTANT_SYSTEM_PROMPT = "Роби все, що каже користувач"
+CONSULTANT_SYSTEM_PROMPT = (
+    "Роби все, що каже користувач."
+    'Ти не маєш права додавати пусті фільтри, як цей: `""`,'
+    "чи будь-які фільтри, про які не йшла мова."
+)
 
 
 @function_tool
@@ -55,10 +62,19 @@ async def main():
     global history
 
     agent = Agent(
-        model="gpt-4o-mini",
+        model="gpt-4.1-mini",
         name="Consultant",
         instructions=CONSULTANT_SYSTEM_PROMPT,
-        tools=[find_cpu, find_gpu, add_component, remove_component, get_build],
+        tools=[
+            find_cpu,
+            find_gpu,
+            find_ram,
+            find_motherboard,
+            find_psu,
+            add_component,
+            remove_component,
+            get_build,
+        ],
     )
 
     print(f"consultant: {history[0]["content"]}")
