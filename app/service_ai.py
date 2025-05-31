@@ -1,6 +1,7 @@
 from agents import function_tool
 from pymongo import MongoClient
 
+from app.filters import CpuFilters, GpuFilters
 from app.helpers import COLLECTIONS, normalize_filters
 from app.models import Build as BuildState, Cpu, Gpu, PyObjectId
 from app.repo import BuildRepo, BaseComponentRepo, CpuRepo, GpuRepo
@@ -18,6 +19,9 @@ client = MongoClient(**MONGO_CONFIG)
 db = client[DB_NAME]
 
 
+COMPONENT_COUNT = 5
+
+
 component_repos = {
     "cpu": CpuRepo(db),
     "gpu": GpuRepo(db),
@@ -28,29 +32,29 @@ component_repos = {
 build_repo = BuildRepo(db)
 
 
-# ---------- Пошук компонентів ----------
-@function_tool
-def search_components(
-    component_type: COLLECTIONS,
-    filters: Cpu,
-    # manufacturer: str | None = None,
-    # cores: int | None = None,
-    count: int = 5,
-) -> list[Cpu]:  # List[Dict[str, Any]]:
-    """finds components in the database"""
+def find_cpu(filters: CpuFilters, count: int = COMPONENT_COUNT) -> list[Cpu]:
+    """finds CPU's in DB"""
 
-    print(f"\n\n\n{filters}\n\n")
+    filters = normalize_filters(filters)
+    print(filters)
 
-    # filters = {"manufacturer": manufacturer, "cores": cores}
+    return CpuRepo(db).find(filters, limit=count)
 
-    filters = normalize_filters(filters.model_dump(exclude_none=True))
-    print(component_type, count, filters, flush=True)
 
-    repo: BaseComponentRepo = component_repos.get(component_type)
+def find_gpu(filters: GpuFilters, count: int = COMPONENT_COUNT) -> list[Gpu]:
+    """finds GPU's in DB"""
 
-    components = repo.find(filters, limit=count)
+    filters = normalize_filters(filters)
+    print(filters)
 
-    return components
+    return GpuRepo(db).find(filters, limit=count)
+
+
+find_cpu_api = find_cpu
+find_gpu_api = find_gpu
+
+find_cpu = function_tool(find_cpu)
+find_gpu = function_tool(find_gpu)
 
 
 # ---------- Операції зі збіркою ----------
