@@ -10,21 +10,13 @@ from app.schemas.user_schema import UserAuth, UserUpdate
 class UserService:
     @staticmethod
     async def create_user(user: UserAuth):
-        
-        print("call func: `create_user`", flush=True)
-        
         user_in = User(
             username=user.username,
             email=user.email,
             hashed_password=get_password(user.password),
         )
-        
-        print("create User object", flush=True)
-        
         await user_in.save()
-        
-        print("user.save()", flush=True)
-        
+
         return user_in
 
     @staticmethod
@@ -53,5 +45,5 @@ class UserService:
         if not user:
             raise pymongo.errors.OperationFailure("User not found")
 
-        await user.update({"$set": data.dict(exclude_unset=True)})
+        await user.update({"$set": data.model_dump(exclude_unset=True)})
         return user
