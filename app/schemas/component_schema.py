@@ -4,32 +4,8 @@ from typing import Any
 
 from pydantic import BaseModel, Field, model_validator
 
-if __name__ == "__main__":
-    from rules_engine import rule_registrar as registrar
-else:
-    from .rules_engine import rule_registrar as registrar
-
-
-class PyObjectId(ObjectId):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, v: Any, info) -> ObjectId:
-        # info можна ігнорувати, якщо не потрібен
-        if isinstance(v, ObjectId):
-            return v
-        if isinstance(v, str):
-            try:
-                return ObjectId(v)
-            except Exception as e:
-                raise ValueError(f"Invalid ObjectId: {v}") from e
-        raise TypeError("ObjectId or 24-hex string expected")
-
-    @classmethod
-    def __get_pydantic_json_schema__(cls, core_schema, handler):
-        return {"title": "ObjectId", "type": "string", "pattern": "^[0-9a-fA-F]{24}$"}
+from app.rules_engine import rule_registrar as registrar
+from app.schemas.pyobjectid import PyObjectId
 
 
 class BaseComponentModel(abc.ABC, BaseModel):
@@ -139,14 +115,12 @@ class Motherboard(BaseComponentModel):
 # #########################################################
 
 
-class Build(BaseComponentModel):
+class Build(BaseModel):
     cpu: Cpu | None = None
     ram: Ram | None = None
     motherboard: Motherboard | None = None
     gpu: Gpu | None = None
     psu: PowerSupply | None = None
-
-    state: dict = Field(default_factory=dict)
 
     model_config = {
         "validate_assignment": True,  # валідуємо й при зміні атрибутів

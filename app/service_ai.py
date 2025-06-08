@@ -1,8 +1,6 @@
 from agents import function_tool
-import dotenv
-from pymongo import MongoClient
-import os
 
+from app.db import db
 from app.filters import (
     CpuFilters,
     GpuFilters,
@@ -11,18 +9,18 @@ from app.filters import (
     PsuFilters,
 )
 from app.helpers import COLLECTIONS, normalize_filters
-from app.models import (
+from app.schemas.pyobjectid import PyObjectId
+from app.schemas.component_schema import (
     Build as BuildState,
     Cpu,
     Gpu,
     Ram,
     Motherboard,
     PowerSupply,
-    PyObjectId,
 )
 from app.repo import (
     BuildRepo,
-    BaseComponentRepo,
+    ChatRepo,
     CpuRepo,
     GpuRepo,
     RamRepo,
@@ -30,25 +28,11 @@ from app.repo import (
     PsuRepo,
 )
 
-dotenv.load_dotenv()
-
-# MONGO_CONFIG = {
-#     "host": "localhost",
-#     "port": 27017,
-#     "username": "root",
-#     "password": "root",
-# }
-# client = MongoClient(**MONGO_CONFIG)
+COMPONENT_COUNT = 2
 
 
-MONGODB_SRV = os.environ.get("MONGODB_SRV")
-DB_NAME = "components"
-
-client = MongoClient(MONGODB_SRV)
-db = client[DB_NAME]
 build_repo = BuildRepo(db)
-
-COMPONENT_COUNT = 5
+chat_repo = ChatRepo(db)
 
 
 def find_cpu(filters: CpuFilters, count: int = COMPONENT_COUNT) -> list[Cpu]:
@@ -106,16 +90,35 @@ find_motherboard = function_tool(find_motherboard)
 find_psu = function_tool(find_psu)
 
 
+#   #########   #
+#   # Build #   #
+#   #########   #
+
+
+def create_chat(user_id: PyObjectId) -> PyObjectId:
+    """create a new chat and build"""
+    _id = chat_repo.create(user_id)
+    return _id
+
+
+def delete_chat(_id: PyObjectId) -> PyObjectId:
+    """delete chat and build"""
+    chat_repo.delete(_id)
+
+
+@function_tool
+def create_build() -> PyObjectId:
+    """create a new build in the db"""
+
+    build = build_repo.create()
+    return build._id
+
+
 # ---------- Операції зі збіркою ----------
 @function_tool
 def add_component(build_id: PyObjectId, type_: COLLECTIONS, component_id: PyObjectId):
     """adds a component to the build"""
-    build = build_repo.load(build_id)
-    if not build:
-        raise ValueError("Unknown build")
-
-    build.state[type_] = component_id
-    build_repo.save_state(build_id, build.state)
+    build_repo.add_component(build_id, type_, component_id)
 
 
 @function_tool

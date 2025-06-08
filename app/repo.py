@@ -1,4 +1,3 @@
-from bson import ObjectId
 from datetime import datetime
 from typing import Literal
 
@@ -6,7 +5,8 @@ from pymongo.collection import Collection
 from pymongo.database import Database
 
 from app.helpers import COLLECTIONS
-from app.models import (
+from app.schemas.pyobjectid import PyObjectId
+from app.schemas.component_schema import (
     BaseComponentModel as Component,
     Build as BuildState,
     Cpu,
@@ -15,6 +15,7 @@ from app.models import (
     Motherboard,
     PowerSupply,
 )
+from app.schemas.chat_schema import Chat
 
 
 class BaseComponentRepo:
@@ -86,25 +87,52 @@ class PsuRepo(BaseComponentRepo):
 # repositories/builds.py
 class BuildRepo:
     def __init__(self, db):
-        self.col = db["builds"]
+        self.col: Collection = db["builds"]
 
-    def create(self, user_id: ObjectId | None) -> BuildState:
+    def create(self, user_id: PyObjectId | None = None) -> BuildState:
         res = self.col.insert_one(
             {
-                "user_id": user_id,
-                "state": {},
+                # "user_id": user_id,
+                # "state": {},
                 "created_at": datetime.now(),
                 "updated_at": datetime.now(),
             }
         )
-        return BuildState(id=res.inserted_id, state={})
+        return BuildState(id=res.inserted_id)
 
-    def load(self, build_id: ObjectId) -> BuildState | None:
+    def load(self, build_id: PyObjectId) -> BuildState | None:
         doc = self.col.find_one({"_id": build_id})
         return BuildState.model_validate(doc) if doc else None
 
-    def save_state(self, build_id: ObjectId, state: dict):
-        self.col.update_one(
-            {"_id": build_id},
-            {"$set": {"state": state, "updated_at": datetime.now()}},
-        )
+    def add_component(
+        self,
+        build_id: PyObjectId,
+        component_type: COLLECTIONS,
+        component_id: PyObjectId,
+    ):
+        build = self.load(build_id)
+        if not build:
+            raise ValueError("Unknown build")
+
+        build.state[component_type] = component_id
+        self.save_state(build_id, build.state)
+
+    # def save_state(self, build_id: PyObjectId, state: dict):
+    #     self.col.update_one(
+    #         {"_id": build_id},
+    #         {"$set": {"state": state, "updated_at": datetime.now()}},
+    #     )
+
+
+class ChatRepo:
+
+    def __init__(self, db):
+        self.col: Collection = db["chats"]
+
+    def create(self, user_id: PyObjectId) -> PyObjectId:
+        chat = Chat(user_id=user_id).model_dump(by_alias=True)
+        res = self.col.insert_one(chat)
+        return res.inserted_id
+
+    def delete(self, chat_id: PyObjectId):
+        return self.col.delete_one({"_id": chat_id})

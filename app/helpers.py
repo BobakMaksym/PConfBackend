@@ -9,9 +9,20 @@ COLLECTIONS = Literal["cpu", "gpu", "motherboard", "psu", "ram"]
 def normalize_filters(filters: BaseModel) -> dict[str, Any]:
     raw_filters = filters.model_dump(exclude_none=True, by_alias=True)
     str_filters = json.dumps(raw_filters).lower()
-    parsed_filters = json.loads(str_filters)
+    parsed: dict[str, Any] = json.loads(str_filters)
 
-    return parsed_filters
+    # видалення ключів з пустим значенням
+    for key in list(parsed.keys()):
+        if not isinstance(parsed[key], str):
+            continue
+        if parsed[key] == "":
+            # якщо фільтр з пустим значенням
+            print(
+                "\n\n  normalize_filters:\n  GPT created a filter with an empty value\n\n"
+            )
+            del parsed[key]
+
+    return parsed
 
 
 if __name__ == "__main__":
@@ -42,6 +53,10 @@ if __name__ == "__main__":
         cores={"$gt": 6, "$lt": 12},
         manufacturer="INTEL",
     )
+    filters_norm = normalize_filters(filters)
+    print(filters_norm)
+
+    filters = CpuFilters(manufacturer="")
     filters_norm = normalize_filters(filters)
     print(filters_norm)
 
