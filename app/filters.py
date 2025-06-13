@@ -53,7 +53,7 @@ class GpuFilters(BaseModel):
     fans: IntOrIn = field(ex=[1, 2, 3, {"$gte": 1, "$lte": 2}])
     memory_size: IntOrIn = field(ex=[12, {"$gte": 16, "$lte": 24}])
 
-    model_gpu: Str = None
+    model_gpu: Str = field(desc="do not use this field")
     lighting: Bool = None
 
 

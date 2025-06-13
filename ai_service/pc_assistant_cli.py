@@ -3,11 +3,12 @@ import json
 from typing import Optional, List, Dict
 from datetime import datetime
 
+from agents import Agent, Runner, function_tool
 from pydantic import BaseModel, Field
-from bson import ObjectId
 from pymongo import MongoClient
 
-from agents import Agent, Runner, function_tool
+from app.schemas.pyobjectid import PyObjectId
+
 
 openai_api_key = os.environ.get("OPENAI_API_KEY")
 mongo = MongoClient("mongodb://localhost:27017")
@@ -40,7 +41,7 @@ class BuildService:
 
     def get_component(self, type_: str, comp_id: str):
         col = self.db[f"components.{type_}"]
-        return col.find_one({"_id": ObjectId(comp_id)})
+        return col.find_one({"_id": PyObjectId(comp_id)})
 
     def create_build(self) -> str:
         build = {"state": {}, "created_at": datetime.utcnow()}
@@ -48,13 +49,13 @@ class BuildService:
         return str(res.inserted_id)
 
     def load_build(self, build_id: str) -> BuildState:
-        doc = self.db["builds"].find_one({"_id": ObjectId(build_id)})
+        doc = self.db["builds"].find_one({"_id": PyObjectId(build_id)})
         return BuildState(**doc["state"])
 
     def save_build(self, build_id: str, state: BuildState):
         self.db["builds"].update_one(
-            {"_id": ObjectId(build_id)},
-            {"$set": {"state": state.dict(), "updated_at": datetime.utcnow()}},
+            {"_id": PyObjectId(build_id)},
+            {"$set": {"state": state.model_dump(), "updated_at": datetime.now()}},
         )
 
 
@@ -74,6 +75,7 @@ def add_to_build(build_id: str, component_type: str, component_id: str) -> bool:
     setattr(st, component_type, component_id)
     service.save_build(build_id, st)
     return True
+
 
 """
 

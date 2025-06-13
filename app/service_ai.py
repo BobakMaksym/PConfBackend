@@ -1,4 +1,6 @@
-from agents import function_tool
+from typing import Annotated
+
+from agents import RunContextWrapper, function_tool
 
 from app.db import db
 from app.filters import (
@@ -9,9 +11,10 @@ from app.filters import (
     PsuFilters,
 )
 from app.helpers import COLLECTIONS, normalize_filters
+from app.schemas.build import BuildContext, Components
 from app.schemas.pyobjectid import PyObjectId
 from app.schemas.component_schema import (
-    Build as BuildState,
+    Build,
     Cpu,
     Gpu,
     Ram,
@@ -20,7 +23,7 @@ from app.schemas.component_schema import (
 )
 from app.repo import (
     BuildRepo,
-    ChatRepo,
+    # ChatRepo,
     CpuRepo,
     GpuRepo,
     RamRepo,
@@ -32,7 +35,7 @@ COMPONENT_COUNT = 2
 
 
 build_repo = BuildRepo(db)
-chat_repo = ChatRepo(db)
+# chat_repo = ChatRepo(db)
 
 
 def find_cpu(filters: CpuFilters, count: int = COMPONENT_COUNT) -> list[Cpu]:
@@ -116,9 +119,57 @@ def create_build() -> PyObjectId:
 
 # ---------- Операції зі збіркою ----------
 @function_tool
-def add_component(build_id: PyObjectId, type_: COLLECTIONS, component_id: PyObjectId):
-    """adds a component to the build"""
-    build_repo.add_component(build_id, type_, component_id)
+def add_component(
+    wrapper: RunContextWrapper[BuildContext],
+    components: Components,
+    # type_: COLLECTIONS,
+    # component_id: PyObjectId,
+):
+    """Adds a components to the PC config"""
+
+    # print(f"_ID ЗБІРКИ, ЯКЕ ПЕРЕДАЄТЬСЯ ЧЕРЕЗ КОНТЕКСТ: {wrapper.context._id}")
+    # print(type_, component_id)
+
+    build_id = wrapper.context._id
+
+    comp_types = components.model_dump(exclude_none=True).keys()
+    for comp_t in comp_types:
+        comp_id = getattr(components, comp_t)
+        build_repo.add_component(build_id, comp_t, comp_id)
+
+    build = build_repo.get_full_build(build_id)
+
+    return Build(**build)
+
+
+@function_tool
+def get_configuration(wrapper: RunContextWrapper[BuildContext]):
+    """Get the current state of the PC config"""
+    id_ = wrapper.context._id
+    _build = build_repo.get_full_build(id_)
+
+    build = Build(**_build)
+
+    return build
+
+
+# @function_tool
+# def get_build(wrapper: RunContextWrapper[Build]) -> BuildState:
+#     """get the user's PC from the database"""
+
+#     build_id = wrapper.context.id
+
+#     build = build_repo.load(build_id)
+#     if not build:
+#         raise ValueError("Unknown build")
+#     return build
+
+
+# def add_component_api(
+#     build_id: PyObjectId, type_: COLLECTIONS, component_id: PyObjectId
+# ):
+#     """adds a component to the build"""
+#     build_repo.add_component(build_id, type_, component_id)
 
 
 @function_tool
@@ -130,12 +181,3 @@ def remove_component(build_id: PyObjectId, type_: COLLECTIONS):
 
     build.state.pop(type_, None)
     build_repo.save_state(build_id, build.state)
-
-
-@function_tool
-def get_build(build_id: PyObjectId) -> BuildState:
-    """get the user's PC from the database"""
-    build = build_repo.load(build_id)
-    if not build:
-        raise ValueError("Unknown build")
-    return build

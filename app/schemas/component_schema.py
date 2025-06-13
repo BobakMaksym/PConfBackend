@@ -1,8 +1,7 @@
 import abc
-from bson import ObjectId
 from typing import Any
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, computed_field
 
 from app.rules_engine import rule_registrar as registrar
 from app.schemas.pyobjectid import PyObjectId
@@ -13,7 +12,7 @@ class BaseComponentModel(abc.ABC, BaseModel):
 
     @property
     def _id(self):
-        return ObjectId(self.id)
+        return PyObjectId(self.id)
 
 
 class PowerSupply(BaseComponentModel):
@@ -116,21 +115,28 @@ class Motherboard(BaseComponentModel):
 
 
 class Build(BaseModel):
+
     cpu: Cpu | None = None
     ram: Ram | None = None
     motherboard: Motherboard | None = None
     gpu: Gpu | None = None
     psu: PowerSupply | None = None
 
-    model_config = {
-        "validate_assignment": True,  # валідуємо й при зміні атрибутів
-    }
+    @computed_field(description="compatibility errors")
+    @property
+    def errors(self) -> int:
+        return registrar.run(self)
 
-    @model_validator(mode="after")
-    def _validate_build(cls, build):
-        # Запускаємо rules engine
-        registrar.run(build)
-        return build
+    # model_config = {
+    #     "validate_assignment": True,  # валідуємо й при зміні атрибутів
+    # }
+
+    # @model_validator(mode="after")
+    # def _validate_build(cls, build):
+    #     # Запускаємо rules engine
+    #     errors =
+    #     build.errors = errors
+    #     return build
 
 
 if __name__ == "__main__":

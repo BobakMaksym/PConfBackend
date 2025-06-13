@@ -12,6 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Body
 from app.api.deps.user_deps import get_current_user
 from app.models.user_model import User
 from app.service_ai import create_chat, delete_chat
+from app.schemas.pyobjectid import PyObjectId
 
 # from app.core.config import settings
 # from app.schemas.auth_schema import TokenPayload
@@ -27,16 +28,16 @@ async def new_chat(current_user: User = Depends(get_current_user)) -> dict[str, 
     _id = create_chat(current_user.id)
     return {
         "status": status.HTTP_201_CREATED,
-        "msg": f'chat created ObjectId("{_id}")',
+        "msg": f"chat created, `{_id}`",
     }
 
 
 @chat_router.post("/delete")
 async def new_chat(_id: str, current_user: User = Depends(get_current_user)):
-    delete_chat(bson.ObjectId(_id))
+    delete_chat(PyObjectId(_id))
     return {
         "status": status.HTTP_204_NO_CONTENT,
-        "msg": f'chat ObjectId("{_id}") deleted',
+        "msg": f"chat `{_id}` deleted",
     }
 
 

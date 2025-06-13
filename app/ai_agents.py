@@ -1,12 +1,12 @@
 import asyncio
 import json
-import subprocess
-import bson
 
 from agents import (
     Agent,
     HandoffOutputItem,
+    handoff,
     ItemHelpers,
+    RunContextWrapper,
     MessageOutputItem,
     # RunContextWrapper,
     Runner,
@@ -18,19 +18,24 @@ from agents import (
     trace,
     ModelSettings,
 )
+from agents.extensions.handoff_prompt import RECOMMENDED_PROMPT_PREFIX
+from agents.extensions.handoff_prompt import prompt_with_handoff_instructions
 
-from app.service import BuildService
+from app.repo import BuildRepo
+from app.schemas.pyobjectid import PyObjectId
+from app.schemas.build import BuildContext
+from app.services.config_service import BuildService
 from app.db import db
 from app.service_ai import (
     find_cpu,
     find_gpu,
-    # find_ram,
-    # find_motherboard,
-    # find_psu,
+    find_ram,
+    find_motherboard,
+    find_psu,
     add_component,
     create_build,
     remove_component,
-    get_build,
+    get_configuration,
 )
 from app.prompt.configurator import CONFIGURATOR_PROMPT
 from app.prompt.question import QUESTION_PROMPT
@@ -59,25 +64,18 @@ CONSULTANT_SYSTEM_PROMPT = (
 )
 
 
-configurator_agent = Agent(
+configurator_agent = Agent[BuildContext](
     model="gpt-4.1-mini",
     name="configurator",
     instructions=CONFIGURATOR_PROMPT,
-    tools=[find_cpu, find_gpu, add_component, get_build],
-    model_settings=ModelSettings(
-        temperature=0.5,
-        top_p=0.4,
-        tool_choice="auto",
-    ),
-)
-
-
-answering_questions_agent = Agent(
-    model="gpt-4.1-mini",
-    name="answering_questions",
-    instructions=ANSWERING_QUESTIONS_PROMPT,
     tools=[
-        # тут має бути інструмент для універсального пошуку компонентів по назві
+        find_cpu,
+        find_gpu,
+        find_ram,
+        find_motherboard,
+        find_psu,
+        add_component,
+        get_configuration,
     ],
     model_settings=ModelSettings(
         temperature=0.5,
@@ -87,7 +85,22 @@ answering_questions_agent = Agent(
 )
 
 
-questions_agent = Agent(
+answering_questions_agent = Agent[BuildContext](
+    model="gpt-4.1-mini",
+    name="answering_questions",
+    instructions=ANSWERING_QUESTIONS_PROMPT,
+    # tools=[
+    #     # тут має бути інструмент для універсального пошуку компонентів по назві
+    # ],
+    model_settings=ModelSettings(
+        temperature=0.5,
+        top_p=0.4,
+        tool_choice="auto",
+    ),
+)
+
+
+questions_agent = Agent[BuildContext](
     model="gpt-4.1-mini",
     name="questioner",
     instructions=QUESTION_PROMPT,
@@ -96,8 +109,8 @@ questions_agent = Agent(
 
 
 async def main():
-    build_service = BuildService(db)
-    build = build_service.get_build(bson.ObjectId("683c675fc489e9de92cb6430"))
+
+    build = BuildContext(_id=PyObjectId("683b7ab21fbad55848727e64"))
 
     history: list[TResponseInputItem] = []
     history.append(
@@ -109,24 +122,36 @@ async def main():
 
     print(f"consultant: {history[0]["content"]}")
 
-    router_agent = Agent(
+    router_agent = Agent[BuildContext](
         name="Router",
         model="gpt-4.1-nano",
-        instructions=ROUTER_PROMPT.format(""),
-        tools=[
-            configurator_agent.as_tool(
-                tool_name="configurator_agent",
-                tool_description="assembles the PC according to the user's requirements",
+        instructions=prompt_with_handoff_instructions(ROUTER_PROMPT),
+        handoffs=[
+            handoff(
+                configurator_agent,
+                # tool_name_override="configurator_agent",
+                tool_description_override="assembles the PC according to the user's requirements",
             ),
-            questions_agent.as_tool(
-                tool_name="questions_agent",
-                tool_description="asks questions to better understand the user's PC requirements",
-            ),
-            answering_questions_agent.as_tool(
-                tool_name="answering_questions_agent",
-                tool_description="provides answers to user questions",
-            ),
+            # handoff(
+            #     questions_agent,
+            #     # tool_name_override="questions_agent",
+            #     tool_description_override="asks questions to better understand the user's PC requirements",
+            # ),
         ],
+        # tools=[
+        #     # configurator_agent.as_tool(
+        #     #     tool_name="configurator_agent",
+        #     #     tool_description="assembles the PC according to the user's requirements",
+        #     # ),
+        #     # questions_agent.as_tool(
+        #     #     tool_name="questions_agent",
+        #     #     tool_description="asks questions to better understand the user's PC requirements",
+        #     # ),
+        #     # answering_questions_agent.as_tool(
+        #     #     tool_name="answering_questions_agent",
+        #     #     tool_description="provides answers to user questions",
+        #     # ),
+        # ],
         model_settings=ModelSettings(
             temperature=0.2,
             top_p=0.2,
@@ -148,7 +173,10 @@ async def main():
 
             history.append({"role": "user", "content": user_input})
 
-            result = await Runner.run(router_agent, history)
+            """
+            додав тут контекст з _id конфігурації
+            """
+            result = await Runner.run(router_agent, history, context=build)
 
             history = result.to_input_list()
 

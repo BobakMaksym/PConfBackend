@@ -1,5 +1,5 @@
 from app.helpers import COLLECTIONS
-from app.schemas.component_schema import Build as BuildState
+from app.schemas.component_schema import Build
 from app.schemas.pyobjectid import PyObjectId
 from app.repo import (
     BuildRepo,
@@ -47,8 +47,17 @@ class BuildService:
         build.state.pop(type_, None)
         self.build_repo.save_state(build_id, build.state)
 
-    def get_build(self, build_id: PyObjectId) -> BuildState:
+    def get_build(self, build_id: PyObjectId) -> Build:
         b = self.build_repo.load(build_id)
         if not b:
             raise ValueError("Unknown build")
         return b
+
+    def get_configuration(self, id_: PyObjectId):
+        """Get the current state of the PC config"""
+
+        _build = self.build_repo.get_full_build(id_)
+
+        build = Build(**_build)
+
+        return build

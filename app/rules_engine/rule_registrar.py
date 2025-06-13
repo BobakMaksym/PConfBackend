@@ -19,11 +19,9 @@ def run(build) -> None:
     errors: list[str] = []
     for rule in _RULES:
         errors.extend(rule.validate(build))
-    # if errors:
-    #     raise BuildValidationError(errors)
 
-    # for err in errors:
-    print(errors)
+    print(f"\nCONFIGURATION ERRORS: {errors}\n")
+    return errors
 
 
 register(SocketCompatibility())
