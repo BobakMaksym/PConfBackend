@@ -4,17 +4,17 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status as s, Body, Path
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import Response
+from fastapi.responses import Response, JSONResponse
 from pymongo import errors as mongo_err
 
 from app.api.deps.user_deps import get_current_user
+from app.service_ai import send_message_to_chat
 from app.models.user_model import User
 from app.schemas.pyobjectid import PyObjectId
-from app.schemas.chat_schema import ChatSchema  # , ChatOutSchema
+from app.schemas.chat_schema import ChatSchema
 from app.repo import ChatRepo, BuildRepo
 from app.db import db
 from app.core import exceptions as e
-from app.core.utils import CustomJSONEncoder
 
 # from app.core.config import settings
 # from app.schemas.auth_schema import TokenPayload
@@ -28,11 +28,11 @@ chat_repo = ChatRepo(db)
 chat_router = APIRouter()
 
 
-@chat_router.post("/new/{config_id}")
+@chat_router.post("/new/{config_id}", status_code=s.HTTP_201_CREATED)
 async def create_chat(
     config_id: PyObjectId = Path(example="683b7ab21fbad55848727e64"),
     current_user: User = Depends(get_current_user),
-):
+) -> ChatSchema:
     # перевіряю, чи існує конфігурація
     config = config_repo.get_config(config_id)
     if not config:
@@ -40,13 +40,10 @@ async def create_chat(
 
     # створюю чат, якщо його ще не існує
     try:
-        id_ = chat_repo.create(current_user.id, config_id)
+        chat: ChatSchema = chat_repo.create(current_user.id, config_id)
     except mongo_err.DuplicateKeyError:
-        return Response(
-            "A chat with this id already exists",
-            s.HTTP_409_CONFLICT,
-        )
-    return Response(str(id_), s.HTTP_201_CREATED)
+        return Response("A chat with this id already exists", s.HTTP_409_CONFLICT)
+    return chat
 
 
 @chat_router.delete("/delete/{chat_id}")
@@ -77,8 +74,11 @@ async def send_message(
     if chat:
         # перевірка, чи це чат користувача
         if chat["user_id"] == current_user.id:
-            chat_repo.update_history(chat_id, message)
-            return Response(status_code=s.HTTP_201_CREATED)
+
+            response = await send_message_to_chat(chat_id, message)
+
+            # chat_repo.update_history(chat_id, message)
+            return Response(response, s.HTTP_201_CREATED)
         return Response(
             "You do not have permission to access this resource",
             s.HTTP_403_FORBIDDEN,
@@ -95,7 +95,6 @@ async def get_chat(
     if chat:
         # перевірка, чи це чат користувача
         if chat["user_id"] == current_user.id:
-            chat = chat_repo.get_chat(chat_id)
             return ChatSchema(**chat)
 
         return Response(

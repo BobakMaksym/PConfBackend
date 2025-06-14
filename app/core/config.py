@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     # Database
     MONGO_CONNECTION_STRING: str = config("MONGO_CONNECTION_STRING", cast=str)
 
+    # Agents
+    WORKFLOW_NAME: str = "AI Chat"
+
     class Config:
         case_sensitive = True
 

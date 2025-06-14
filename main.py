@@ -5,7 +5,7 @@ from pprint import pprint
 import uvicorn
 from pydantic import BaseModel
 
-from app.ai_agents import main
+from app.ai_loop import main
 from app.db import db
 from app.repo import BuildRepo, ChatRepo
 from app.schemas.component_schema import Build

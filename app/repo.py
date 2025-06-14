@@ -1,12 +1,9 @@
-from datetime import datetime
-from typing import Literal
-import warnings
-
+from agents import trace
 from pymongo.collection import Collection
 from pymongo.database import Database
-from pymongo import errors
 
 from app.core import exceptions as e
+from app.core.config import settings
 from app.helpers import COLLECTIONS
 from app.schemas.pyobjectid import PyObjectId
 from app.schemas.component_schema import (
@@ -19,6 +16,7 @@ from app.schemas.component_schema import (
     PowerSupply,
 )
 from app.schemas.chat_schema import ChatSchema
+from app.prompt import messages
 
 
 class BaseComponentRepo:
@@ -165,21 +163,35 @@ class ChatRepo:
     def __init__(self, db):
         self.col: Collection = db["chats"]
 
-    def create(self, user_id: PyObjectId, config_id: PyObjectId) -> PyObjectId:
+    def create(self, user_id: PyObjectId, config_id: PyObjectId) -> ChatSchema:
         chat = ChatSchema(
-            _id=config_id, config_id=config_id, user_id=user_id
-        ).model_dump(by_alias=True)
+            _id=config_id,
+            config_id=config_id,
+            user_id=user_id,
+            trace_id=trace(settings.WORKFLOW_NAME).trace_id,
+            messages=[{"role": "assistant", "content": messages.START_MESSAGE}],
+        )
+        res = self.col.insert_one(chat.model_dump(by_alias=True))
+        chat.id = res.inserted_id
 
-        res = self.col.insert_one(chat)
-        # errors.DuplicateKeyError (якщо чат з таким _id вже істує)
-        return res.inserted_id
+        return chat
 
     def delete(self, chat_id: PyObjectId):
         return self.col.delete_one({"_id": chat_id})
 
     def get_chat(self, chat_id: PyObjectId):
-        chat = self.col.find_one({"_id": chat_id})
-        return chat
+        _chat = self.col.find_one({"_id": chat_id})
+        chat = ChatSchema(**_chat)
+        messages = []
+        for msg in chat.messages:
+            msg_type = msg.get("type")
+            if msg_type in ("message", None):
+                messages.append(msg)
+        chat.messages = messages
+        # chat.messages = [
+        #     msg for msg in chat.messages if msg.get("type") in ("message", None)
+        # ]
+        return chat.model_dump(by_alias=True)
 
     def update_history(self, chat_id: PyObjectId, message: str):
         """просто додати повідомлення"""
