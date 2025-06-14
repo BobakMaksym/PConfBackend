@@ -7,12 +7,14 @@ from pydantic import BaseModel
 
 from app.ai_agents import main
 from app.db import db
-from app.repo import BuildRepo
+from app.repo import BuildRepo, ChatRepo
 from app.schemas.component_schema import Build
+from app.schemas.pyobjectid import PyObjectId
 
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 # if __name__ == "__main__":
 #     build_id = ObjectId("683b7ab21fbad55848727e64")
@@ -46,3 +48,9 @@ if __name__ == "__main__":
 
 #     build_model = Build(**build)
 #     pprint(build_model.model_dump(exclude_none=True))
+
+
+# if __name__ == "__main__":
+#     chat_repo = ChatRepo(db)
+#     res = chat_repo.update_history(PyObjectId("683b7ab21fbad55848727e64"), "hello")
+#     print(res)

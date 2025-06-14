@@ -1,37 +1,23 @@
-# from pydantic import BaseModel, Field, model_validator
+from datetime import datetime
+from typing import Any
 
-# from app.schemas.pyobjectid import PyObjectId
-# from app.schemas.component_schema import Cpu, Gpu, Motherboard, PowerSupply, Ram
-# from app.rules_engine import rule_registrar
+from pydantic import BaseModel, Field, model_validator
 
-
-# class Build(BaseModel):
-#     id: PyObjectId = Field(default=None, alias="_id")
-    
-#     cpu: Cpu | None = None
-#     ram: Ram | None = None
-#     motherboard: Motherboard | None = None
-#     gpu: Gpu | None = None
-#     psu: PowerSupply | None = None
-
-#     model_config = {
-#         "validate_assignment": True,  # валідуємо й при зміні атрибутів
-#     }
-
-#     @model_validator(mode="after")
-#     def _validate_build(cls, build):
-#         # Запускаємо rules engine
-#         rule_registrar.run(build)
-#         return build
+from app.schemas.pyobjectid import PyObjectId
 
 
-# class Chat(BaseModel):
-#     # id: PyObjectId = Field(alias="_id")
+class ChatSchema(BaseModel):
+    id: PyObjectId = Field(alias="_id")
+    user_id: PyObjectId
+    config_id: PyObjectId
 
-#     user_id: PyObjectId
-#     build: Build = Field(default_factory=Build)
-#     chat: list[dict | None] = Field(default_factory=list)
+    messages: list[str | None] | list[dict[str, Any] | None] = Field(
+        default_factory=list
+    )
 
-#     @property
-#     def _id(self):
-#         return PyObjectId(self.id)
+    created_at: datetime = Field(default_factory=datetime.now)
+
+    class Config:
+        json_encoders = {
+            PyObjectId: lambda v: str(v),
+        }

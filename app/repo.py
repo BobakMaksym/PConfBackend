@@ -1,9 +1,12 @@
 from datetime import datetime
 from typing import Literal
+import warnings
 
 from pymongo.collection import Collection
 from pymongo.database import Database
+from pymongo import errors
 
+from app.core import exceptions as e
 from app.helpers import COLLECTIONS
 from app.schemas.pyobjectid import PyObjectId
 from app.schemas.component_schema import (
@@ -15,6 +18,7 @@ from app.schemas.component_schema import (
     Motherboard,
     PowerSupply,
 )
+from app.schemas.chat_schema import ChatSchema
 
 
 class BaseComponentRepo:
@@ -95,9 +99,14 @@ class BuildRepo:
         return res.inserted_id
 
     def load(self, build_id: PyObjectId) -> Build | None:
+        """deprecated, use `get_config`"""
+
         doc = self.col.find_one({"_id": build_id})
 
         return doc if doc else None
+
+    def get_config(self, config_id: PyObjectId) -> Build | None:
+        return self.col.find_one({"_id": config_id})
 
     def add_component(
         self,
@@ -150,30 +159,35 @@ class BuildRepo:
 
         return build
 
-    # def save_state(self, build_id: PyObjectId, state: dict):
-    #     # self.col.update_one(
-    #     #     {"_id": build_id},
-    #     #     {"$set": {"state": state, "updated_at": datetime.now()}},
-    #     # )
 
-    #     print(f"\nSAVE STATE: {state}\n", flush=True)
+class ChatRepo:
 
-    #     self.col.update_one(
-    #         {"_id": build_id},
-    #         state,
-    #         # {"$set": {"state": state, "updated_at": datetime.now()}},
-    #     )
+    def __init__(self, db):
+        self.col: Collection = db["chats"]
 
+    def create(self, user_id: PyObjectId, config_id: PyObjectId) -> PyObjectId:
+        chat = ChatSchema(
+            _id=config_id, config_id=config_id, user_id=user_id
+        ).model_dump(by_alias=True)
 
-# class ChatRepo:
+        res = self.col.insert_one(chat)
+        # errors.DuplicateKeyError (якщо чат з таким _id вже істує)
+        return res.inserted_id
 
-#     def __init__(self, db):
-#         self.col: Collection = db["chats"]
+    def delete(self, chat_id: PyObjectId):
+        return self.col.delete_one({"_id": chat_id})
 
-#     def create(self, user_id: PyObjectId) -> PyObjectId:
-#         chat = Chat(user_id=user_id).model_dump(by_alias=True)
-#         res = self.col.insert_one(chat)
-#         return res.inserted_id
+    def get_chat(self, chat_id: PyObjectId):
+        chat = self.col.find_one({"_id": chat_id})
+        return chat
 
-#     def delete(self, chat_id: PyObjectId):
-#         return self.col.delete_one({"_id": chat_id})
+    def update_history(self, chat_id: PyObjectId, message: str):
+        """просто додати повідомлення"""
+
+        result = self.col.find_one_and_update(
+            {"_id": chat_id},
+            {"$push": {"messages": message}},
+        )
+        if not result:
+            raise e.DocumentDoesNotExist
+        return result

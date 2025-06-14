@@ -98,17 +98,6 @@ find_psu = function_tool(find_psu)
 #   #########   #
 
 
-def create_chat(user_id: PyObjectId) -> PyObjectId:
-    """create a new chat and build"""
-    _id = chat_repo.create(user_id)
-    return _id
-
-
-def delete_chat(_id: PyObjectId) -> PyObjectId:
-    """delete chat and build"""
-    chat_repo.delete(_id)
-
-
 @function_tool
 def create_build() -> PyObjectId:
     """create a new build in the db"""

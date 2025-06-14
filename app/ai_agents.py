@@ -21,11 +21,8 @@ from agents import (
 from agents.extensions.handoff_prompt import RECOMMENDED_PROMPT_PREFIX
 from agents.extensions.handoff_prompt import prompt_with_handoff_instructions
 
-from app.repo import BuildRepo
 from app.schemas.pyobjectid import PyObjectId
 from app.schemas.build import BuildContext
-from app.services.config_service import BuildService
-from app.db import db
 from app.service_ai import (
     find_cpu,
     find_gpu,

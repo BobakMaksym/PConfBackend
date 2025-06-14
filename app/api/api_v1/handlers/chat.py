@@ -1,75 +1,105 @@
 import bson
+import json
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, status, Body
+from fastapi import APIRouter, Depends, HTTPException, status as s, Body, Path
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import Response
+from pymongo import errors as mongo_err
 
-# from fastapi.security import OAuth2PasswordRequestForm
-
-# from app.services.user_service import UserService
-# from app.core.security import create_access_token, create_refresh_token
-# from app.schemas.auth_schema import TokenSchema
-# from app.schemas.user_schema import UserOut
 from app.api.deps.user_deps import get_current_user
 from app.models.user_model import User
-from app.service_ai import create_chat, delete_chat
 from app.schemas.pyobjectid import PyObjectId
+from app.schemas.chat_schema import ChatSchema  # , ChatOutSchema
+from app.repo import ChatRepo, BuildRepo
+from app.db import db
+from app.core import exceptions as e
+from app.core.utils import CustomJSONEncoder
 
 # from app.core.config import settings
 # from app.schemas.auth_schema import TokenPayload
 # from pydantic import ValidationError
 # from jose import jwt
 
+config_repo = BuildRepo(db)
+chat_repo = ChatRepo(db)
+
 
 chat_router = APIRouter()
 
 
-@chat_router.post("/new")
-async def new_chat(current_user: User = Depends(get_current_user)) -> dict[str, Any]:
-    _id = create_chat(current_user.id)
-    return {
-        "status": status.HTTP_201_CREATED,
-        "msg": f"chat created, `{_id}`",
-    }
+@chat_router.post("/new/{config_id}")
+async def create_chat(
+    config_id: PyObjectId = Path(example="683b7ab21fbad55848727e64"),
+    current_user: User = Depends(get_current_user),
+):
+    # перевіряю, чи існує конфігурація
+    config = config_repo.get_config(config_id)
+    if not config:
+        raise e.ConfigDoesNotExistException
+
+    # створюю чат, якщо його ще не існує
+    try:
+        id_ = chat_repo.create(current_user.id, config_id)
+    except mongo_err.DuplicateKeyError:
+        return Response(
+            "A chat with this id already exists",
+            s.HTTP_409_CONFLICT,
+        )
+    return Response(str(id_), s.HTTP_201_CREATED)
 
 
-@chat_router.post("/delete")
-async def new_chat(_id: str, current_user: User = Depends(get_current_user)):
-    delete_chat(PyObjectId(_id))
-    return {
-        "status": status.HTTP_204_NO_CONTENT,
-        "msg": f"chat `{_id}` deleted",
-    }
+@chat_router.delete("/delete/{chat_id}")
+async def delete_chat(
+    chat_id: PyObjectId = Path(example="683b7ab21fbad55848727e64"),
+    current_user: User = Depends(get_current_user),
+):
+    chat = chat_repo.get_chat(chat_id)
+    if chat:
+        # перевірка, чи це чат користувача
+        if chat["user_id"] == current_user.id:
+            chat_repo.delete(chat_id)
+            return Response(status_code=s.HTTP_204_NO_CONTENT)
+        return Response(
+            "You do not have permission to access this resource",
+            s.HTTP_403_FORBIDDEN,
+        )
+    return Response("There is no such chat", s.HTTP_404_NOT_FOUND)
 
 
-# @chat_router.post(
-#     "/test-token", summary="Test if the access token is valid", response_model=UserOut
-# )
-# async def test_token(user: User = Depends(get_current_user)):
-#     return user
+@chat_router.post("/send/{chat_id}")
+async def send_message(
+    chat_id: PyObjectId = Path(example="683b7ab21fbad55848727e64"),
+    message: str = Body(),
+    current_user: User = Depends(get_current_user),
+):
+    chat = chat_repo.get_chat(chat_id)
+    if chat:
+        # перевірка, чи це чат користувача
+        if chat["user_id"] == current_user.id:
+            chat_repo.update_history(chat_id, message)
+            return Response(status_code=s.HTTP_201_CREATED)
+        return Response(
+            "You do not have permission to access this resource",
+            s.HTTP_403_FORBIDDEN,
+        )
+    return Response("There is no such chat", s.HTTP_404_NOT_FOUND)
 
 
-# @chat_router.post("/refresh", summary="Refresh token", response_model=TokenSchema)
-# async def refresh_token(refresh_token: str = Body(...)):
-#     try:
-#         payload = jwt.decode(
-#             refresh_token,
-#             settings.JWT_REFRESH_SECRET_KEY,
-#             algorithms=[settings.ALGORITHM],
-#         )
-#         token_data = TokenPayload(**payload)
-#     except (jwt.JWTError, ValidationError):
-#         raise HTTPException(
-#             status_code=status.HTTP_403_FORBIDDEN,
-#             detail="Invalid token",
-#             headers={"WWW-Authenticate": "Bearer"},
-#         )
-#     user = await UserService.get_user_by_id(token_data.sub)
-#     if not user:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND,
-#             detail="Invalid token for user",
-#         )
-#     return {
-#         "access_token": create_access_token(user.user_id),
-#         "refresh_token": create_refresh_token(user.user_id),
-#     }
+@chat_router.get("/get/{chat_id}")
+async def get_chat(
+    chat_id: PyObjectId = Path(example="683b7ab21fbad55848727e64"),
+    current_user: User = Depends(get_current_user),
+):
+    chat = chat_repo.get_chat(chat_id)
+    if chat:
+        # перевірка, чи це чат користувача
+        if chat["user_id"] == current_user.id:
+            chat = chat_repo.get_chat(chat_id)
+            return ChatSchema(**chat)
+
+        return Response(
+            "You do not have permission to access this resource",
+            s.HTTP_403_FORBIDDEN,
+        )
+    return Response("There is no such chat", s.HTTP_404_NOT_FOUND)
