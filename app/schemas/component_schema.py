@@ -3,7 +3,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field, model_validator, computed_field
 
-from app.rules_engine import rule_registrar as registrar
+from app.rules_engine import _manager as registrar
 from app.schemas.pyobjectid import PyObjectId
 
 

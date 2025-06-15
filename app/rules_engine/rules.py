@@ -1,19 +1,17 @@
-# rules_engine/standard_rules.py
-from .core import Rule
-from .utils import calculate_components_power_sum
+from app.rules_engine.core import RuleInterface
+from app.rules_engine.utils import calculate_components_power_sum
 
 
-class SocketCompatibility(Rule):
+class SocketCompatibility(RuleInterface):
     def validate(self, build):
         if build.cpu and build.motherboard:
             if build.cpu.socket.lower() != build.motherboard.socket.lower():
-                return [
-                    f"Несумісні сокети: CPU `{build.cpu.socket}` ≠ MB `{build.motherboard.socket}`"
-                ]
+                msg = f"Несумісні сокети: CPU `{build.cpu.socket}` ≠ MB `{build.motherboard.socket}`"
+                return [msg]
         return []
 
 
-class RamTypeMatches(Rule):
+class RamTypeMatches(RuleInterface):
     def validate(self, build):
 
         errors = []
@@ -36,7 +34,7 @@ class RamTypeMatches(Rule):
         return errors
 
 
-class PsuPowerSufficiency(Rule):
+class PsuPowerSufficiency(RuleInterface):
     """Перевіряє, чи потужність БЖ достатня для всіх компонентів збірки"""
 
     SAFETY_MARGIN = 0.2  # recommended power reserve (20%)

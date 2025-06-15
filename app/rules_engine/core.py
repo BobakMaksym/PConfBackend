@@ -1,18 +1,10 @@
 # rules_engine/core.py
 from abc import ABC, abstractmethod
-from typing import Iterable, List
+from typing import Iterable
 
 
-class BuildValidationError(ValueError):
-    """Збирає всі помилки сумісності."""
-
-    def __init__(self, errors: List[str]) -> None:
-        super().__init__("\n".join(errors))
-        self.errors = errors
-
-
-class Rule(ABC):
+class RuleInterface(ABC):
     """Базовий інтерфейс: повертає список помилок або порожній список."""
 
     @abstractmethod
-    def validate(self, build) -> List[str]: ...
+    def validate(self, build) -> list[str]: ...
