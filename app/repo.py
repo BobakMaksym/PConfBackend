@@ -90,11 +90,14 @@ class BuildRepo:
     def __init__(self, db):
         self.col: Collection = db["builds"]
 
-    def create(self, user_id: PyObjectId | None = None) -> Build:
-        build = Build(user=user_id)
+    def create(self, user_id: PyObjectId) -> PyObjectId:
+        build = Build(user_id=user_id)
         res = self.col.insert_one(build.model_dump())
 
         return res.inserted_id
+
+    def delete(self, build_id: PyObjectId):
+        self.col.delete_one({"_id": build_id})
 
     def load(self, build_id: PyObjectId) -> Build | None:
         """deprecated, use `get_config`"""
