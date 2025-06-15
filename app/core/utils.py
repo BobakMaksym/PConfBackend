@@ -3,15 +3,19 @@ import json
 
 from fastapi.responses import JSONResponse
 
+from app.schemas.pyobjectid import PyObjectId
 
-def convert_object_ids(obj):
+
+def json_encoder(obj):
     """Recursively converts `ObjectId` model fields to `str`"""
 
     if isinstance(obj, list):
-        return [convert_object_ids(item) for item in obj]
+        return [json_encoder(item) for item in obj]
     elif isinstance(obj, dict):
-        return {key: convert_object_ids(value) for key, value in obj.items()}
+        return {key: json_encoder(value) for key, value in obj.items()}
     elif isinstance(obj, ObjectId):
+        return str(obj)
+    elif isinstance(obj, PyObjectId):
         return str(obj)
     else:
         return obj

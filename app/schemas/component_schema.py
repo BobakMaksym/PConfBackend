@@ -1,9 +1,16 @@
 import abc
-from typing import Any
+from typing import Any, Self
 
-from pydantic import BaseModel, Field, model_validator, computed_field
+from pydantic import (
+    BaseModel,
+    Field,
+    computed_field,
+    model_validator,
+    field_validator,
+    field_serializer,
+)
 
-from app.rules_engine import _manager as registrar
+from app.rules_engine.manager import rule_manager
 from app.schemas.pyobjectid import PyObjectId
 
 
@@ -115,6 +122,10 @@ class Motherboard(BaseComponentModel):
 
 
 class Build(BaseModel):
+    # To update the list of errors,
+    # you need to call `update_errors` or `model_dump`
+
+    id: PyObjectId | None = Field(alias="_id", default=None)
 
     cpu: Cpu | None = None
     ram: Ram | None = None
@@ -122,21 +133,30 @@ class Build(BaseModel):
     gpu: Gpu | None = None
     psu: PowerSupply | None = None
 
-    @computed_field(description="compatibility errors")
-    @property
-    def errors(self) -> int:
-        return registrar.run(self)
+    # when adding components dynamically, errors does not change
+    errors: list[str | None] = Field(
+        default_factory=list,
+        description="list of component compatibility errors",
+    )
 
-    # model_config = {
-    #     "validate_assignment": True,  # валідуємо й при зміні атрибутів
-    # }
+    def update_errors(self) -> list[str]:
+        """updates the list of errors"""
+        self.errors = rule_manager.check_compatibility(self)
+        return self.errors
 
-    # @model_validator(mode="after")
-    # def _validate_build(cls, build):
-    #     # Запускаємо rules engine
-    #     errors =
-    #     build.errors = errors
-    #     return build
+    @model_validator(mode="after")
+    def build_validator(self):
+        """
+        errors is initialized only when creating a Build object
+        and does not change when dynamically adding attributes
+        """
+        self.update_errors()
+        return self
+
+    # class Config:
+    #     json_encoders = {
+    #         PyObjectId: lambda v: str(v),
+    #     }
 
 
 if __name__ == "__main__":
@@ -186,15 +206,3 @@ if __name__ == "__main__":
         mb_and_cpu_powersupply="24+8 pin",
         plus_12v=200,  # in W
     )
-
-    build = Build()
-    build.cpu = cpu
-    build.motherboard = motherboard
-    build.ram = ram
-    build.psu = psu
-    build.gpu = gpu
-
-    psu.power = 1000
-    build.psu = psu
-    build.ram = None
-    print(build)

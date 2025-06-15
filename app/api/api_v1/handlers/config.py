@@ -7,9 +7,10 @@ from pydantic import ValidationError
 
 from app.core.security import create_access_token, create_refresh_token
 from app.core.config import settings
+from app.core import utils
 from app.schemas.auth_schema import TokenPayload, TokenSchema
 from app.schemas.user_schema import UserOut
-from app.schemas.component_schema import Build
+from app.schemas.component_schema import Build  # , BuildResponse
 from app.services.user_service import UserService
 from app.services.config_service import BuildService
 from app.models.user_model import User
@@ -29,10 +30,10 @@ service = BuildService(db)
 async def get_config(
     id: PyObjectId = Path(example="683b7ab21fbad55848727e64"),
     # current_user: User = Depends(get_current_user),
-) -> Build:
-    configuration = service.get_configuration(id)
+):
+    config = service.get_configuration(id)
 
-    return configuration.model_dump()
+    return utils.json_encoder(config.model_dump(by_alias=True))
 
 
 # @auth_router.post(
