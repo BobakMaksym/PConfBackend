@@ -139,3 +139,14 @@ def get_configuration(wrapper: RunContextWrapper[BuildContext]):
     build = Build(**_build)
 
     return build
+
+
+# @function_tool
+# def remove_component(build_id: PyObjectId, type_: COLLECTIONS):
+#     """removes a component from the assembly"""
+#     build = build_repo.load(build_id)
+#     if not build:
+#         raise ValueError("Unknown build")
+
+#     build.state.pop(type_, None)
+#     build_repo.save_state(build_id, build.state)
