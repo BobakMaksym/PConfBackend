@@ -126,6 +126,7 @@ class Build(BaseModel):
     # you need to call `update_errors` or `model_dump`
 
     id: PyObjectId | None = Field(alias="_id", default=None)
+    user_id: PyObjectId
 
     cpu: Cpu | None = None
     ram: Ram | None = None
