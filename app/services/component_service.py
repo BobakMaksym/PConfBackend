@@ -28,7 +28,7 @@ from app.repo import (
 )
 
 
-COMPONENT_COUNT = 10
+COMPONENT_COUNT = 500
 
 # ###################################
 

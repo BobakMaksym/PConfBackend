@@ -1,3 +1,4 @@
+from typing import Any
 from agents import trace
 from pymongo.collection import Collection
 from pymongo.database import Database
@@ -108,6 +109,11 @@ class BuildRepo:
 
     def get_config(self, config_id: PyObjectId) -> Build | None:
         return self.col.find_one({"_id": config_id})
+    
+    def get_config_errors(self, config_id: PyObjectId) -> Build | None:
+        errors = self.col.find_one({"_id": config_id}, {"errors": 1})
+
+        return errors
 
     def add_component(
         self,
@@ -181,6 +187,16 @@ class ChatRepo:
 
     def delete(self, chat_id: PyObjectId):
         return self.col.delete_one({"_id": chat_id})
+
+    def get_user_chat(self, user_id: PyObjectId):
+        _chats = self.col.find({"user_id": user_id}, {"messages": 0})
+
+        chats = []
+        for chat in _chats:
+            chat = ChatSchema(**chat).model_dump(exclude_none=True)
+            chats.append(chat)
+
+        return chats
 
     def get_chat(self, chat_id: PyObjectId):
         _chat = self.col.find_one({"_id": chat_id})

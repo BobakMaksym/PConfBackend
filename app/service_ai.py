@@ -37,7 +37,8 @@ async def send_message_to_chat(chat_id: PyObjectId, message: str) -> TResponseIn
 
         # повне перезаписування історії повідомлень
         # це потрібно буде виправити пізніше
+        all_messages = response.to_input_list()
         chat_repo.col.find_one_and_update(
-            {"_id": chat_id}, {"$set": {"messages": response.to_input_list()}}
+            {"_id": chat_id}, {"$set": {"messages": all_messages}}
         )
-    return response.final_output
+    return all_messages[-1]  # response (last message)
