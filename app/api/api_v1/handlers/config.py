@@ -34,8 +34,10 @@ async def get_config(
     config_id: PyObjectId = Path(..., example="683b7ab21fbad55848727e64"),
     current_user: User = Depends(get_current_user),
 ):
-    config = service.get_configuration(config_id)
-
+    config = BuildRepo(db).get_config(config_id)
+    if config:
+        if config["user_id"] == current_user.id:
+            config = service.get_configuration(config_id)
     return utils.json_encoder(config.model_dump(by_alias=True, exclude_none=True))
 
 

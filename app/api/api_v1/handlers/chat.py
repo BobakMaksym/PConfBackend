@@ -15,6 +15,7 @@ from app.schemas.chat_schema import ChatSchema
 from app.repo import ChatRepo, BuildRepo
 from app.db import db
 from app.core import exceptions as e
+from app.core import utils
 
 # from app.core.config import settings
 # from app.schemas.auth_schema import TokenPayload
@@ -44,6 +45,14 @@ async def create_chat(
     except mongo_err.DuplicateKeyError:
         return Response("A chat with this id already exists", s.HTTP_409_CONFLICT)
     return chat
+
+
+@chat_router.get("/my/")
+async def my_chats(current_user: User = Depends(get_current_user)):
+    user_id = current_user.id
+    chats = chat_repo.get_user_chat(user_id)
+
+    return utils.json_encoder(chats)
 
 
 @chat_router.delete("/delete/{chat_id}")
@@ -77,8 +86,7 @@ async def send_message(
 
             response = await send_message_to_chat(chat_id, message)
 
-            # chat_repo.update_history(chat_id, message)
-            return Response(response, s.HTTP_201_CREATED)
+            return JSONResponse(response, s.HTTP_201_CREATED)
         return Response(
             "You do not have permission to access this resource",
             s.HTTP_403_FORBIDDEN,
