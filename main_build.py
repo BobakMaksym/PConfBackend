@@ -50,14 +50,17 @@ if __name__ == "__main__":
     )
 
     build = Build()
+
     build.cpu = cpu
+    build.update_errors()
+
     build.ram = ram
+    # build.update_errors()
+
     build.psu = psu
+    # build.update_errors()
+
     build.gpu = gpu
-    build.motherboard = motherboard
+    # build.update_errors()
 
-    psu.power = 100
-
-    build.ram = None
-
-    print(build)
+    print(build.model_dump())
