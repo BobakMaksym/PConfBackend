@@ -10,7 +10,6 @@ from app.filters import (
 )
 from app.helpers import normalize_filters
 from app.schemas.build import BuildContext, Components
-from app.schemas.pyobjectid import PyObjectId
 from app.schemas.component_schema import (
     Build,
     Cpu,
@@ -77,13 +76,6 @@ def find_psu(filters: PsuFilters, count: int = COMPONENT_COUNT) -> list[PowerSup
     return PsuRepo(db).find(filters, limit=count)
 
 
-# # API aliases (original functions)
-# find_cpu_api = find_cpu
-# find_gpu_api = find_gpu
-# find_ram_api = find_ram
-# find_motherboard_api = find_motherboard
-# find_psu_api = find_psu
-
 # Decorated with function_tool for OpenAI agents
 find_cpu = function_tool(find_cpu)
 find_gpu = function_tool(find_gpu)
@@ -92,31 +84,13 @@ find_motherboard = function_tool(find_motherboard)
 find_psu = function_tool(find_psu)
 
 
-#   #########   #
-#   # Build #   #
-#   #########   #
-
-
-@function_tool
-def create_build() -> PyObjectId:
-    """create a new build in the db"""
-
-    build = build_repo.create()
-    return build._id
-
-
 # ---------- Операції зі збіркою ----------
 @function_tool
 def add_component(
     wrapper: RunContextWrapper[BuildContext],
     components: Components,
-    # type_: COLLECTIONS,
-    # component_id: PyObjectId,
 ):
     """Adds a components to the PC config"""
-
-    # print(f"_ID ЗБІРКИ, ЯКЕ ПЕРЕДАЄТЬСЯ ЧЕРЕЗ КОНТЕКСТ: {wrapper.context._id}")
-    # print(type_, component_id)
 
     build_id = wrapper.context._id
 
@@ -139,14 +113,3 @@ def get_configuration(wrapper: RunContextWrapper[BuildContext]):
     build = Build(**_build)
 
     return build
-
-
-# @function_tool
-# def remove_component(build_id: PyObjectId, type_: COLLECTIONS):
-#     """removes a component from the assembly"""
-#     build = build_repo.load(build_id)
-#     if not build:
-#         raise ValueError("Unknown build")
-
-#     build.state.pop(type_, None)
-#     build_repo.save_state(build_id, build.state)
