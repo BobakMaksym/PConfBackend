@@ -4,6 +4,7 @@ from beanie import init_beanie
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
+from mongoengine import connect, disconnect
 
 from app.api.api_v1.router import router
 from app.core.config import settings
@@ -17,8 +18,9 @@ async def lifespan(app: FastAPI):
     db_client = AsyncIOMotorClient(settings.MONGO_CONNECTION_STRING).components
     await init_beanie(database=db_client, document_models=[User])
 
-    yield  # Тут можна також розмістити логіку для "shutdown", якщо потрібно
-
+    connect(db=settings.DATABASE, host=settings.MONGO_CONNECTION_STRING)
+    yield
+    disconnect()
     # Вимикання сервісів на shutdown (опційно)
     # await db_client.close()  # якщо необхідно явно закривати
 
