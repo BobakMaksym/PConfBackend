@@ -4,7 +4,7 @@ import pymongo
 
 from app.api.deps.user_deps import get_current_user
 from app.schemas.user_schema import UserAuth, UserOut, UserUpdate
-from app.models.user_model import User
+from app.documents.user_model import User
 from app.services.user_service import UserService
 
 

@@ -8,7 +8,7 @@ from mongoengine import connect, disconnect
 
 from app.api.api_v1.router import router
 from app.core.config import settings
-from app.models.user_model import User
+from app.documents.user_model import User
 
 
 @asynccontextmanager

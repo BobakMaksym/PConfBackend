@@ -13,7 +13,7 @@ from app.filters import (
     RamFilters,
 )
 from app.helpers import COLLECTIONS
-from app.models.user_model import User
+from app.documents.user_model import User
 from app.repo import BuildRepo
 from app.services.component_service import ConfigService
 from app.schemas.component_schema import Build

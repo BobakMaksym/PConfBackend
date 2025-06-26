@@ -7,7 +7,7 @@ from pydantic import ValidationError
 from app.core.config import settings
 from app.schemas.auth_schema import TokenPayload
 from app.services.user_service import UserService
-from app.models.user_model import User
+from app.documents.user_model import User
 
 reuseable_oauth = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/auth/login", scheme_name="JWT"

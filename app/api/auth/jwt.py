@@ -5,7 +5,7 @@ from app.services.user_service import UserService
 from app.core.security import create_access_token, create_refresh_token
 from app.schemas.auth_schema import TokenSchema
 from app.schemas.user_schema import UserOut
-from app.models.user_model import User
+from app.documents.user_model import User
 from app.api.deps.user_deps import get_current_user
 from app.core.config import settings
 from app.schemas.auth_schema import TokenPayload

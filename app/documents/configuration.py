@@ -1,10 +1,10 @@
 from mongoengine import Document, fields as f, NULLIFY
 
-from app.models.cpu import CpuModel
-from app.models.gpu import GpuModel
-from app.models.motherboard import MotherboardModel
-from app.models.psu import PsuModel
-from app.models.ram import RamModel
+from app.documents.cpu import CpuModel
+from app.documents.gpu import GpuModel
+from app.documents.motherboard import MotherboardModel
+from app.documents.psu import PsuModel
+from app.documents.ram import RamModel
 
 
 class ConfigDocument(Document):

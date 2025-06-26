@@ -5,7 +5,7 @@ from app.api.deps.user_deps import get_current_user
 from app.core import utils
 from app.db import db
 from app.helpers import COLLECTIONS
-from app.models.user_model import User
+from app.documents.user_model import User
 from app.repo import BuildRepo
 from app.services.component_service import ConfigService
 from app.schemas.component_schema import Build

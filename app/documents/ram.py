@@ -1,6 +1,6 @@
 from mongoengine import fields as f
 
-from app.models.base import BaseDocument
+from app.documents.base import BaseDocument
 
 
 class RamDocument(BaseDocument):
