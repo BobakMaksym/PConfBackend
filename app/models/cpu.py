@@ -3,7 +3,7 @@ from mongoengine import fields as f
 from app.models.base import BaseDocument
 
 
-class CpuModel(BaseDocument):
+class CpuDocument(BaseDocument):
     meta = {"collection": "cpu"}
 
     socket: str = f.StringField(required=True)

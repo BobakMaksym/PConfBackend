@@ -3,7 +3,7 @@ from mongoengine import fields as f
 from app.models.base import BaseDocument
 
 
-class PsuModel(BaseDocument):
+class PsuDocument(BaseDocument):
     meta = {"collection": "psu"}
 
     form_factor = f.StringField(required=True)

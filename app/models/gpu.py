@@ -3,7 +3,9 @@ from mongoengine import fields as f
 from app.models.base import BaseDocument
 
 
-class GpuModel(BaseDocument):
+class GpuDocument(BaseDocument):
+    meta = {"collection": "gpu"}
+
     model_gpu = f.StringField(required=True)
     memory_size = f.IntField(required=True)
     memory_type = f.StringField(required=True)

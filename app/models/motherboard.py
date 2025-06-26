@@ -3,7 +3,9 @@ from mongoengine import fields as f
 from app.models.base import BaseDocument
 
 
-class MotherboardModel(BaseDocument):
+class MotherboardDocument(BaseDocument):
+    meta = {"collection": "motherboard"}
+
     socket = f.StringField(required=True)
     form_factor = f.StringField(required=True)
     ram_type = f.StringField(required=True)

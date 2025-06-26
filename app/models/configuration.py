@@ -1,4 +1,4 @@
-from mongoengine import Document, fields as f
+from mongoengine import Document, fields as f, NULLIFY
 
 from app.models.cpu import CpuModel
 from app.models.gpu import GpuModel
@@ -7,13 +7,13 @@ from app.models.psu import PsuModel
 from app.models.ram import RamModel
 
 
-class Build(Document):
+class ConfigDocument(Document):
     meta = {"db_alias": "default"}
 
     user_id = f.ObjectIdField(required=True)
 
-    cpu = f.ReferenceField(CpuModel)
-    ram = f.ReferenceField(RamModel)
-    motherboard = f.ReferenceField(MotherboardModel)
-    gpu = f.ReferenceField(GpuModel)
-    psu = f.ReferenceField(PsuModel)
+    cpu = f.ReferenceField(CpuModel, reverse_delete_rule=NULLIFY)
+    ram = f.ReferenceField(RamModel, reverse_delete_rule=NULLIFY)
+    motherboard = f.ReferenceField(MotherboardModel, reverse_delete_rule=NULLIFY)
+    gpu = f.ReferenceField(GpuModel, reverse_delete_rule=NULLIFY)
+    psu = f.ReferenceField(PsuModel, reverse_delete_rule=NULLIFY)

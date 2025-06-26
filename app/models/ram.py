@@ -3,7 +3,9 @@ from mongoengine import fields as f
 from app.models.base import BaseDocument
 
 
-class RamModel(BaseDocument):
+class RamDocument(BaseDocument):
+    meta = {"collection": "ram"}
+
     type = f.StringField(required=True)
     modules = f.IntField(required=True)
     capacity = f.IntField(required=True)
