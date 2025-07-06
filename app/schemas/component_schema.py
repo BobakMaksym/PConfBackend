@@ -21,6 +21,9 @@ class BaseComponentModel(abc.ABC, BaseModel):
     def _id(self):
         return PyObjectId(self.id)
 
+    class Config:
+        from_attributes = True
+
 
 class PowerSupply(BaseComponentModel):
 

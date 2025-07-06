@@ -1,10 +1,10 @@
 from mongoengine import Document, fields as f, NULLIFY
 
-from app.documents.cpu import CpuModel
-from app.documents.gpu import GpuModel
-from app.documents.motherboard import MotherboardModel
-from app.documents.psu import PsuModel
-from app.documents.ram import RamModel
+from app.documents.cpu import CpuDocument
+from app.documents.gpu import GpuDocument
+from app.documents.motherboard import MotherboardDocument
+from app.documents.psu import PsuDocument
+from app.documents.ram import RamDocument
 
 
 class ConfigDocument(Document):
@@ -12,8 +12,8 @@ class ConfigDocument(Document):
 
     user_id = f.ObjectIdField(required=True)
 
-    cpu = f.ReferenceField(CpuModel, reverse_delete_rule=NULLIFY)
-    ram = f.ReferenceField(RamModel, reverse_delete_rule=NULLIFY)
-    motherboard = f.ReferenceField(MotherboardModel, reverse_delete_rule=NULLIFY)
-    gpu = f.ReferenceField(GpuModel, reverse_delete_rule=NULLIFY)
-    psu = f.ReferenceField(PsuModel, reverse_delete_rule=NULLIFY)
+    cpu = f.ReferenceField(CpuDocument, reverse_delete_rule=NULLIFY)
+    ram = f.ReferenceField(RamDocument, reverse_delete_rule=NULLIFY)
+    motherboard = f.ReferenceField(MotherboardDocument, reverse_delete_rule=NULLIFY)
+    gpu = f.ReferenceField(GpuDocument, reverse_delete_rule=NULLIFY)
+    psu = f.ReferenceField(PsuDocument, reverse_delete_rule=NULLIFY)
