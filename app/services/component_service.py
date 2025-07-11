@@ -1,3 +1,6 @@
+from abc import ABC, abstractmethod
+from typing import Any, ClassVar
+
 from app.db import db
 from app.filters import (
     CpuFilters,
@@ -84,41 +87,41 @@ class ConfigService:
 
         BuildRepo(db).col.update_one({"_id": build_id}, {"$unset": {type_: 1}})
 
-    # ---------- пошук та фільтрація компонентів ----------
 
-    @staticmethod
-    def find_cpu(filters: CpuFilters, count: int = COMPONENT_COUNT) -> list[Cpu]:
-        """finds CPU's in DB"""
-        filters = normalize_filters(filters)
-        return CpuRepo(db).find(filters, limit=count)
+class AbstractComponentService(ABC):
+    @abstractmethod
+    @classmethod
+    def find(cls, filters: dict, count: int) -> list[Any]: ...
 
-    @staticmethod
-    def find_gpu(filters: GpuFilters, count: int = COMPONENT_COUNT) -> list[Gpu]:
-        """finds GPU's in DB"""
-        filters = normalize_filters(filters)
-        return GpuRepo(db).find(filters, limit=count)
 
-    # RAM
-    @staticmethod
-    def find_ram(filters: RamFilters, count: int = COMPONENT_COUNT) -> list[Ram]:
-        """finds RAM modules in DB"""
-        filters = normalize_filters(filters)
-        return RamRepo(db).find(filters, limit=count)
+class BaseComponentService(AbstractComponentService):
+    repo: ClassVar = None
 
-    # Motherboard
-    @staticmethod
-    def find_motherboard(
-        filters: MotherboardFilters, count: int = COMPONENT_COUNT
-    ) -> list[Motherboard]:
-        """finds motherboards in DB"""
+    @classmethod
+    def find(cls, filters, count=COMPONENT_COUNT) -> list[Any]:
         filters = normalize_filters(filters)
-        return MbRepo(db).find(filters, limit=count)
+        return cls.repo(db).find(filters, limit=count)
 
-    # PSU
-    @staticmethod
-    def find_psu(
-        filters: PsuFilters, count: int = COMPONENT_COUNT
-    ) -> list[PowerSupply]:
-        """finds power supplies in DB"""
-        filters = normalize_filters(filters)
-        return PsuRepo(db).find(filters, limit=count)
+
+class CpuService(BaseComponentService):
+    repo = CpuRepo
+
+
+class GpuService(BaseComponentService):
+    repo = GpuRepo
+
+
+class RamService(BaseComponentService):
+    repo = RamRepo
+
+
+class CpuService(BaseComponentService):
+    repo = CpuRepo
+
+
+class MotherboardService(BaseComponentService):
+    repo = MbRepo
+
+
+class PsuService(BaseComponentService):
+    repo = PsuRepo
