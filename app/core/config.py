@@ -1,6 +1,11 @@
+from typing import Literal
+
 from decouple import config
 from pydantic import AnyHttpUrl
 from pydantic_settings import BaseSettings
+
+
+LOG_LEVELS = Literal["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"]
 
 
 class Settings(BaseSettings):
@@ -24,6 +29,8 @@ class Settings(BaseSettings):
 
     # Agents
     WORKFLOW_NAME: str = "AI Chat"
+
+    LOG_LEVEL: LOG_LEVELS = config("LOG_LEVEL")
 
     class Config:
         case_sensitive = True
