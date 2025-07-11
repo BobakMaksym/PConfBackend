@@ -20,10 +20,6 @@ logger = logging.getLogger("app")
 async def lifespan(app: FastAPI):
     # configure_logging(level=settings.LOG_LEVEL)
 
-    logger.critical(f"----------- демонстрація кастомних логів -----------")
-
-    logger.info("Starting app")
-
     # Ініціалізація сервісів на стартапі
     db_client = AsyncIOMotorClient(settings.MONGO_CONNECTION_STRING).components
     await init_beanie(database=db_client, document_models=[User])
@@ -33,8 +29,6 @@ async def lifespan(app: FastAPI):
     yield
 
     disconnect()
-
-    logger.info("Finished app")
 
     # Вимикання сервісів на shutdown (опційно)
     # await db_client.close()  # якщо необхідно явно закривати
@@ -50,13 +44,12 @@ app = FastAPI(
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     start_time = time.perf_counter()
+
     response = await call_next(request)
+
     process_time = time.perf_counter() - start_time
-    # response.headers["X-Process-Time"] = str(process_time)
 
-    # if logger.isEnabledFor(settings.LOG_LEVEL):
-
-    # logger.critical("Request handling time %s", round(process_time, 4))
+    logger.info("Request handling time %s ⏰", round(process_time, 4))
 
     return response
 
