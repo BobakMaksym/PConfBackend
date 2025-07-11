@@ -34,7 +34,6 @@ def make_find_endpoint(
 ):
     async def endpoint(filters: Annotated[filter_model, Query(...)]):
         result = service_class.find(filters)
-        logger.critical("✅✅✅✅")
         return utils.json_encoder([r.model_dump(by_alias=True) for r in result])
 
     endpoint.__name__ = endpoint_name

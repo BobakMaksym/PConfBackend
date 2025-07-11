@@ -10,19 +10,17 @@ from app.repo import BuildRepo
 from app.services.component_service import ConfigService
 from app.schemas.component_schema import Build
 from app.schemas.user_schema import UserOut
-from app.services.config_service import BuildService
 from app.services.user_service import UserService
 from app.schemas.pyobjectid import PyObjectId
 
 config_router = APIRouter()
 
-service = BuildService(db)
 config_service = ConfigService()
 
 
 @config_router.post("/create", summary="Create a new PC build")
 async def create_build(current_user: User = Depends(get_current_user)):
-    build_id = ConfigService().create_build(user_id=current_user.id)
+    build_id = config_service.create_build(user_id=current_user.id)
     return {"_id": str(build_id)}
 
 
@@ -37,7 +35,7 @@ async def get_config(
     config = BuildRepo(db).get_config(config_id)
     if config:
         if config["user_id"] == current_user.id:
-            config = service.get_configuration(config_id)
+            config = config_service.get_configuration(config_id)
     return utils.json_encoder(config.model_dump(by_alias=True, exclude_none=True))
 
 
@@ -48,7 +46,7 @@ async def delete_build(
     build = BuildRepo(db).get_config(build_id)
     if build:
         if build["user_id"] == current_user.id:
-            build_id = ConfigService().delete_build(build_id)
+            build_id = config_service.delete_build(build_id)
             return Response(status_code=status.HTTP_204_NO_CONTENT)
         return Response(status_code=status.HTTP_403_FORBIDDEN)
     return Response(status_code=status.HTTP_404_NOT_FOUND)
@@ -86,7 +84,7 @@ async def remove_component(
     build = BuildRepo(db).get_config(build_id)
     if build:
         if build["user_id"] == current_user.id:
-            ConfigService().remove_component(build_id, component)
+            config_service.remove_component(build_id, component)
             return Response(status_code=status.HTTP_204_NO_CONTENT)
         return Response(status_code=status.HTTP_403_FORBIDDEN)
     return Response(status_code=status.HTTP_404_NOT_FOUND)
