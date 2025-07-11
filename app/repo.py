@@ -54,7 +54,7 @@ class BaseComponentRepo:
         for doc in docs:
             components.append(self.model(**doc))
 
-        print(components)
+        # print(components)
 
         return components
 
@@ -109,7 +109,7 @@ class BuildRepo:
 
     def get_config(self, config_id: PyObjectId) -> Build | None:
         return self.col.find_one({"_id": config_id})
-    
+
     def get_config_errors(self, config_id: PyObjectId) -> Build | None:
         errors = self.col.find_one({"_id": config_id}, {"errors": 1})
 

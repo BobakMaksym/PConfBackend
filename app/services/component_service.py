@@ -89,8 +89,8 @@ class ConfigService:
 
 
 class AbstractComponentService(ABC):
-    @abstractmethod
     @classmethod
+    @abstractmethod
     def find(cls, filters: dict, count: int) -> list[Any]: ...
 
 
