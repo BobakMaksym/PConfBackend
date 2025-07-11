@@ -3,6 +3,8 @@ from pathlib import Path
 
 from uvicorn.logging import ColourizedFormatter
 
+from app.core.config import settings
+
 
 BASE_DIR = Path(__file__).parent.parent.parent  # app dir
 
@@ -53,7 +55,7 @@ LOGGING_CONFIG = {
         },
     },
     "loggers": {
-        "app": {"handlers": ["app"], "level": "INFO"},
+        "app": {"handlers": ["app"], "level": settings.LOG_LEVEL},
         "uvicorn": {"handlers": ["default"], "level": "INFO", "propagate": False},
         "uvicorn.error": {"level": "INFO"},
         "uvicorn.access": {"handlers": ["access"], "level": "INFO", "propagate": False},

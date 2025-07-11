@@ -5,9 +5,6 @@ from pydantic import AnyHttpUrl
 from pydantic_settings import BaseSettings
 
 
-LOG_LEVELS = Literal["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"]
-
-
 class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     JWT_SECRET_KEY: str = config("JWT_SECRET_KEY", cast=str)
@@ -30,7 +27,9 @@ class Settings(BaseSettings):
     # Agents
     WORKFLOW_NAME: str = "AI Chat"
 
-    LOG_LEVEL: LOG_LEVELS = config("LOG_LEVEL")
+    LOG_LEVEL: Literal["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"] = (
+        config("LOG_LEVEL")
+    )
 
     class Config:
         case_sensitive = True
