@@ -2,27 +2,8 @@ from abc import ABC, abstractmethod
 from typing import Any, ClassVar
 
 from app.db import db
-from app.filters import (
-    CpuFilters,
-    GpuFilters,
-    RamFilters,
-    MotherboardFilters,
-    PsuFilters,
-)
 from app.helpers import normalize_filters
-from app.schemas.build import BuildContext, Components
-from app.schemas.pyobjectid import PyObjectId
-from app.schemas.component_schema import (
-    Build,
-    Cpu,
-    Gpu,
-    Ram,
-    Motherboard,
-    PowerSupply,
-)
 from app.repo import (
-    BuildRepo,
-    ChatRepo,
     CpuRepo,
     GpuRepo,
     RamRepo,

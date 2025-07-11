@@ -8,7 +8,7 @@ from fastapi.responses import Response, JSONResponse
 from pymongo import errors as mongo_err
 
 from app.api.deps.user_deps import get_current_user
-from app.service_ai import send_message_to_chat
+from app.services.chat_service import ChatService
 from app.documents.user_model import User
 from app.schemas.pyobjectid import PyObjectId
 from app.schemas.chat_schema import ChatSchema
@@ -84,7 +84,7 @@ async def send_message(
         # перевірка, чи це чат користувача
         if chat["user_id"] == current_user.id:
 
-            response = await send_message_to_chat(chat_id, message)
+            response = await ChatService().send_message(chat_id, message)
 
             return JSONResponse(response, s.HTTP_201_CREATED)
         return Response(
