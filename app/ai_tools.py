@@ -1,3 +1,5 @@
+import logging
+
 from agents import RunContextWrapper, function_tool
 
 from app.db import db
@@ -31,6 +33,7 @@ from app.repos.config_repo import ConfigRepo
 
 COMPONENT_COUNT = 2
 
+logger = logging.getLogger("app")
 
 config_repo = ConfigRepo(db)
 chat_repo = ChatRepo(db)
@@ -39,14 +42,14 @@ chat_repo = ChatRepo(db)
 def find_cpu(filters: CpuFilters, count: int = COMPONENT_COUNT) -> list[Cpu]:
     """finds CPU's in DB"""
     filters = normalize_filters(filters)
-    print(filters)
+    logger.debug(filters)
     return CpuRepo(db).find(filters, limit=count)
 
 
 def find_gpu(filters: GpuFilters, count: int = COMPONENT_COUNT) -> list[Gpu]:
     """finds GPU's in DB"""
     filters = normalize_filters(filters)
-    print(filters)
+    logger.debug(filters)
     return GpuRepo(db).find(filters, limit=count)
 
 
@@ -54,7 +57,7 @@ def find_gpu(filters: GpuFilters, count: int = COMPONENT_COUNT) -> list[Gpu]:
 def find_ram(filters: RamFilters, count: int = COMPONENT_COUNT) -> list[Ram]:
     """finds RAM modules in DB"""
     filters = normalize_filters(filters)
-    print(filters)
+    logger.debug(filters)
     return RamRepo(db).find(filters, limit=count)
 
 
@@ -64,7 +67,7 @@ def find_motherboard(
 ) -> list[Motherboard]:
     """finds motherboards in DB"""
     filters = normalize_filters(filters)
-    print(filters)
+    logger.debug(filters)
     return MbRepo(db).find(filters, limit=count)
 
 
@@ -72,7 +75,7 @@ def find_motherboard(
 def find_psu(filters: PsuFilters, count: int = COMPONENT_COUNT) -> list[PowerSupply]:
     """finds power supplies in DB"""
     filters = normalize_filters(filters)
-    print(filters)
+    logger.debug(filters)
     return PsuRepo(db).find(filters, limit=count)
 
 

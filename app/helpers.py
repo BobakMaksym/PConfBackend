@@ -1,9 +1,12 @@
+import logging
 import json
 from typing import Any, Literal, Mapping
 
 from pydantic import BaseModel
 
 COLLECTIONS = Literal["cpu", "gpu", "motherboard", "psu", "ram"]
+
+logger = logging.getLogger("app")
 
 
 def normalize_filters(filters: BaseModel) -> dict[str, Any]:
@@ -17,7 +20,7 @@ def normalize_filters(filters: BaseModel) -> dict[str, Any]:
             continue
         if parsed[key] == "":
             # якщо фільтр з пустим значенням
-            print(
+            logger.debug(
                 "\n\n  normalize_filters:\n  GPT created a filter with an empty value\n\n"
             )
             del parsed[key]

@@ -1,8 +1,13 @@
+import logging
+
 from pymongo.collection import Collection
 
 from app.helpers import COLLECTIONS
 from app.schemas.pyobjectid import PyObjectId
 from app.schemas.component_schema import Build
+
+
+logger = logging.getLogger("app")
 
 
 class ConfigRepo:
@@ -40,7 +45,9 @@ class ConfigRepo:
         component_id: PyObjectId,
     ):
         build = self.load(build_id)
-        # print(f"\nBUILD: {build}\n", flush=True)
+
+        logger.debug(f"\nBUILD: %s\n", build)
+
         if not build:
             raise ValueError("Unknown build")
 
@@ -75,9 +82,6 @@ class ConfigRepo:
         pipeline.extend(lookup_stages)
         pipeline.append(set_stage)
         pipeline.append(unset_stage)
-
-        # from pprint import pprint
-        # pprint(pipeline)
 
         cursor = self.col.aggregate(pipeline)
         build = list(cursor)[0]
