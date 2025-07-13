@@ -6,7 +6,7 @@ from app.core import utils
 from app.db import db
 from app.helpers import COLLECTIONS
 from app.documents.user_model import User
-from app.repo import BuildRepo
+from app.repos.config_repo import BuildRepo
 from app.services.config_service import ConfigService
 from app.schemas.component_schema import Build
 from app.schemas.user_schema import UserOut

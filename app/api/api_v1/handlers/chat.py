@@ -12,8 +12,8 @@ from app.services.chat_service import ChatService
 from app.documents.user_model import User
 from app.schemas.pyobjectid import PyObjectId
 from app.schemas.chat_schema import ChatSchema
-from app.repo import BuildRepo
 from app.repos.chat_repo import ChatRepo
+from app.repos.config_repo import BuildRepo
 from app.db import db
 from app.core import exceptions as e
 from app.core import utils

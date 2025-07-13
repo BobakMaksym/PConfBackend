@@ -5,7 +5,7 @@ from app.db import db
 from app.helpers import COLLECTIONS
 from app.schemas.pyobjectid import PyObjectId
 from app.schemas.component_schema import Build
-from app.repo import BuildRepo
+from app.repos.config_repo import BuildRepo
 
 
 COMPONENT_COUNT = 500

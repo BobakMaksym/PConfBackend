@@ -17,7 +17,6 @@ COMPONENT_COUNT = 500
 # ###################################
 
 
-# build_repo = BuildRepo(db)
 # cpu_repo = CpuRepo(db)
 # gpu_repo = GpuRepo(db)
 # ram_repo = RamRepo(db)

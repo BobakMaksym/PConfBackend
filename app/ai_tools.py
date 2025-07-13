@@ -19,7 +19,6 @@ from app.schemas.component_schema import (
     PowerSupply,
 )
 from app.repo import (
-    BuildRepo,
     CpuRepo,
     GpuRepo,
     RamRepo,
@@ -27,6 +26,7 @@ from app.repo import (
     PsuRepo,
 )
 from app.repos.chat_repo import ChatRepo
+from app.repos.config_repo import BuildRepo
 
 
 COMPONENT_COUNT = 2
