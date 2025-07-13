@@ -7,7 +7,7 @@ from app.prompt.messages import START_MESSAGE
 from app.schemas.build import BuildContext
 from app.schemas.chat_schema import ChatSchema
 from app.schemas.pyobjectid import PyObjectId
-from app.repo import ChatRepo
+from app.repos.chat_repo import ChatRepo
 
 
 COMPONENT_COUNT = 2

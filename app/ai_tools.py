@@ -20,13 +20,13 @@ from app.schemas.component_schema import (
 )
 from app.repo import (
     BuildRepo,
-    ChatRepo,
     CpuRepo,
     GpuRepo,
     RamRepo,
     MbRepo,
     PsuRepo,
 )
+from app.repos.chat_repo import ChatRepo
 
 
 COMPONENT_COUNT = 2
