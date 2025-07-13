@@ -18,7 +18,7 @@ from app.schemas.component_schema import (
     Motherboard,
     PowerSupply,
 )
-from app.repo import (
+from app.repos.component_repo import (
     CpuRepo,
     GpuRepo,
     RamRepo,

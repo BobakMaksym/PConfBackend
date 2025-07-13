@@ -1,11 +1,7 @@
-from pymongo.collection import Collection
 from pymongo.database import Database
 
-from app.helpers import COLLECTIONS
-from app.schemas.pyobjectid import PyObjectId
 from app.schemas.component_schema import (
     BaseComponentModel as Component,
-    Build,
     Cpu,
     Gpu,
     Ram,

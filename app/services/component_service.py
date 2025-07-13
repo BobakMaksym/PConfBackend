@@ -3,7 +3,7 @@ from typing import Any, ClassVar
 
 from app.db import db
 from app.helpers import normalize_filters
-from app.repo import (
+from app.repos.component_repo import (
     CpuRepo,
     GpuRepo,
     RamRepo,
@@ -13,15 +13,6 @@ from app.repo import (
 
 
 COMPONENT_COUNT = 500
-
-# ###################################
-
-
-# cpu_repo = CpuRepo(db)
-# gpu_repo = GpuRepo(db)
-# ram_repo = RamRepo(db)
-# mb_repo = MbRepo(db)
-# psu_repo = PsuRepo(db)
 
 
 class AbstractComponentService(ABC):
