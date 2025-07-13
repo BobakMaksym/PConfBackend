@@ -13,7 +13,7 @@ from app.documents.user_model import User
 from app.schemas.pyobjectid import PyObjectId
 from app.schemas.chat_schema import ChatSchema
 from app.repos.chat_repo import ChatRepo
-from app.repos.config_repo import BuildRepo
+from app.repos.config_repo import ConfigRepo
 from app.db import db
 from app.core import exceptions as e
 from app.core import utils
@@ -23,8 +23,8 @@ from app.core import utils
 # from pydantic import ValidationError
 # from jose import jwt
 
-config_repo = BuildRepo(db)
-chat_repo = ChatRepo(db)
+config_repo = ConfigRepo(db=db)
+chat_repo = ChatRepo(db=db)
 
 
 chat_router = APIRouter()

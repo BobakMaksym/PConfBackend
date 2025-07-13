@@ -6,7 +6,7 @@ from app.core import utils
 from app.db import db
 from app.helpers import COLLECTIONS
 from app.documents.user_model import User
-from app.repos.config_repo import BuildRepo
+from app.repos.config_repo import ConfigRepo
 from app.services.config_service import ConfigService
 from app.schemas.component_schema import Build
 from app.schemas.user_schema import UserOut
@@ -16,6 +16,8 @@ from app.schemas.pyobjectid import PyObjectId
 config_router = APIRouter()
 
 config_service = ConfigService()
+
+config_repo = ConfigRepo(db=db)
 
 
 @config_router.post("/create", summary="Create a new PC build")
@@ -32,7 +34,7 @@ async def get_config(
     config_id: PyObjectId = Path(..., example="683b7ab21fbad55848727e64"),
     current_user: User = Depends(get_current_user),
 ):
-    config = BuildRepo(db).get_config(config_id)
+    config = config_repo.get_config(config_id)
     if config:
         if config["user_id"] == current_user.id:
             config = config_service.get(config_id)
@@ -43,7 +45,7 @@ async def get_config(
 async def delete_build(
     build_id: PyObjectId = Path(), current_user: User = Depends(get_current_user)
 ):
-    build = BuildRepo(db).get_config(build_id)
+    build = config_repo.get_config(build_id)
     if build:
         if build["user_id"] == current_user.id:
             build_id = config_service.delete(build_id)
@@ -63,7 +65,7 @@ async def add_component(
     ),
     current_user: User = Depends(get_current_user),
 ):
-    build = BuildRepo(db).get_config(build_id)
+    build = config_repo.get_config(build_id)
     if build:
         if build["user_id"] == current_user.id:
             build = config_service.add_component(build_id, component, component_id)
@@ -81,7 +83,7 @@ async def remove_component(
     component: COLLECTIONS = Path(),
     current_user: User = Depends(get_current_user),
 ):
-    build = BuildRepo(db).get_config(build_id)
+    build = config_repo.get_config(build_id)
     if build:
         if build["user_id"] == current_user.id:
             config_service.remove_component(build_id, component)

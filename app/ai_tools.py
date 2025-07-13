@@ -26,13 +26,13 @@ from app.repo import (
     PsuRepo,
 )
 from app.repos.chat_repo import ChatRepo
-from app.repos.config_repo import BuildRepo
+from app.repos.config_repo import ConfigRepo
 
 
 COMPONENT_COUNT = 2
 
 
-build_repo = BuildRepo(db)
+config_repo = ConfigRepo(db)
 chat_repo = ChatRepo(db)
 
 
@@ -97,9 +97,9 @@ def add_component(
     comp_types = components.model_dump(exclude_none=True).keys()
     for comp_t in comp_types:
         comp_id = getattr(components, comp_t)
-        build_repo.add_component(build_id, comp_t, comp_id)
+        config_repo.add_component(build_id, comp_t, comp_id)
 
-    build = build_repo.get_full_build(build_id)
+    build = config_repo.get_full_build(build_id)
 
     return Build(**build)
 
@@ -108,7 +108,7 @@ def add_component(
 def get_configuration(wrapper: RunContextWrapper[BuildContext]):
     """Get the current state of the PC config"""
     id_ = wrapper.context._id
-    _build = build_repo.get_full_build(id_)
+    _build = config_repo.get_full_build(id_)
 
     build = Build(**_build)
 

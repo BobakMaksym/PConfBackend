@@ -2,10 +2,10 @@ from pymongo.collection import Collection
 
 from app.helpers import COLLECTIONS
 from app.schemas.pyobjectid import PyObjectId
-from app.schemas.component_schema import BaseComponentModel as Component, Build
+from app.schemas.component_schema import Build
 
 
-class BuildRepo:
+class ConfigRepo:
     def __init__(self, db):
         self.col: Collection = db["builds"]
 
