@@ -8,7 +8,7 @@
 # from app.ai_loop import main
 # from app.db import db
 # from app.repos.component_repo import BuildRepo, ChatRepo
-# from app.schemas.component_schema import Build
+# from app.schemas.component_schema import PcConfig
 # from app.schemas.pyobjectid import PyObjectId
 
 
@@ -46,7 +46,7 @@ if __name__ == "__main__":
 #     # print("\n\n")
 #     # pprint(list(build)[0])
 
-#     build_model = Build(**build)
+#     build_model = PcConfig(**build)
 #     pprint(build_model.model_dump(exclude_none=True))
 
 

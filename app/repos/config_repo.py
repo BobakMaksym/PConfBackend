@@ -4,7 +4,7 @@ from pymongo.collection import Collection
 
 from app.helpers import COLLECTIONS
 from app.schemas.pyobjectid import PyObjectId
-from app.schemas.component_schema import Build
+from app.schemas.component_schema import PcConfig
 
 
 logger = logging.getLogger("app")
@@ -15,7 +15,7 @@ class ConfigRepo:
         self.col: Collection = db["builds"]
 
     def create(self, user_id: PyObjectId) -> PyObjectId:
-        build = Build(user_id=user_id)
+        build = PcConfig(user_id=user_id)
         res = self.col.insert_one(build.model_dump())
 
         return res.inserted_id
@@ -23,17 +23,17 @@ class ConfigRepo:
     def delete(self, build_id: PyObjectId):
         self.col.delete_one({"_id": build_id})
 
-    def load(self, build_id: PyObjectId) -> Build | None:
+    def load(self, build_id: PyObjectId) -> PcConfig | None:
         """deprecated, use `get_config`"""
 
         doc = self.col.find_one({"_id": build_id})
 
         return doc if doc else None
 
-    def get_config(self, config_id: PyObjectId) -> Build | None:
+    def get_config(self, config_id: PyObjectId) -> PcConfig | None:
         return self.col.find_one({"_id": config_id})
 
-    def get_config_errors(self, config_id: PyObjectId) -> Build | None:
+    def get_config_errors(self, config_id: PyObjectId) -> PcConfig | None:
         errors = self.col.find_one({"_id": config_id}, {"errors": 1})
 
         return errors

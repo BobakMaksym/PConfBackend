@@ -14,7 +14,14 @@ from app.filters import (
 )
 from app.helpers import normalize_filters
 from app.schemas.build import BuildContext, Components
-from app.schemas.component_schema import Build, Cpu, Gpu, Ram, Motherboard, PowerSupply
+from app.schemas.component_schema import (
+    Cpu,
+    Gpu,
+    Ram,
+    Motherboard,
+    PcConfig,
+    PowerSupply,
+)
 from app.repos.component_repo import CpuRepo, GpuRepo, RamRepo, MbRepo, PsuRepo
 from app.repos.chat_repo import ChatRepo
 from app.repos.config_repo import ConfigRepo
@@ -92,7 +99,7 @@ def add_component(
 
     build = config_repo.get_full_build(build_id)
 
-    return Build(**build)
+    return PcConfig(**build)
 
 
 @function_tool
@@ -101,6 +108,6 @@ def get_configuration(wrapper: RunContextWrapper[BuildContext]):
     id_ = wrapper.context._id
     _build = config_repo.get_full_build(id_)
 
-    build = Build(**_build)
+    build = PcConfig(**_build)
 
     return build

@@ -49,7 +49,7 @@ if __name__ == "__main__":
         plus_12v=200,  # in W
     )
 
-    build = Build()
+    build = PcConfig()
 
     build.cpu = cpu
     build.update_errors()

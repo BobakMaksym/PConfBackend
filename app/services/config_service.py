@@ -1,7 +1,7 @@
 from app.db import db
 from app.helpers import COLLECTIONS
 from app.schemas.pyobjectid import PyObjectId
-from app.schemas.component_schema import Build
+from app.schemas.component_schema import PcConfig
 from app.repos.config_repo import ConfigRepo
 
 
@@ -25,7 +25,7 @@ class ConfigService:
 
         _build = config_repo.get_full_build(build_id)
 
-        build = Build(**_build)
+        build = PcConfig(**_build)
 
         return build
 
@@ -41,7 +41,7 @@ class ConfigService:
 
         build = config_repo.get_full_build(build_id)
 
-        return Build(**build)
+        return PcConfig(**build)
 
     @staticmethod
     def remove_component(build_id: PyObjectId, type_: COLLECTIONS):

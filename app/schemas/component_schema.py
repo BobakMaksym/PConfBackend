@@ -124,7 +124,7 @@ class Motherboard(BaseComponentModel):
 # #########################################################
 
 
-class Build(BaseModel):
+class PcConfig(BaseModel):
     # To update the list of errors,
     # you need to call `update_errors` or `model_dump`
 
@@ -151,7 +151,7 @@ class Build(BaseModel):
     @model_validator(mode="after")
     def build_validator(self):
         """
-        errors is initialized only when creating a Build object
+        errors is initialized only when creating a Config object
         and does not change when dynamically adding attributes
         """
         self.update_errors()
