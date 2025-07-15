@@ -46,14 +46,18 @@ class ConfigRepo:
     ):
         build = self.load(build_id)
 
-        logger.debug(f"\nBUILD: %s\n", build)
-
         if not build:
             raise ValueError("Unknown build")
 
         self.col.update_one(
             {"_id": build_id},
             {"$set": {component_type: component_id}},
+        )
+        logger.debug(
+            "add_component: in config %s add %s %s",
+            build_id,
+            component_type,
+            component_id,
         )
 
     def get_full_build(self, _id: PyObjectId):

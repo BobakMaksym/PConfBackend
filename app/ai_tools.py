@@ -1,3 +1,5 @@
+from functools import wraps
+from typing import Any, Callable
 import logging
 
 from agents import RunContextWrapper, function_tool
@@ -12,21 +14,8 @@ from app.filters import (
 )
 from app.helpers import normalize_filters
 from app.schemas.build import BuildContext, Components
-from app.schemas.component_schema import (
-    Build,
-    Cpu,
-    Gpu,
-    Ram,
-    Motherboard,
-    PowerSupply,
-)
-from app.repos.component_repo import (
-    CpuRepo,
-    GpuRepo,
-    RamRepo,
-    MbRepo,
-    PsuRepo,
-)
+from app.schemas.component_schema import Build, Cpu, Gpu, Ram, Motherboard, PowerSupply
+from app.repos.component_repo import CpuRepo, GpuRepo, RamRepo, MbRepo, PsuRepo
 from app.repos.chat_repo import ChatRepo
 from app.repos.config_repo import ConfigRepo
 
@@ -39,62 +28,60 @@ config_repo = ConfigRepo(db)
 chat_repo = ChatRepo(db)
 
 
+def function_tool_4_find_components(func: Callable):
+
+    @function_tool
+    @wraps(func)
+    def wrapper(filters, count):
+
+        filters = normalize_filters(filters)
+        logger.debug("%s filters: %s", func.__name__, filters)
+
+        components: list[Any] = func(filters, count)
+
+        return components
+
+    return wrapper
+
+
+@function_tool_4_find_components
 def find_cpu(filters: CpuFilters, count: int = COMPONENT_COUNT) -> list[Cpu]:
     """finds CPU's in DB"""
-    filters = normalize_filters(filters)
-    logger.debug(filters)
     return CpuRepo(db).find(filters, limit=count)
 
 
+@function_tool_4_find_components
 def find_gpu(filters: GpuFilters, count: int = COMPONENT_COUNT) -> list[Gpu]:
     """finds GPU's in DB"""
-    filters = normalize_filters(filters)
-    logger.debug(filters)
     return GpuRepo(db).find(filters, limit=count)
 
 
-# RAM
+@function_tool_4_find_components
 def find_ram(filters: RamFilters, count: int = COMPONENT_COUNT) -> list[Ram]:
     """finds RAM modules in DB"""
-    filters = normalize_filters(filters)
-    logger.debug(filters)
     return RamRepo(db).find(filters, limit=count)
 
 
-# Motherboard
+@function_tool_4_find_components
 def find_motherboard(
     filters: MotherboardFilters, count: int = COMPONENT_COUNT
 ) -> list[Motherboard]:
     """finds motherboards in DB"""
-    filters = normalize_filters(filters)
-    logger.debug(filters)
     return MbRepo(db).find(filters, limit=count)
 
 
-# PSU
+@function_tool_4_find_components
 def find_psu(filters: PsuFilters, count: int = COMPONENT_COUNT) -> list[PowerSupply]:
     """finds power supplies in DB"""
-    filters = normalize_filters(filters)
-    logger.debug(filters)
     return PsuRepo(db).find(filters, limit=count)
 
 
-# Decorated with function_tool for OpenAI agents
-find_cpu = function_tool(find_cpu)
-find_gpu = function_tool(find_gpu)
-find_ram = function_tool(find_ram)
-find_motherboard = function_tool(find_motherboard)
-find_psu = function_tool(find_psu)
-
-
-# ---------- Операції зі збіркою ----------
 @function_tool
 def add_component(
     wrapper: RunContextWrapper[BuildContext],
     components: Components,
 ):
     """Adds a components to the PC config"""
-
     build_id = wrapper.context._id
 
     comp_types = components.model_dump(exclude_none=True).keys()
