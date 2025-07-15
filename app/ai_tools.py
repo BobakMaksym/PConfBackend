@@ -13,13 +13,12 @@ from app.filters import (
     PsuFilters,
 )
 from app.helpers import normalize_filters
-from app.schemas.build import BuildContext, Components
+from app.schemas.build import Components, PcConfig, PcConfigContext
 from app.schemas.component_schema import (
     Cpu,
     Gpu,
     Ram,
     Motherboard,
-    PcConfig,
     PowerSupply,
 )
 from app.repos.component_repo import CpuRepo, GpuRepo, RamRepo, MbRepo, PsuRepo
@@ -86,7 +85,7 @@ def find_psu(filters: PsuFilters, count: int = COMPONENT_COUNT) -> list[PowerSup
 
 @function_tool
 def add_component(
-    wrapper: RunContextWrapper[BuildContext],
+    wrapper: RunContextWrapper[PcConfigContext],
     components: Components,
 ):
     """Adds a components to the PC config"""
@@ -103,7 +102,7 @@ def add_component(
 
 
 @function_tool
-def get_configuration(wrapper: RunContextWrapper[BuildContext]):
+def get_configuration(wrapper: RunContextWrapper[PcConfigContext]):
     """Get the current state of the PC config"""
     id_ = wrapper.context._id
     _build = config_repo.get_full_build(id_)

@@ -10,14 +10,14 @@ from app.ai_tools import (
     find_psu,
     get_configuration,
 )
-from app.schemas.build import BuildContext
+from app.schemas.build import PcConfigContext
 from app.prompt.configurator import CONFIGURATOR_PROMPT
 from app.prompt.question import QUESTION_PROMPT
 from app.prompt.answering_question import ANSWERING_QUESTIONS_PROMPT
 from app.prompt.router import ROUTER_PROMPT
 
 
-configurator_agent = Agent[BuildContext](
+configurator_agent = Agent[PcConfigContext](
     model="gpt-4.1-mini",
     name="configurator",
     instructions=CONFIGURATOR_PROMPT,
@@ -38,7 +38,7 @@ configurator_agent = Agent[BuildContext](
 )
 
 
-answering_questions_agent = Agent[BuildContext](
+answering_questions_agent = Agent[PcConfigContext](
     model="gpt-4.1-mini",
     name="answering_questions",
     instructions=ANSWERING_QUESTIONS_PROMPT,
@@ -57,7 +57,7 @@ answering_questions_agent = Agent[BuildContext](
 )
 
 
-questions_agent = Agent[BuildContext](
+questions_agent = Agent[PcConfigContext](
     model="gpt-4.1-mini",
     name="questioner",
     instructions=QUESTION_PROMPT,
@@ -65,7 +65,7 @@ questions_agent = Agent[BuildContext](
 )
 
 
-router_agent = Agent[BuildContext](
+router_agent = Agent[PcConfigContext](
     name="Router",
     model="gpt-4.1-nano",
     instructions=prompt_with_handoff_instructions(ROUTER_PROMPT),
