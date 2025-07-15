@@ -1,7 +1,7 @@
 from agents import Agent, handoff, ModelSettings
 from agents.extensions.handoff_prompt import prompt_with_handoff_instructions
 
-from app.ai_tools import (
+from app.services.ai_tools import (
     add_component,
     find_cpu,
     find_gpu,
@@ -17,18 +17,17 @@ from app.prompt.answering_question import ANSWERING_QUESTIONS_PROMPT
 from app.prompt.router import ROUTER_PROMPT
 
 
+tools_4_find_components = [find_cpu, find_gpu, find_ram, find_motherboard, find_psu]
+
+
 configurator_agent = Agent[PcConfigContext](
     model="gpt-4.1-mini",
     name="configurator",
     instructions=CONFIGURATOR_PROMPT,
     tools=[
-        find_cpu,
-        find_gpu,
-        find_ram,
-        find_motherboard,
-        find_psu,
         add_component,
         get_configuration,
+        *tools_4_find_components,
     ],
     model_settings=ModelSettings(
         temperature=0.5,
@@ -42,13 +41,7 @@ answering_questions_agent = Agent[PcConfigContext](
     model="gpt-4.1-mini",
     name="answering_questions",
     instructions=ANSWERING_QUESTIONS_PROMPT,
-    tools=[
-        find_cpu,
-        find_gpu,
-        find_ram,
-        find_motherboard,
-        find_psu,
-    ],
+    tools=tools_4_find_components,
     model_settings=ModelSettings(
         temperature=0.5,
         top_p=0.4,
