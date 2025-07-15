@@ -13,7 +13,7 @@ from app.filters import (
     PsuFilters,
 )
 from app.helpers import normalize_filters
-from app.schemas.build import Components, PcConfig, PcConfigContext
+from app.schemas.pc_config_schema import Components, PcConfig, PcConfigContext
 from app.schemas.component_schema import (
     Cpu,
     Gpu,

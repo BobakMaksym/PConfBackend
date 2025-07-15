@@ -4,7 +4,7 @@ from pymongo.collection import Collection
 
 from app.helpers import COLLECTIONS
 from app.schemas.pyobjectid import PyObjectId
-from app.schemas.build import PcConfig
+from app.schemas.pc_config_schema import PcConfig
 
 
 logger = logging.getLogger("app")

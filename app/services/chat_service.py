@@ -4,7 +4,7 @@ from app.ai_agents import router_agent
 from app.core.config import settings
 from app.db import db
 from app.prompt.messages import START_MESSAGE
-from app.schemas.build import PcConfigContext
+from app.schemas.pc_config_schema import PcConfigContext
 from app.schemas.chat_schema import ChatSchema
 from app.schemas.pyobjectid import PyObjectId
 from app.repos.chat_repo import ChatRepo

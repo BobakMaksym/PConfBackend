@@ -10,7 +10,7 @@ from app.ai_tools import (
     find_psu,
     get_configuration,
 )
-from app.schemas.build import PcConfigContext
+from app.schemas.pc_config_schema import PcConfigContext
 from app.prompt.configurator import CONFIGURATOR_PROMPT
 from app.prompt.question import QUESTION_PROMPT
 from app.prompt.answering_question import ANSWERING_QUESTIONS_PROMPT
