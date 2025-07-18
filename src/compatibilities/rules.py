@@ -36,40 +36,40 @@ class SocketCpuAndMotherboardCompRule(CompatibilityRuleInterface):
         return CompRuleResponse(True)
 
 
-class PlatformCpuAndMotherboardCompRule(CompatibilityRuleInterface):
-    def check(self, build: Build) -> CompRuleResponse:
-        """checks the `platform` compatibility of `cpu` and `motherboard`"""
+# class PlatformCpuAndMotherboardCompRule(CompatibilityRuleInterface):
+#     def check(self, build: Build) -> CompRuleResponse:
+#         """checks the `platform` compatibility of `cpu` and `motherboard`"""
 
-        cpu, mb = build.cpu, build.motherboard
+#         cpu, mb = build.cpu, build.motherboard
 
-        if all((cpu, mb)):
-            # cpu.manufacturer == mb.platform; should be like `amd` & `amd`
-            cpu_val, mb_val = cpu.manufacturer, mb.platform
-            if cpu_val != mb_val:  # порівняння значень
-                err = f"cpu platform ({cpu_val}) not compatible with mb platform ({mb_val})"
-                errors = {CT.cpu.value: err, CT.motherboard.value: err}
+#         if all((cpu, mb)):
+#             # cpu.manufacturer == mb.platform; should be like `amd` & `amd`
+#             cpu_val, mb_val = cpu.manufacturer, mb.platform
+#             if cpu_val != mb_val:  # порівняння значень
+#                 err = f"cpu platform ({cpu_val}) not compatible with mb platform ({mb_val})"
+#                 errors = {CT.cpu.value: err, CT.motherboard.value: err}
 
-                return CompRuleResponse(False, errors)
+#                 return CompRuleResponse(False, errors)
 
-        return CompRuleResponse(True)
+#         return CompRuleResponse(True)
 
 
-class MotherboardChipsetSupportsCpuRule(CompatibilityRuleInterface):
-    def check(self, build: Build) -> CompRuleResponse:
-        """checks whether the `motherboard` supports the `cpu` by `codename`, for example, Raptor Lake"""
+# class MotherboardChipsetSupportsCpuRule(CompatibilityRuleInterface):
+#     def check(self, build: Build) -> CompRuleResponse:
+#         """checks whether the `motherboard` supports the `cpu` by `codename`, for example, Raptor Lake"""
 
-        cpu, mb = build.cpu, build.motherboard
+#         cpu, mb = build.cpu, build.motherboard
 
-        if all((cpu, mb)):
-            codename, codenames = cpu.codename, mb.cpu_codenames
-            if codename not in codenames:
-                err = f"""The "{codename}" cpu core is not supported by the
-                motherboard chipset that supports "{codenames}" """
-                errors = {CT.cpu.value: err, CT.motherboard.value: err}
+#         if all((cpu, mb)):
+#             codename, codenames = cpu.codename, mb.cpu_codenames
+#             if codename not in codenames:
+#                 err = f"""The "{codename}" cpu core is not supported by the
+#                 motherboard chipset that supports "{codenames}" """
+#                 errors = {CT.cpu.value: err, CT.motherboard.value: err}
 
-                return CompRuleResponse(False, errors)
+#                 return CompRuleResponse(False, errors)
 
-        return CompRuleResponse(True)
+#         return CompRuleResponse(True)
 
 
 # RAM TYPE IN CPU, MOTHERBOARD, RAM

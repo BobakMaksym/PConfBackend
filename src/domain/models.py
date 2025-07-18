@@ -1,9 +1,10 @@
 from abc import ABC
 from dataclasses import dataclass, field, asdict
 from enum import Enum
+from pydantic import BaseModel, Field
 
 
-class ComponentType(str, Enum):
+class ComponentType:
     cpu = "cpu"
     gpu = "gpu"
     ram = "ram"
@@ -15,212 +16,203 @@ class Component(ABC):
     _type: ComponentType
 
 
+class PowerSupply(BaseModel):
+    manufacturer: str
+    model: str
+    form_factor: str
+    power: int
+
+    # Корисні поля, допускають None
+    mb_and_cpu_powersupply: str
+
+    efficiency: int | None = None
+    plus_12v: int | None = None
+
+    pci_e_8pin_6_2: int | None = None
+    pci_e_16pin: int | None = None
+    pci_e_6pin: int | None = None
+    pci_e_8pin: int | None = None
+
+    # декор
+    cable_system: str | None = None
+    certification: str | None = None
+    cooling_system: str | None = None
+    fan_bearing: str | None = None
+
+    # інфа
+    manufacturers_warranty: int | None = None
+    dimensions: str | None = None
+
+
 # #########################################################
 
 
-@dataclass
-class PowerConnector:
-    """
-    Описує фізичний конектор (кабель) з БЖ.
-    Наприклад: "6+2" для PCIe або "20+4" для ATX.
-    """
+class Cpu(BaseModel):
+    manufacturer: str
+    model: str
 
-    type: str  # наприклад, "ATX", "EPS", "PCIe"
-    pins: tuple[int, ...]  # кортеж із секціями, наприклад (6, 2) або (20, 4)
+    socket: str
+    ram_types: str
+    igp: bool
 
+    tdp: int
+    tdp_max: int
 
-@dataclass
-class ComponentPowerSlots:
-    """
-    Описує слот(и) живлення на компоненті (материнська плата, CPU, GPU).
-    Наприклад, для відеокарти: [8, 6] – один 8-піновий та один 6-піновий роз'єм.
-    """
-
-    type: str  # тип слоту, наприклад "PCIe", "EPS", "ATX"
-    slots: list[int]  # список кількостей пінів, які потрібні
+    cores: int
+    threads: int
 
 
-@dataclass
-class PSUCable:
-    """
-    Модель кабелю з БЖ для алгоритму розподілу.
-    - type: тип кабелю ("ATX", "EPS", "PCIe")
-    - sections: список секцій (кількість пінів у кожній секції)
-    - splitable: якщо кабель має більше однієї секції, і їх можна роз'єднати (наприклад, "6+2" або "4+4").
-      Якщо кабель є окремим роз'ємом (тобто кортеж з одним числом), splitable=False.
-    - available: список доступних секцій (для розподілу). Якщо кабель не роздільний, це один елемент,
-      що дорівнює сумі секцій.
-    """
+class Ram(BaseModel):
+    manufacturer: str
+    model: str
 
     type: str
-    sections: list[int]
-    splitable: bool = field(init=False)
-    available: list[int] = field(init=False)
+    modules: int
+    capacity: int
+    speed: int
 
-    def __post_init__(self):
-        # Якщо більше однієї секції – кабель можна розділити
-        self.splitable = len(self.sections) > 1
-        if self.splitable:
-            # Спочатку усі секції доступні окремо
-            self.available = self.sections.copy()
-        else:
-            # Не роздільний – єдиний «цілий» роз'єм
-            self.available = [self.sections[0]]
-
-    def clone(self) -> "PSUCable":
-        """Повертає копію кабелю з його поточним станом available."""
-        new = PSUCable(self.type, self.sections.copy())
-        new.splitable = self.splitable
-        new.available = self.available.copy()
-        return new
+    cooling: bool | None = None
+    colour: str | None = None
+    lighting: bool | None = None
 
 
-@dataclass
-class PowerSupply:
-    """
-    Описує БЖ і його вихідні кабелі.
-    """
+class Gpu(BaseModel):
+    manufacturer: str
+    model: str
+    model_gpu: str
 
-    power: int = None
-    connectors: list[PowerConnector] = None
+    memory_size: int
+    memory_type: str
 
+    monitors: int | None = None
 
-# #########################################################
+    power_consumption: int
+    additional_power: str | None = None
 
-
-@dataclass
-class Cpu:
-    art: str = None
-    manufacturer: str = None
-    model: str = None
-    series: str = None
-
-    socket: str = None
-    # core name / codename / family
-    codename: str = None  # Raptor Lake | Picasso
-    tdp: int = None
-    tdp_max: int = None
-    ram_types: list[str] = None
-    max_ram: int = None
-    _type = ComponentType.cpu.value
-    
-    
-    """
-    # manufacturer
-    Socket
-    RAM types
-    TDP
-    # +- IGP
-    
-    """
-
-    def __post_init__(self):
-        if not self.tdp_max:
-            self.tdp_max = self.tdp
+    # декор
+    fans: int | None = None
+    lighting: bool | None = None
 
 
-@dataclass
-class Ram:
-    art: str | None = None
-    model: str | None = None
-    manufacturer: str | None = None
-    series: str | None = None
+class Motherboard(BaseModel):
+    manufacturer: str
+    model: str
 
-    ram_type: str | None = None
-    speed: int | None = None
+    socket: str
+    form_factor: str
+    ram_type: str
+    ram_slots: int
+    m2_count: int | None = None
 
-    memory_capacity: int | None = None
-    memory_modules: int | None = None
-    count: int = 0  # number of modules added to the assembly by the user
+    chipset: str
 
-    _type = ComponentType.ram.value
-
-
-@dataclass
-class Gpu:
-    power: int | None = None
-    power_slots: ComponentPowerSlots | None = None
-    count: int = 0  # number of gpu added to the assembly by the user
-
-
-class MbTypeEnum(str, Enum):
-    atx = "ATX"
-    mini_atx = "mini ATX"
-    micro_atx = "micro ATX"
-
-
-@dataclass
-class Motherboard:
-    model: str = None
-    manufacturer: str = None
-    series: str = None  # Aorus/Gaming/Tuf
-
-    platform: str = None  # Intel/AMD
-    socket: str = None
-    chipset: str = None
-    cpu_codenames: list[str] = None  # [Raptor Lake, Alder Lake]
-    ram_type: str = None
-    max_ram: int = None
-
-    power_atx_slots: ComponentPowerSlots = None
-    power_eps_slots: ComponentPowerSlots = None
-
-    motherboard_type: MbTypeEnum = MbTypeEnum.atx.value
-
-    _type = ComponentType.motherboard.value
-
-
-@dataclass
-class SsdM2:
-    count: int = 0  # number of ssd added to the assembly by the user
-
-
-@dataclass
-class Hdd:
-    count: int = 0  # number of hdd added to the assembly by the user
-
-
-@dataclass
-class Case:
-    motherboard_type: MbTypeEnum = MbTypeEnum.atx.value
+    lighting: bool | None = None
+    vrm_heatsink: bool | None = None
+    wifi: bool | None = None
 
 
 # #########################################################
 
 
-@dataclass
-class ErrorsInfo:
-    list_: list[str] = field(default_factory=list)
+class ErrorsInfo(BaseModel):
+    list_: list[str] = Field(default_factory=list)
     count: int = 0
 
 
-@dataclass
-class CompatibilityErrors:
-    cpu: ErrorsInfo = field(default_factory=ErrorsInfo)
-    ram: ErrorsInfo = field(default_factory=ErrorsInfo)
-    motherboard: ErrorsInfo = field(default_factory=ErrorsInfo)
+class CompatibilityErrors(BaseModel):
+    cpu: ErrorsInfo = Field(default_factory=ErrorsInfo)
+    ram: ErrorsInfo = Field(default_factory=ErrorsInfo)
+    motherboard: ErrorsInfo = Field(default_factory=ErrorsInfo)
 
 
-@dataclass
-class Build:
+class Build(BaseModel, validate_assignment=True):
     cpu: Cpu | None = None
     ram: Ram | None = None
     motherboard: Motherboard | None = None
     gpu: Gpu | None = None
     psu: PowerSupply | None = None
 
-    case_: Case | None = None
-
-    errors: CompatibilityErrors = field(default_factory=CompatibilityErrors)
+    errors: CompatibilityErrors = Field(default_factory=CompatibilityErrors)
 
 
-if __name__ == "__main__":
-    cpu1 = Cpu(manufacturer="AMD")
+# #######################################
 
-    build1 = Build(cpu=cpu1)
+# #######################################
 
-    print(build1.cpu.manufacturer)
-    print()
-    print(build1.errors.cpu.list_)
-    print()
-    print(asdict(build1.errors))
+# #######################################
+
+# #######################################
+
+cpu = Cpu(
+    manufacturer="AMD",
+    model="Ryzen 5 5600X",
+    socket="AM4",
+    ram_types="DDR4",
+    igp=False,
+    tdp=65,
+    tdp_max=88,
+    cores=6,
+    threads=12,
+)
+
+ram = Ram(
+    manufacturer="Corsair",
+    model="Vengeance LPX",
+    type="DDR4",
+    modules=2,
+    capacity=16,  # 16 GB total
+    speed=3200,  # in MHz
+)
+
+gpu = Gpu(
+    manufacturer="NVIDIA",
+    model="GeForce RTX 3060",
+    model_gpu="GA106",
+    memory_size=12,  # in GB
+    memory_type="GDDR6",
+    power_consumption=170,  # in W
+)
+
+motherboard = Motherboard(
+    manufacturer="MSI",
+    model="B550M PRO-VDH WIFI",
+    socket="AM4",
+    form_factor="mATX",
+    ram_type="DDR4",
+    ram_slots=4,
+    m2_count=2,
+    chipset="B550",
+)
+
+psu = PowerSupply(
+    manufacturer="be quiet!",
+    model="Pure Power 12 M",
+    form_factor="ATX",
+    power=650,
+    mb_and_cpu_powersupply="24+8 pin",
+    plus_12v=648,  # in W
+)
+
+
+
+build = Build()
+build.cpu = cpu
+build.cpu = gpu
+
+
+
+print(build)
+
+
+
+# if __name__ == "__main__":
+#     cpu1 = Cpu(manufacturer="AMD")
+
+#     # build1 = Build(cpu=cpu1)
+
+#     # print(build1.cpu.manufacturer)
+#     # print()
+#     # print(build1.errors.cpu.list_)
+#     # print()
+#     # print(asdict(build1.errors))
+#     # print()
