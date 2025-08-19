@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from mongoengine import connect, disconnect
 
-from app.api.api_v1.router import router
+from app.api.router import router
 from app.core.config import settings
 from app.documents.user_model import User
 

@@ -8,8 +8,6 @@ from app.helpers import COLLECTIONS
 from app.documents.user_model import User
 from app.repos.config_repo import ConfigRepo
 from app.services.config_service import ConfigService
-from app.schemas.user_schema import UserOut
-from app.services.user_service import UserService
 from app.schemas.pyobjectid import PyObjectId
 
 config_router = APIRouter()
