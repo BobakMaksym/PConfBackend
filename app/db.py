@@ -7,17 +7,9 @@ from pymongo.database import Database
 
 dotenv.load_dotenv()
 
-# MONGO_CONFIG = {
-#     "host": "localhost",
-#     "port": 27017,
-#     "username": "root",
-#     "password": "root",
-# }
-# client = MongoClient(**MONGO_CONFIG)
-
 
 MONGODB_SRV = os.environ.get("MONGO_CONNECTION_STRING")
 DB_NAME = "components"
 
-client = MongoClient(MONGODB_SRV)
+client = MongoClient(MONGODB_SRV, uuidRepresentation="standard")
 db: Database = client[DB_NAME]
