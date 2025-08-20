@@ -13,6 +13,7 @@ dependencies = [
     "openai>=1.68.2",
     "openai-agents>=0.0.12",
     "passlib[bcrypt]>=1.7.4",
+    "pydantic-extra-types>=2.10.5",
     "pymongo>=4.11.3",
     "python-decouple>=3.8",
     "python-dotenv>=1.1.0",
