@@ -1,27 +1,28 @@
-from typing import Optional
-import pymongo
 from uuid import UUID
 
-from app.core.security import get_password, verify_password
+from pydantic_extra_types.mongo_object_id import MongoObjectId
+
+from app.core.security import verify_password
+
 from app.documents.user_model import User
-from app.schemas.user_schema import UserAuth, UserUpdate
+from app.schemas.user_schema import UserAuth, UserOut, UserUpdate
+
+from app.repos.user_repo import UserRepo
+from app.db import db
+
+
+user_repo = UserRepo(db=db)
 
 
 class UserService:
     @staticmethod
-    async def create_user(user: UserAuth):
-        user_in = User(
-            username=user.username,
-            email=user.email,
-            hashed_password=get_password(user.password),
-        )
-        await user_in.save()
-
-        return user_in
+    def create_user(user: UserAuth) -> UserOut:
+        user = user_repo.create(user)
+        return user
 
     @staticmethod
-    async def authenticate(email: str, password: str) -> Optional[User]:
-        user = await UserService.get_user_by_email(email=email)
+    async def authenticate(email: str, password: str) -> User | None:
+        user = user_repo.get_by_email(email=email)
         if not user:
             return None
         if not verify_password(password=password, hashed_pass=user.hashed_password):
@@ -30,20 +31,16 @@ class UserService:
         return user
 
     @staticmethod
-    async def get_user_by_email(email: str) -> Optional[User]:
-        user = await User.find_one(User.email == email)
+    async def get_user_by_email(email: str) -> User | None:
+        user = user_repo.get_by_email(email=email)
         return user
 
     @staticmethod
-    async def get_user_by_id(id: UUID) -> Optional[User]:
-        user = await User.find_one(User.user_id == id)
+    async def get_user_by_id(id: MongoObjectId) -> User | None:
+        user = user_repo.get_by_id(id=id)
         return user
 
     @staticmethod
-    async def update_user(id: UUID, data: UserUpdate) -> User:
-        user = await User.find_one(User.user_id == id)
-        if not user:
-            raise pymongo.errors.OperationFailure("User not found")
-
-        await user.update({"$set": data.model_dump(exclude_unset=True)})
+    async def update_user(id: MongoObjectId, data: UserUpdate) -> User:
+        user = user_repo.update(id=id, data=data)
         return user

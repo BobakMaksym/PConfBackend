@@ -3,6 +3,8 @@ from fastapi import Depends
 import pymongo
 
 from app.api.deps.user_deps import get_current_user
+from app.core import db_exceptions as db_exc
+from app.core import exceptions as api_exc
 from app.schemas.user_schema import UserAuth, UserOut, UserUpdate
 from app.documents.user_model import User
 from app.services.user_service import UserService
@@ -12,14 +14,13 @@ user_router = APIRouter()
 
 
 @user_router.post("/create", summary="Create new user", response_model=UserOut)
-async def create_user(data: UserAuth):
+def create_user(data: UserAuth):
     try:
-        return await UserService.create_user(data)
-    except pymongo.errors.DuplicateKeyError:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User with this email or username already exist",
-        )
+        return UserService.create_user(data)
+    except db_exc.EmailDuplicateError:
+        raise api_exc.EmailIsAlreadyInUseException
+    except db_exc.UsernameDuplicateError:
+        raise api_exc.UsernameIsAlreadyInUseException
 
 
 @user_router.get(
@@ -33,7 +34,9 @@ async def get_me(user: User = Depends(get_current_user)):
 async def update_user(data: UserUpdate, user: User = Depends(get_current_user)):
     try:
         return await UserService.update_user(user.user_id, data)
-    except pymongo.errors.OperationFailure:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="User does not exist"
-        )
+    except db_exc.NotFoundError:
+        raise api_exc.UserDoesNotExistException
+    except db_exc.EmailDuplicateError:
+        raise api_exc.EmailIsAlreadyInUseException
+    except db_exc.UsernameDuplicateError:
+        raise api_exc.UsernameIsAlreadyInUseException
