@@ -25,7 +25,7 @@ class ChatService:
 
         # build_id == chat_id
         build_id = chat_id
-        build = PcConfigContext(_id=build_id)
+        build = PcConfigContext(id=build_id)
 
         chat_doc = chat_repo.get_chat(chat_id)
         chat = ChatSchema(**chat_doc)

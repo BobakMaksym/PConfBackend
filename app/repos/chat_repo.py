@@ -15,7 +15,7 @@ class ChatRepo:
 
     def create(self, user_id: PyObjectId, config_id: PyObjectId) -> ChatSchema:
         chat = ChatSchema(
-            _id=config_id,
+            id=config_id,
             config_id=config_id,
             user_id=user_id,
             trace_id=trace(settings.WORKFLOW_NAME).trace_id,
