@@ -1,4 +1,5 @@
 from agents import Runner, TResponseInputItem, function_tool, trace
+from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 from app.ai_agents import router_agent
 from app.core.config import settings
@@ -6,7 +7,6 @@ from app.db import db
 from app.prompt.messages import START_MESSAGE
 from app.schemas.pc_config_schema import PcConfigContext
 from app.schemas.chat_schema import ChatSchema
-from app.schemas.pyobjectid import PyObjectId
 from app.repos.chat_repo import ChatRepo
 
 
@@ -19,7 +19,7 @@ chat_repo = ChatRepo(db)
 class ChatService:
 
     async def send_message(
-        self, chat_id: PyObjectId, message: str
+        self, chat_id: MongoObjectId, message: str
     ) -> TResponseInputItem:
         """pass messages with history to the agent, saves responses"""
 

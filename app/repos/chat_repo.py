@@ -1,9 +1,9 @@
 from agents import trace
 from pymongo.collection import Collection
+from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 from app.core import exceptions as e
 from app.core.config import settings
-from app.schemas.pyobjectid import PyObjectId
 from app.schemas.chat_schema import ChatSchema
 from app.prompt import messages
 
@@ -13,7 +13,7 @@ class ChatRepo:
     def __init__(self, db):
         self.col: Collection = db["chats"]
 
-    def create(self, user_id: PyObjectId, config_id: PyObjectId) -> ChatSchema:
+    def create(self, user_id: MongoObjectId, config_id: MongoObjectId) -> ChatSchema:
         chat = ChatSchema(
             id=config_id,
             config_id=config_id,
@@ -26,20 +26,17 @@ class ChatRepo:
 
         return chat
 
-    def delete(self, chat_id: PyObjectId):
+    def delete(self, chat_id: MongoObjectId):
         return self.col.delete_one({"_id": chat_id})
 
-    def get_user_chat(self, user_id: PyObjectId):
+    def get_user_chat(self, user_id: MongoObjectId) -> list[ChatSchema]:
         _chats = self.col.find({"user_id": user_id}, {"messages": 0})
 
-        chats = []
-        for chat in _chats:
-            chat = ChatSchema(**chat).model_dump(exclude_none=True)
-            chats.append(chat)
+        chats = [ChatSchema(**chat).model_dump(exclude_none=True) for chat in _chats]
 
         return chats
 
-    def get_chat(self, chat_id: PyObjectId):
+    def get_chat(self, chat_id: MongoObjectId):
         _chat = self.col.find_one({"_id": chat_id})
         chat = ChatSchema(**_chat)
         messages = []
@@ -53,7 +50,7 @@ class ChatRepo:
         # ]
         return chat.model_dump(by_alias=True)
 
-    def update_history(self, chat_id: PyObjectId, message: str):
+    def update_history(self, chat_id: MongoObjectId, message: str):
         """просто додати повідомлення"""
 
         result = self.col.find_one_and_update(

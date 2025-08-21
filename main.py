@@ -9,7 +9,6 @@
 # from app.db import db
 # from app.repos.component_repo import BuildRepo, ChatRepo
 # from app.schemas.component_schema import PcConfig
-# from app.schemas.pyobjectid import PyObjectId
 
 
 if __name__ == "__main__":
@@ -52,5 +51,5 @@ if __name__ == "__main__":
 
 # if __name__ == "__main__":
 #     chat_repo = ChatRepo(db)
-#     res = chat_repo.update_history(PyObjectId("683b7ab21fbad55848727e64"), "hello")
+#     res = chat_repo.update_history(MongoObjectId("683b7ab21fbad55848727e64"), "hello")
 #     print(res)
