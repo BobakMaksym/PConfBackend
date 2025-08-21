@@ -1,8 +1,9 @@
 from typing import Optional
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
-from pydantic_extra_types.mongo_object_id import MongoObjectId
+from pydantic import BaseModel, EmailStr, Field
+
+from app.schemas.base import BaseDbModel
 
 
 class UserAuth(BaseModel):
@@ -12,10 +13,7 @@ class UserAuth(BaseModel):
     password: str = Field(..., min_length=5, max_length=24, description="user password")
 
 
-class UserOut(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    # id: MongoObjectId = Field(alias="_id", serialization_alias="id")
+class UserOut(BaseDbModel):
     user_id: UUID
     username: str
     email: EmailStr
@@ -29,10 +27,7 @@ class UserUpdate(BaseModel):
     last_name: Optional[str] = None
 
 
-class User(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    # id: MongoObjectId = Field(alias="_id", serialization_alias="id")
+class User(BaseDbModel):
     user_id: UUID
     username: str
     email: EmailStr

@@ -1,22 +1,9 @@
-import abc
+from pydantic import Field
 
-from pydantic import BaseModel, Field
-
-from app.schemas.pyobjectid import PyObjectId
+from app.schemas.base import BaseDbModel
 
 
-class BaseComponentModel(abc.ABC, BaseModel):
-    id: PyObjectId | None = Field(alias="_id", default=None)
-
-    @property
-    def _id(self):
-        return PyObjectId(self.id)
-
-    class Config:
-        from_attributes = True
-
-
-class Cpu(BaseComponentModel):
+class Cpu(BaseDbModel):
     manufacturer: str | None = Field(default=None)
     model: str | None = Field(default=None)
 
@@ -31,7 +18,7 @@ class Cpu(BaseComponentModel):
     threads: int | None = Field(default=None)
 
 
-class Ram(BaseComponentModel):
+class Ram(BaseDbModel):
     manufacturer: str
     model: str
 
@@ -45,7 +32,7 @@ class Ram(BaseComponentModel):
     lighting: bool | None = None
 
 
-class Gpu(BaseComponentModel):
+class Gpu(BaseDbModel):
     manufacturer: str
     model: str
     model_gpu: str
@@ -63,7 +50,7 @@ class Gpu(BaseComponentModel):
     lighting: bool | None = None
 
 
-class Motherboard(BaseComponentModel):
+class Motherboard(BaseDbModel):
     manufacturer: str
     model: str
 
@@ -80,7 +67,7 @@ class Motherboard(BaseComponentModel):
     wifi: bool | None = None
 
 
-class PowerSupply(BaseComponentModel):
+class PowerSupply(BaseDbModel):
 
     manufacturer: str
     model: str
