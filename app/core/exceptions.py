@@ -16,6 +16,11 @@ EmailIsAlreadyInUseException = HTTPException(
 )
 
 
+UserDoesNotExistException = HTTPException(
+    status_code=s.HTTP_404_NOT_FOUND, detail="User does not exist"
+)
+
+
 class DocumentDoesNotExist(Exception):
     def __init__(self):
         super().__init__("Document does not exist")

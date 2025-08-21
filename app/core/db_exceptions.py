@@ -1,4 +1,4 @@
-from pymongo.errors import DuplicateKeyError
+from pymongo.errors import DuplicateKeyError, OperationFailure
 
 
 class UsernameDuplicateError(DuplicateKeyError):
@@ -9,3 +9,8 @@ class UsernameDuplicateError(DuplicateKeyError):
 class EmailDuplicateError(DuplicateKeyError):
     def __init__(self):
         super().__init__(error="This email is already in use")
+
+
+class NotFoundError(OperationFailure):
+    def __init__(self):
+        super().__init__(error="Document not found")

@@ -25,6 +25,18 @@ class UserOut(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    email: Optional[EmailStr] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
+
+
+class User(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    # id: MongoObjectId = Field(alias="_id", serialization_alias="id")
+    user_id: UUID
+    username: str
+    email: EmailStr
+    hashed_password: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    disabled: Optional[bool] = False
