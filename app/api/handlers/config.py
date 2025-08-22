@@ -6,6 +6,7 @@ from app.api.deps.user_deps import get_current_user
 from app.db import db
 from app.helpers import COLLECTIONS
 from app.documents.user_model import User
+from app.repos.chat_repo import ChatRepo
 from app.repos.config_repo import ConfigRepo
 from app.services.config_service import ConfigService
 from app.schemas.pc_config_schema import PcConfigId
@@ -15,12 +16,17 @@ config_router = APIRouter()
 config_service = ConfigService()
 
 config_repo = ConfigRepo(db=db)
+chat_repo = ChatRepo(db=db)
 
 
-@config_router.post("/create", summary="Create a new PC build")
-async def create_build(current_user: User = Depends(get_current_user)):
-    build_id = config_service.create(user_id=current_user.id)
-    return PcConfigId(id=build_id).model_dump(mode="json")
+@config_router.post("/create", summary="Create a new PC configuration")
+async def create_config(current_user: User = Depends(get_current_user)):
+    # creating a configuration
+    config_id = config_service.create(user_id=current_user.id)
+    # creating a chat for configuration
+    chat_repo.create(current_user.id, config_id)
+
+    return PcConfigId(id=config_id).model_dump(mode="json")
 
 
 @config_router.get(
