@@ -34,7 +34,8 @@ async def get_config(
     if config:
         if config["user_id"] == current_user.id:
             config = config_service.get(config_id)
-        return config.model_dump(mode="json", exclude_none=True)
+            return config.model_dump(mode="json", exclude_none=True)
+        return Response(status_code=status.HTTP_403_FORBIDDEN)
     return Response(status_code=status.HTTP_404_NOT_FOUND)
 
 
