@@ -33,7 +33,7 @@ async def get_me(user: User = Depends(get_current_user)):
 @user_router.post("/update", summary="Update User", response_model=UserOut)
 async def update_user(data: UserUpdate, user: User = Depends(get_current_user)):
     try:
-        return await UserService.update_user(user.user_id, data)
+        return await UserService.update_user(user.id, data)
     except db_exc.NotFoundError:
         raise api_exc.UserDoesNotExistException
     except db_exc.EmailDuplicateError:
