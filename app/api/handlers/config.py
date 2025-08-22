@@ -45,14 +45,15 @@ async def get_config(
     return Response(status_code=status.HTTP_404_NOT_FOUND)
 
 
-@config_router.delete("/delete/{build_id}")
-async def delete_build(
-    build_id: MongoObjectId = Path(), current_user: User = Depends(get_current_user)
+@config_router.delete("/delete/{id}")
+async def delete_config(
+    id: MongoObjectId = Path(), current_user: User = Depends(get_current_user)
 ):
-    build = config_repo.get_config(build_id)
+    build = config_repo.get_config(id)
     if build:
         if build["user_id"] == current_user.id:
-            build_id = config_service.delete(build_id)
+            config_service.delete(id)
+            chat_repo.delete(id)
             return Response(status_code=status.HTTP_204_NO_CONTENT)
         return Response(status_code=status.HTTP_403_FORBIDDEN)
     return Response(status_code=status.HTTP_404_NOT_FOUND)
