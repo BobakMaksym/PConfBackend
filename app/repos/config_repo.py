@@ -16,7 +16,7 @@ class ConfigRepo:
 
     def create(self, user_id: MongoObjectId) -> MongoObjectId:
         build = PcConfig(user_id=user_id)
-        res = self.col.insert_one(build.model_dump())
+        res = self.col.insert_one(build.model_dump_for_db())
 
         return res.inserted_id
 
