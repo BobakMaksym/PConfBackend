@@ -40,12 +40,12 @@ class UserRepo:
         return User(**user) if user else None
 
     def get_by_id(self, id: MongoObjectId) -> User | None:
-        user = self.col.find_one({"user_id": id})
+        user = self.col.find_one({"_id": id})
         return User(**user) if user else None
 
     def update(self, id: MongoObjectId, data: UserUpdate) -> User:
         user = self.col.find_one_and_update(
-            {"user_id": id},
+            {"_id": id},
             {"$set": data.model_dump(exclude_unset=True)},
             return_document=True,
         )
