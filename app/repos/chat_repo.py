@@ -26,6 +26,10 @@ class ChatRepo:
 
         return chat
 
+    def clear(self, chat_id: MongoObjectId):
+        """clears the chat history by replacing messages with an empty array"""
+        return self.col.update_one({"_id": chat_id}, {"$set": {"messages": []}})
+
     def delete(self, chat_id: MongoObjectId):
         return self.col.delete_one({"_id": chat_id})
 
