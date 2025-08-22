@@ -21,7 +21,7 @@ class ChatRepo:
             trace_id=trace(settings.WORKFLOW_NAME).trace_id,
             messages=[{"role": "assistant", "content": messages.START_MESSAGE}],
         )
-        res = self.col.insert_one(chat.model_dump(by_alias=True))
+        res = self.col.insert_one(chat.model_dump_for_db())
         chat.id = res.inserted_id
 
         return chat
