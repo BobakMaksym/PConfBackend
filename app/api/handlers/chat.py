@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, status as s, Body, Path
 from fastapi.responses import Response, JSONResponse
-from pymongo import errors as mongo_err
 from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 from app.api.deps.user_deps import get_current_user
@@ -10,8 +9,6 @@ from app.schemas.chat_schema import ChatSchema
 from app.repos.chat_repo import ChatRepo
 from app.repos.config_repo import ConfigRepo
 from app.db import db
-from app.core import exceptions as e
-from app.core import utils
 
 # from app.core.config import settings
 # from app.schemas.auth_schema import TokenPayload
@@ -25,24 +22,6 @@ chat_repo = ChatRepo(db=db)
 chat_router = APIRouter()
 
 
-@chat_router.post("/new/{config_id}", status_code=s.HTTP_201_CREATED)
-async def create_chat(
-    config_id: MongoObjectId = Path(example="683b7ab21fbad55848727e64"),
-    current_user: User = Depends(get_current_user),
-) -> ChatSchema:
-    # перевіряю, чи існує конфігурація
-    config = config_repo.get_config(config_id)
-    if not config:
-        raise e.ConfigDoesNotExistException
-
-    # створюю чат, якщо його ще не існує
-    try:
-        chat: ChatSchema = chat_repo.create(current_user.id, config_id)
-    except mongo_err.DuplicateKeyError:
-        return Response("A chat with this id already exists", s.HTTP_409_CONFLICT)
-    return chat
-
-
 @chat_router.get("/my/")
 async def my_chats(current_user: User = Depends(get_current_user)):
     user_id = current_user.id
@@ -51,16 +30,16 @@ async def my_chats(current_user: User = Depends(get_current_user)):
     return [chat.model_dump(mode="json") for chat in chats]
 
 
-@chat_router.delete("/delete/{chat_id}")
-async def delete_chat(
-    chat_id: MongoObjectId = Path(example="683b7ab21fbad55848727e64"),
+@chat_router.delete("/clear/{id}")
+async def clear_chat(
+    id: MongoObjectId = Path(example="683b7ab21fbad55848727e64"),
     current_user: User = Depends(get_current_user),
 ):
-    chat = chat_repo.get_chat(chat_id)
+    chat = chat_repo.get_chat(id)
     if chat:
         # перевірка, чи це чат користувача
         if chat["user_id"] == current_user.id:
-            chat_repo.delete(chat_id)
+            chat_repo.clear(id)
             return Response(status_code=s.HTTP_204_NO_CONTENT)
         return Response(
             "You do not have permission to access this resource",
