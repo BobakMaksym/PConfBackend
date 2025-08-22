@@ -30,11 +30,9 @@ class ChatRepo:
         return self.col.delete_one({"_id": chat_id})
 
     def get_user_chat(self, user_id: MongoObjectId) -> list[ChatSchema]:
-        _chats = self.col.find({"user_id": user_id}, {"messages": 0})
+        chats = self.col.find({"user_id": user_id}, {"messages": 0})
 
-        chats = [ChatSchema(**chat).model_dump(exclude_none=True) for chat in _chats]
-
-        return chats
+        return [ChatSchema(**chat) for chat in chats]
 
     def get_chat(self, chat_id: MongoObjectId):
         _chat = self.col.find_one({"_id": chat_id})

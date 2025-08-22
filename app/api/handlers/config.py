@@ -8,6 +8,7 @@ from app.helpers import COLLECTIONS
 from app.documents.user_model import User
 from app.repos.config_repo import ConfigRepo
 from app.services.config_service import ConfigService
+from app.schemas.pc_config_schema import PcConfigId
 
 config_router = APIRouter()
 
@@ -19,12 +20,11 @@ config_repo = ConfigRepo(db=db)
 @config_router.post("/create", summary="Create a new PC build")
 async def create_build(current_user: User = Depends(get_current_user)):
     build_id = config_service.create(user_id=current_user.id)
-    return {"_id": str(build_id)}
+    return PcConfigId(id=build_id).model_dump(mode="json")
 
 
 @config_router.get(
-    "/get/{config_id}",
-    summary="Get the current state of the PC configuration",
+    "/get/{config_id}", summary="Get the current state of the PC configuration"
 )
 async def get_config(
     config_id: MongoObjectId = Path(..., example="683b7ab21fbad55848727e64"),
@@ -34,7 +34,8 @@ async def get_config(
     if config:
         if config["user_id"] == current_user.id:
             config = config_service.get(config_id)
-    return config.model_dump(mode="json", exclude_none=True)
+        return config.model_dump(mode="json", exclude_none=True)
+    return Response(status_code=status.HTTP_404_NOT_FOUND)
 
 
 @config_router.delete("/delete/{build_id}")

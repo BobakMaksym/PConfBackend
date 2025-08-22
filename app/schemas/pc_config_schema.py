@@ -6,6 +6,10 @@ from app.rules_engine.manager import rule_manager
 from app.schemas.base import BaseDbModel
 
 
+class PcConfigId(BaseDbModel):
+    pass
+
+
 class PcConfigContext(BaseDbModel):
     """PC config context"""
 
