@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, status as s, Body, Path
 from fastapi.responses import Response, JSONResponse
 from pymongo import errors as mongo_err
+from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 from app.api.deps.user_deps import get_current_user
 from app.services.chat_service import ChatService
 from app.documents.user_model import User
-from app.schemas.pyobjectid import PyObjectId
 from app.schemas.chat_schema import ChatSchema
 from app.repos.chat_repo import ChatRepo
 from app.repos.config_repo import ConfigRepo
@@ -27,7 +27,7 @@ chat_router = APIRouter()
 
 @chat_router.post("/new/{config_id}", status_code=s.HTTP_201_CREATED)
 async def create_chat(
-    config_id: PyObjectId = Path(example="683b7ab21fbad55848727e64"),
+    config_id: MongoObjectId = Path(example="683b7ab21fbad55848727e64"),
     current_user: User = Depends(get_current_user),
 ) -> ChatSchema:
     # перевіряю, чи існує конфігурація
@@ -48,12 +48,12 @@ async def my_chats(current_user: User = Depends(get_current_user)):
     user_id = current_user.id
     chats = chat_repo.get_user_chat(user_id)
 
-    return utils.json_encoder(chats)
+    return [chat.model_dump(mode="json") for chat in chats]
 
 
 @chat_router.delete("/delete/{chat_id}")
 async def delete_chat(
-    chat_id: PyObjectId = Path(example="683b7ab21fbad55848727e64"),
+    chat_id: MongoObjectId = Path(example="683b7ab21fbad55848727e64"),
     current_user: User = Depends(get_current_user),
 ):
     chat = chat_repo.get_chat(chat_id)
@@ -71,7 +71,7 @@ async def delete_chat(
 
 @chat_router.post("/send/{chat_id}")
 async def send_message(
-    chat_id: PyObjectId = Path(example="683b7ab21fbad55848727e64"),
+    chat_id: MongoObjectId = Path(example="683b7ab21fbad55848727e64"),
     message: str = Body(),
     current_user: User = Depends(get_current_user),
 ):
@@ -92,7 +92,7 @@ async def send_message(
 
 @chat_router.get("/get/{chat_id}")
 async def get_chat(
-    chat_id: PyObjectId = Path(example="683b7ab21fbad55848727e64"),
+    chat_id: MongoObjectId = Path(example="683b7ab21fbad55848727e64"),
     current_user: User = Depends(get_current_user),
 ):
     chat = chat_repo.get_chat(chat_id)

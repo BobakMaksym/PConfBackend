@@ -2,8 +2,7 @@ from bson import ObjectId
 import json
 
 from fastapi.responses import JSONResponse
-
-from app.schemas.pyobjectid import PyObjectId
+from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 
 def json_encoder(obj):
@@ -15,7 +14,7 @@ def json_encoder(obj):
         return {key: json_encoder(value) for key, value in obj.items()}
     elif isinstance(obj, ObjectId):
         return str(obj)
-    elif isinstance(obj, PyObjectId):
+    elif isinstance(obj, MongoObjectId):
         return str(obj)
     else:
         return obj

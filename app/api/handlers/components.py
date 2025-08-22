@@ -33,8 +33,10 @@ def make_find_endpoint(
     summary: str = None,
 ):
     async def endpoint(filters: Annotated[filter_model, Query(...)]):
-        result = service_class.find(filters)
-        return utils.json_encoder([r.model_dump(by_alias=True) for r in result])
+        components = service_class.find(filters)
+        return [
+            component.model_dump(mode="json", by_alias=True) for component in components
+        ]
 
     endpoint.__name__ = endpoint_name
 
