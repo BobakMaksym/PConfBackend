@@ -21,10 +21,14 @@ class ChatRepo:
             trace_id=trace(settings.WORKFLOW_NAME).trace_id,
             messages=[{"role": "assistant", "content": messages.START_MESSAGE}],
         )
-        res = self.col.insert_one(chat.model_dump(by_alias=True))
+        res = self.col.insert_one(chat.model_dump_for_db())
         chat.id = res.inserted_id
 
         return chat
+
+    def clear(self, chat_id: MongoObjectId):
+        """clears the chat history by replacing messages with an empty array"""
+        return self.col.update_one({"_id": chat_id}, {"$set": {"messages": []}})
 
     def delete(self, chat_id: MongoObjectId):
         return self.col.delete_one({"_id": chat_id})
@@ -34,19 +38,14 @@ class ChatRepo:
 
         return [ChatSchema(**chat) for chat in chats]
 
-    def get_chat(self, chat_id: MongoObjectId):
+    def get_chat(self, chat_id: MongoObjectId) -> ChatSchema:
         _chat = self.col.find_one({"_id": chat_id})
         chat = ChatSchema(**_chat)
-        messages = []
-        for msg in chat.messages:
-            msg_type = msg.get("type")
-            if msg_type in ("message", None):
-                messages.append(msg)
-        chat.messages = messages
-        # chat.messages = [
-        #     msg for msg in chat.messages if msg.get("type") in ("message", None)
-        # ]
-        return chat.model_dump(by_alias=True)
+
+        chat.messages = [
+            msg for msg in chat.messages if msg.get("type") in ("message", None)
+        ]
+        return chat
 
     def update_history(self, chat_id: MongoObjectId, message: str):
         """просто додати повідомлення"""

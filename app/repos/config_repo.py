@@ -4,7 +4,7 @@ from pymongo.collection import Collection
 from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 from app.helpers import COLLECTIONS
-from app.schemas.pc_config_schema import PcConfig
+from app.schemas.pc_config_schema import PcConfig, PcComponentsId
 
 
 logger = logging.getLogger("app")
@@ -30,8 +30,11 @@ class ConfigRepo:
 
         return doc if doc else None
 
-    def get_config(self, config_id: MongoObjectId) -> PcConfig | None:
-        return self.col.find_one({"_id": config_id})
+    def get_config(self, config_id: MongoObjectId) -> PcComponentsId | None:
+        config = self.col.find_one({"_id": config_id})
+        if not config:
+            return None
+        return PcComponentsId(**config)
 
     def get_config_errors(self, config_id: MongoObjectId) -> PcConfig | None:
         errors = self.col.find_one({"_id": config_id}, {"errors": 1})
@@ -64,6 +67,7 @@ class ConfigRepo:
         components = ["cpu", "gpu", "motherboard", "ram", "psu"]
 
         pipeline = []
+
         match_stage = {"$match": {"_id": _id}}
         lookup_stages = []
         set_stage = {
@@ -88,6 +92,9 @@ class ConfigRepo:
         pipeline.append(unset_stage)
 
         cursor = self.col.aggregate(pipeline)
-        build = list(cursor)[0]
 
-        return build
+        build = list(cursor)
+        if not build:
+            return None
+
+        return PcConfig(**build[0])

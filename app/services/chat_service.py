@@ -3,17 +3,13 @@ from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 from app.ai_agents import router_agent
 from app.core.config import settings
-from app.db import db
 from app.prompt.messages import START_MESSAGE
 from app.schemas.pc_config_schema import PcConfigContext
 from app.schemas.chat_schema import ChatSchema
-from app.repos.chat_repo import ChatRepo
+from app.repos import chat_repo
 
 
 COMPONENT_COUNT = 2
-
-
-chat_repo = ChatRepo(db)
 
 
 class ChatService:
