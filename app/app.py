@@ -2,15 +2,11 @@ from contextlib import asynccontextmanager
 import logging
 import time
 
-from beanie import init_beanie
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
-from mongoengine import connect, disconnect
 
-from app.api.api_v1.router import router
+from app.api.router import router
 from app.core.config import settings
-from app.documents.user_model import User
 
 
 logger = logging.getLogger("app")
@@ -19,19 +15,7 @@ logger = logging.getLogger("app")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # configure_logging(level=settings.LOG_LEVEL)
-
-    # Ініціалізація сервісів на стартапі
-    db_client = AsyncIOMotorClient(settings.MONGO_CONNECTION_STRING).components
-    await init_beanie(database=db_client, document_models=[User])
-
-    connect(db=settings.DATABASE, host=settings.MONGO_CONNECTION_STRING)
-
     yield
-
-    disconnect()
-
-    # Вимикання сервісів на shutdown (опційно)
-    # await db_client.close()  # якщо необхідно явно закривати
 
 
 app = FastAPI(

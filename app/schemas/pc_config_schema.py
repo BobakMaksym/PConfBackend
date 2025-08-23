@@ -1,31 +1,38 @@
-from dataclasses import dataclass
-
 from pydantic import BaseModel, Field, model_validator
+from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 from app.schemas.component_schema import Cpu, Gpu, Ram, PowerSupply, Motherboard
-from app.schemas.pyobjectid import PyObjectId
 from app.rules_engine.manager import rule_manager
+from app.schemas.base import BaseDbModel
 
 
-@dataclass
-class PcConfigContext:
-    _id: PyObjectId
+class PcConfigId(BaseDbModel):
+    pass
+
+
+class PcConfigContext(BaseDbModel):
+    """PC config context"""
 
 
 class Components(BaseModel):
-    cpu: PyObjectId | None = None
-    gpu: PyObjectId | None = None
-    ram: PyObjectId | None = None
-    psu: PyObjectId | None = None
-    motherboard: PyObjectId | None = None
+    cpu: MongoObjectId | None = None
+    gpu: MongoObjectId | None = None
+    ram: MongoObjectId | None = None
+    psu: MongoObjectId | None = None
+    motherboard: MongoObjectId | None = None
 
 
-class PcConfig(BaseModel):
+class PcComponentsId(Components, BaseDbModel):
+    """model for the builds collection"""
+
+    user_id: MongoObjectId
+
+
+class PcConfig(BaseDbModel):
     # To update the list of errors,
     # you need to call `update_errors` or `model_dump`
 
-    id: PyObjectId | None = Field(alias="_id", default=None)
-    user_id: PyObjectId
+    user_id: MongoObjectId
 
     cpu: Cpu | None = None
     ram: Ram | None = None
@@ -52,8 +59,3 @@ class PcConfig(BaseModel):
         """
         self.update_errors()
         return self
-
-    # class Config:
-    #     json_encoders = {
-    #         PyObjectId: lambda v: str(v),
-    #     }

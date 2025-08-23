@@ -1,6 +1,9 @@
 from typing import Optional
-from uuid import UUID
+from uuid import UUID, uuid4
+
 from pydantic import BaseModel, EmailStr, Field
+
+from app.schemas.base import BaseDbModel
 
 
 class UserAuth(BaseModel):
@@ -9,16 +12,23 @@ class UserAuth(BaseModel):
     password: str = Field(..., min_length=5, max_length=24, description="user password")
 
 
-class UserOut(BaseModel):
-    user_id: UUID
+class UserOut(BaseDbModel):
     username: str
     email: EmailStr
-    first_name: Optional[str]
-    last_name: Optional[str]
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
     disabled: Optional[bool] = False
 
 
 class UserUpdate(BaseModel):
-    email: Optional[EmailStr] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
+
+
+class User(BaseDbModel):
+    username: str
+    email: EmailStr
+    hashed_password: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    disabled: Optional[bool] = False

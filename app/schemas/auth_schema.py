@@ -1,5 +1,5 @@
-from uuid import UUID
 from pydantic import BaseModel
+from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 
 class TokenSchema(BaseModel):
@@ -8,5 +8,5 @@ class TokenSchema(BaseModel):
 
 
 class TokenPayload(BaseModel):
-    sub: UUID = None
+    sub: MongoObjectId = None
     exp: int = None

@@ -1,7 +1,7 @@
 from pymongo.database import Database
 
+from app.schemas.base import BaseDbModel as Component
 from app.schemas.component_schema import (
-    BaseComponentModel as Component,
     Cpu,
     Gpu,
     Ram,
