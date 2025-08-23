@@ -22,6 +22,12 @@ class Components(BaseModel):
     motherboard: MongoObjectId | None = None
 
 
+class PcComponentsId(Components, BaseDbModel):
+    """model for the builds collection"""
+
+    user_id: MongoObjectId
+
+
 class PcConfig(BaseDbModel):
     # To update the list of errors,
     # you need to call `update_errors` or `model_dump`
