@@ -1,4 +1,5 @@
 from datetime import datetime
+from dataclasses import dataclass
 
 from jose import jwt
 from fastapi import Depends, HTTPException, status, Path
@@ -8,14 +9,21 @@ from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 from app.core.config import settings
 from app.schemas.auth_schema import TokenPayload
+from app.schemas.chat_schema import ChatSchema
 from app.services.user_service import UserService
 from app.schemas.user_schema import User
-from app.repos import config_repo
+from app.repos import config_repo, chat_repo
 
 
 reuseable_oauth = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/auth/login", scheme_name="JWT"
 )
+
+
+@dataclass
+class ChatWithOwner:
+    user: User
+    chat: ChatSchema
 
 
 async def get_current_user(token: str = Depends(reuseable_oauth)) -> User:
@@ -61,3 +69,21 @@ async def config_owner(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
     return current_user
+
+
+async def get_chat_if_owner(
+    id: MongoObjectId = Path(...), current_user: User = Depends(get_current_user)
+):
+    chat = chat_repo.get_chat(id)
+
+    if not chat:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "There is no such chat")
+
+    # перевірка, чи це чат користувача
+    if not chat.user_id == current_user.id:
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            "You do not have permission to access this resource",
+        )
+
+    return ChatWithOwner(current_user, chat)

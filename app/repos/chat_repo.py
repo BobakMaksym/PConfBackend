@@ -38,19 +38,14 @@ class ChatRepo:
 
         return [ChatSchema(**chat) for chat in chats]
 
-    def get_chat(self, chat_id: MongoObjectId):
+    def get_chat(self, chat_id: MongoObjectId) -> ChatSchema:
         _chat = self.col.find_one({"_id": chat_id})
         chat = ChatSchema(**_chat)
-        messages = []
-        for msg in chat.messages:
-            msg_type = msg.get("type")
-            if msg_type in ("message", None):
-                messages.append(msg)
-        chat.messages = messages
-        # chat.messages = [
-        #     msg for msg in chat.messages if msg.get("type") in ("message", None)
-        # ]
-        return chat.model_dump(by_alias=True)
+
+        chat.messages = [
+            msg for msg in chat.messages if msg.get("type") in ("message", None)
+        ]
+        return chat
 
     def update_history(self, chat_id: MongoObjectId, message: str):
         """просто додати повідомлення"""
