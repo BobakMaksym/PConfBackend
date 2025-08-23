@@ -24,9 +24,7 @@ class ConfigService:
     def get(build_id: MongoObjectId):
         """Get the current state of the PC config"""
 
-        _build = config_repo.get_full_build(build_id)
-
-        build = PcConfig(**_build)
+        build = config_repo.get_full_build(build_id)
 
         return build
 
@@ -42,7 +40,7 @@ class ConfigService:
 
         build = config_repo.get_full_build(build_id)
 
-        return PcConfig(**build)
+        return build
 
     @staticmethod
     def remove_component(build_id: MongoObjectId, type_: COLLECTIONS):
