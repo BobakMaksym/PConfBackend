@@ -22,16 +22,12 @@ from app.schemas.component_schema import (
     PowerSupply,
 )
 from app.repos.component_repo import CpuRepo, GpuRepo, RamRepo, MbRepo, PsuRepo
-from app.repos.chat_repo import ChatRepo
-from app.repos.config_repo import ConfigRepo
+from app.repos import config_repo
 
 
 COMPONENT_COUNT = 2
 
 logger = logging.getLogger("app")
-
-config_repo = ConfigRepo(db)
-chat_repo = ChatRepo(db)
 
 
 def function_tool_and_filter_normalizer(func: Callable):

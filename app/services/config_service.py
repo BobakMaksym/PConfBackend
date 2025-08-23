@@ -1,14 +1,10 @@
 from pydantic_extra_types.mongo_object_id import MongoObjectId
 
-from app.db import db
 from app.helpers import COLLECTIONS
-from app.schemas.pc_config_schema import PcConfig
-from app.repos.config_repo import ConfigRepo
+from app.repos import config_repo
 
 
 COMPONENT_COUNT = 500
-
-config_repo = ConfigRepo(db)
 
 
 class ConfigService:

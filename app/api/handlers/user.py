@@ -1,6 +1,4 @@
-from fastapi import APIRouter, HTTPException, status
-from fastapi import Depends
-import pymongo
+from fastapi import APIRouter, Depends
 
 from app.api.deps.user_deps import get_current_user
 from app.core import db_exceptions as db_exc

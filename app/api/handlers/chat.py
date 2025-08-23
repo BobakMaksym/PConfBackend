@@ -6,17 +6,7 @@ from app.api.deps.user_deps import get_current_user
 from app.services.chat_service import ChatService
 from app.documents.user_model import User
 from app.schemas.chat_schema import ChatSchema
-from app.repos.chat_repo import ChatRepo
-from app.repos.config_repo import ConfigRepo
-from app.db import db
-
-# from app.core.config import settings
-# from app.schemas.auth_schema import TokenPayload
-# from pydantic import ValidationError
-# from jose import jwt
-
-config_repo = ConfigRepo(db=db)
-chat_repo = ChatRepo(db=db)
+from app.repos import chat_repo
 
 
 chat_router = APIRouter()

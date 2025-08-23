@@ -3,20 +3,15 @@ from fastapi.responses import Response
 from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 from app.api.deps.user_deps import get_current_user, config_owner
-from app.db import db
 from app.helpers import COLLECTIONS
 from app.documents.user_model import User
-from app.repos.chat_repo import ChatRepo
-from app.repos.config_repo import ConfigRepo
+from app.repos import chat_repo
 from app.services.config_service import ConfigService
 from app.schemas.pc_config_schema import PcConfigId
 
 config_router = APIRouter()
 
 config_service = ConfigService()
-
-config_repo = ConfigRepo(db=db)
-chat_repo = ChatRepo(db=db)
 
 
 id_example = {"example": "683b7ab21fbad55848727e64"}

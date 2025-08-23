@@ -1,17 +1,9 @@
-from uuid import UUID
-
 from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 from app.core.security import verify_password
-
 from app.documents.user_model import User
 from app.schemas.user_schema import UserAuth, UserOut, UserUpdate
-
-from app.repos.user_repo import UserRepo
-from app.db import db
-
-
-user_repo = UserRepo(db=db)
+from app.repos import user_repo
 
 
 class UserService:
