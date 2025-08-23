@@ -3,8 +3,7 @@ from fastapi import APIRouter, Depends
 from app.api.deps.user_deps import get_current_user
 from app.core import db_exceptions as db_exc
 from app.core import exceptions as api_exc
-from app.schemas.user_schema import UserAuth, UserOut, UserUpdate
-from app.documents.user_model import User
+from app.schemas.user_schema import UserAuth, UserOut, UserUpdate, User
 from app.services.user_service import UserService
 
 

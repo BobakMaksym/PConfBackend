@@ -6,8 +6,8 @@ from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 from app.api.deps.user_deps import get_current_user, get_chat_if_owner, ChatWithOwner
 from app.services.chat_service import ChatService
-from app.documents.user_model import User
 from app.schemas.chat_schema import ChatSchema
+from app.schemas.user_schema import User
 from app.repos import chat_repo
 
 

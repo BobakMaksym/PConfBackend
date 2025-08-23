@@ -7,7 +7,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.router import router
 from app.core.config import settings
-from app.documents.user_model import User
 
 
 logger = logging.getLogger("app")

@@ -4,7 +4,7 @@ from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 from app.api.deps.user_deps import get_current_user, config_owner
 from app.helpers import COLLECTIONS
-from app.documents.user_model import User
+from app.schemas.user_schema import User
 from app.repos import chat_repo
 from app.services.config_service import ConfigService
 from app.schemas.pc_config_schema import PcConfigId

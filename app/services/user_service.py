@@ -1,8 +1,7 @@
 from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 from app.core.security import verify_password
-from app.documents.user_model import User
-from app.schemas.user_schema import UserAuth, UserOut, UserUpdate
+from app.schemas.user_schema import UserAuth, UserOut, UserUpdate, User
 from app.repos import user_repo
 
 
