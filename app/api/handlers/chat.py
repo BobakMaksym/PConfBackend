@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends, status as s, Body, Path
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, status, Body, Path
 from fastapi.responses import Response, JSONResponse
 from pydantic_extra_types.mongo_object_id import MongoObjectId
 
-from app.api.deps.user_deps import get_current_user
+from app.api.deps.user_deps import get_current_user, get_chat_if_owner, ChatWithOwner
 from app.services.chat_service import ChatService
 from app.documents.user_model import User
 from app.schemas.chat_schema import ChatSchema
@@ -10,6 +12,8 @@ from app.repos import chat_repo
 
 
 chat_router = APIRouter()
+
+ChatIfOwnerDeps = Annotated[ChatWithOwner, Depends(get_chat_if_owner)]
 
 
 @chat_router.get("/my/")
@@ -22,56 +26,26 @@ async def my_chats(current_user: User = Depends(get_current_user)):
 
 @chat_router.delete("/clear/{id}")
 async def clear_chat(
+    deps: ChatIfOwnerDeps,
     id: MongoObjectId = Path(example="683b7ab21fbad55848727e64"),
-    current_user: User = Depends(get_current_user),
 ):
-    chat = chat_repo.get_chat(id)
-    if chat:
-        # перевірка, чи це чат користувача
-        if chat["user_id"] == current_user.id:
-            chat_repo.clear(id)
-            return Response(status_code=s.HTTP_204_NO_CONTENT)
-        return Response(
-            "You do not have permission to access this resource",
-            s.HTTP_403_FORBIDDEN,
-        )
-    return Response("There is no such chat", s.HTTP_404_NOT_FOUND)
+    chat_repo.clear(id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@chat_router.post("/send/{chat_id}")
+@chat_router.post("/send/{id}")
 async def send_message(
-    chat_id: MongoObjectId = Path(example="683b7ab21fbad55848727e64"),
+    deps: ChatIfOwnerDeps,
+    id: MongoObjectId = Path(example="683b7ab21fbad55848727e64"),
     message: str = Body(),
-    current_user: User = Depends(get_current_user),
 ):
-    chat = chat_repo.get_chat(chat_id)
-    if chat:
-        # перевірка, чи це чат користувача
-        if chat["user_id"] == current_user.id:
-
-            response = await ChatService().send_message(chat_id, message)
-
-            return JSONResponse(response, s.HTTP_201_CREATED)
-        return Response(
-            "You do not have permission to access this resource",
-            s.HTTP_403_FORBIDDEN,
-        )
-    return Response("There is no such chat", s.HTTP_404_NOT_FOUND)
+    response = await ChatService().send_message(id, message)
+    return JSONResponse(response, status.HTTP_201_CREATED)
 
 
-@chat_router.get("/get/{chat_id}")
+@chat_router.get("/get/{id}", response_model=ChatSchema)
 async def get_chat(
-    chat_id: MongoObjectId = Path(example="683b7ab21fbad55848727e64"),
-    current_user: User = Depends(get_current_user),
+    deps: ChatIfOwnerDeps,
+    id: MongoObjectId = Path(example="683b7ab21fbad55848727e64"),
 ):
-    chat = chat_repo.get_chat(chat_id)
-    if chat:
-        # перевірка, чи це чат користувача
-        if chat["user_id"] == current_user.id:
-            return ChatSchema(**chat)
-
-        return Response(
-            "You do not have permission to access this resource",
-            s.HTTP_403_FORBIDDEN,
-        )
-    return Response("There is no such chat", s.HTTP_404_NOT_FOUND)
+    return deps.chat
