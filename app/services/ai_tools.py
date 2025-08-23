@@ -98,15 +98,13 @@ def add_component(
 
     build = config_repo.get_full_build(build_id)
 
-    return PcConfig(**build)
+    return build
 
 
 @function_tool
 def get_configuration(wrapper: RunContextWrapper[PcConfigContext]):
     """Get the current state of the PC config"""
     id_ = wrapper.context._id
-    _build = config_repo.get_full_build(id_)
-
-    build = PcConfig(**_build)
+    build = config_repo.get_full_build(id_)
 
     return build
