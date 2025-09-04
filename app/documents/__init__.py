@@ -4,6 +4,7 @@ from app.documents.gpu import GpuDocument
 from app.documents.motherboard import MotherboardDocument
 from app.documents.psu import PsuDocument
 from app.documents.ram import RamDocument
+from app.documents.user import UserDocument
 
 __all__ = (
     ConfigDocument,
@@ -12,4 +13,5 @@ __all__ = (
     MotherboardDocument,
     PsuDocument,
     RamDocument,
+    UserDocument,
 )
