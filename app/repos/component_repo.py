@@ -1,5 +1,12 @@
 from pymongo.database import Database
 
+from app.documents import (
+    CpuDocument,
+    GpuDocument,
+    MotherboardDocument,
+    RamDocument,
+    PsuDocument,
+)
 from app.schemas.base import BaseDbSchema as Component
 from app.schemas.component_schema import (
     CpuSchema,
@@ -11,66 +18,64 @@ from app.schemas.component_schema import (
 
 
 class BaseComponentRepo:
-    model: CpuSchema = None
-    collection: str = None
+    schema: CpuSchema = None
+    collection: CpuDocument = None
     mongo_search_index: str = None
 
     def __init__(self, db: Database):
-        self.db = db["components"]
-        self.col = db[self.collection]
+        """the method is no longer needed"""
+        pass
 
     def find(self, filters: dict, limit: int) -> list[Component]:
 
-        model = filters.pop("model", None)
+        component_model = filters.pop("model", None)
+
+        docs = []
 
         # aggregation pipeline with atlas search if `model` is passed
-        if model:
-            docs = self.col.aggregate(
-                [
-                    {
-                        "$search": {
-                            "index": self.mongo_search_index,
-                            "text": {"query": model, "path": "model"},
-                        }
-                    },
-                    {"$match": filters},
-                    {"$limit": limit},
-                ]
-            )
+        if component_model:
+            pipeline = [
+                {
+                    "$search": {
+                        "index": self.mongo_search_index,
+                        "text": {"query": component_model, "path": "model"},
+                    }
+                },
+                {"$match": filters},
+                {"$limit": limit},
+            ]
+            docs = self.collection.objects().aggregate(pipeline)
+
         else:
-            docs = self.col.find(filters).limit(limit)
+            docs = self.collection.objects(**filters).limit(limit)
 
-        components = []
-        for doc in docs:
-            components.append(self.model(**doc))
-
-        # print(components)
+        components = [self.schema.model_validate(doc) for doc in docs]
 
         return components
 
 
 class CpuRepo(BaseComponentRepo):
-    model = CpuSchema
-    collection = "cpu"
+    schema = CpuSchema
+    collection = CpuDocument
     mongo_search_index = "cpu_search_index"
 
 
 class GpuRepo(BaseComponentRepo):
-    model = GpuSchema
-    collection = "gpu"
+    schema = GpuSchema
+    collection = GpuDocument
     mongo_search_index = "gpu_search_index"
 
 
 class RamRepo(BaseComponentRepo):
-    model = RamSchema
-    collection = "ram"
+    schema = RamSchema
+    collection = RamDocument
 
 
 class MbRepo(BaseComponentRepo):
-    model = MotherboardSchema
-    collection = "motherboard"
+    schema = MotherboardSchema
+    collection = MotherboardDocument
 
 
 class PsuRepo(BaseComponentRepo):
-    model = PowerSupplySchema
-    collection = "psu"
+    schema = PowerSupplySchema
+    collection = PsuDocument
