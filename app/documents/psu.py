@@ -1,9 +1,9 @@
 from mongoengine import fields as f
 
-from app.documents.base import BaseDocument
+from app.documents.base import BaseComponentDocument
 
 
-class PsuDocument(BaseDocument):
+class PsuDocument(BaseComponentDocument):
     meta = {"collection": "psu"}
 
     form_factor = f.StringField(required=True)

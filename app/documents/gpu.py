@@ -1,9 +1,9 @@
 from mongoengine import fields as f
 
-from app.documents.base import BaseDocument
+from app.documents.base import BaseComponentDocument
 
 
-class GpuDocument(BaseDocument):
+class GpuDocument(BaseComponentDocument):
     meta = {"collection": "gpu"}
 
     model_gpu = f.StringField(required=True)

@@ -1,9 +1,9 @@
 from mongoengine import fields as f
 
-from app.documents.base import BaseDocument
+from app.documents.base import BaseComponentDocument
 
 
-class RamDocument(BaseDocument):
+class RamDocument(BaseComponentDocument):
     meta = {"collection": "ram"}
 
     type = f.StringField(required=True)

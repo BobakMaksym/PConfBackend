@@ -1,9 +1,9 @@
 from mongoengine import fields as f
 
-from app.documents.base import BaseDocument
+from app.documents.base import BaseComponentDocument
 
 
-class MotherboardDocument(BaseDocument):
+class MotherboardDocument(BaseComponentDocument):
     meta = {"collection": "motherboard"}
 
     socket = f.StringField(required=True)
