@@ -4,6 +4,7 @@ import time
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from mongoengine import connect
 
 from app.api.router import router
 from app.core.config import settings
@@ -15,6 +16,9 @@ logger = logging.getLogger("app")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # configure_logging(level=settings.LOG_LEVEL)
+    # mongoengine connection settings
+    connect(db=settings.DATABASE, host=settings.MONGO_CONNECTION_STRING)
+
     yield
 
 
