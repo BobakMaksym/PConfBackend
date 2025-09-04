@@ -7,7 +7,7 @@ from pydantic_extra_types.mongo_object_id import MongoObjectId
 from app.api.deps.user_deps import get_current_user, get_chat_if_owner, ChatWithOwner
 from app.services.chat_service import ChatService
 from app.schemas.chat_schema import ChatSchema
-from app.schemas.user_schema import User
+from app.schemas.user_schema import UserSchema
 from app.repos import chat_repo
 
 
@@ -17,7 +17,7 @@ ChatIfOwnerDeps = Annotated[ChatWithOwner, Depends(get_chat_if_owner)]
 
 
 @chat_router.get("/my/")
-async def my_chats(current_user: User = Depends(get_current_user)):
+async def my_chats(current_user: UserSchema = Depends(get_current_user)):
     user_id = current_user.id
     chats = chat_repo.get_user_chat(user_id)
 

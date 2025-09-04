@@ -6,7 +6,7 @@ from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 from app.core import exceptions as e
 from app.core.security import get_password
-from app.schemas.user_schema import UserAuth, UserOut, UserUpdate, User
+from app.schemas.user_schema import UserAuthSchema, UserUpdateSchema, UserSchema
 from app.core import db_exceptions as db_err
 
 
@@ -17,7 +17,7 @@ class UserRepo:
     def __init__(self, db):
         self.col: Collection = db["users"]
 
-    def create(self, user: UserAuth) -> User:
+    def create(self, user: UserAuthSchema) -> UserSchema:
         db_users = self.col.find(
             {"$or": [{"username": user.username}, {"email": user.email}]}
         )
@@ -33,17 +33,17 @@ class UserRepo:
 
         self.col.insert_one(user_doc)
 
-        return User(**user_doc)
+        return UserSchema(**user_doc)
 
-    def get_by_email(self, email: str) -> User | None:
+    def get_by_email(self, email: str) -> UserSchema | None:
         user = self.col.find_one({"email": email})
-        return User(**user) if user else None
+        return UserSchema(**user) if user else None
 
-    def get_by_id(self, id: MongoObjectId) -> User | None:
+    def get_by_id(self, id: MongoObjectId) -> UserSchema | None:
         user = self.col.find_one({"_id": id})
-        return User(**user) if user else None
+        return UserSchema(**user) if user else None
 
-    def update(self, id: MongoObjectId, data: UserUpdate) -> User:
+    def update(self, id: MongoObjectId, data: UserUpdateSchema) -> UserSchema:
         user = self.col.find_one_and_update(
             {"_id": id},
             {"$set": data.model_dump(exclude_unset=True)},
@@ -52,4 +52,4 @@ class UserRepo:
         if not user:
             raise db_err.NotFoundError
 
-        return User(**user)
+        return UserSchema(**user)

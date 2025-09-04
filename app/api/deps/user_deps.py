@@ -8,10 +8,10 @@ from pydantic import ValidationError
 from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 from app.core.config import settings
-from app.schemas.auth_schema import TokenPayload
+from app.schemas.auth_schema import TokenPayloadSchema
 from app.schemas.chat_schema import ChatSchema
 from app.services.user_service import UserService
-from app.schemas.user_schema import User
+from app.schemas.user_schema import UserSchema
 from app.repos import config_repo, chat_repo
 
 
@@ -22,16 +22,16 @@ reuseable_oauth = OAuth2PasswordBearer(
 
 @dataclass
 class ChatWithOwner:
-    user: User
+    user: UserSchema
     chat: ChatSchema
 
 
-async def get_current_user(token: str = Depends(reuseable_oauth)) -> User:
+async def get_current_user(token: str = Depends(reuseable_oauth)) -> UserSchema:
     try:
         payload = jwt.decode(
             token, settings.JWT_SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
-        token_data = TokenPayload(**payload)
+        token_data = TokenPayloadSchema(**payload)
 
         if datetime.fromtimestamp(token_data.exp) < datetime.now():
             raise HTTPException(
@@ -58,7 +58,7 @@ async def get_current_user(token: str = Depends(reuseable_oauth)) -> User:
 
 
 async def config_owner(
-    id: MongoObjectId = Path(...), current_user: User = Depends(get_current_user)
+    id: MongoObjectId = Path(...), current_user: UserSchema = Depends(get_current_user)
 ):
     config = config_repo.get_config(id)
 
@@ -72,7 +72,7 @@ async def config_owner(
 
 
 async def get_chat_if_owner(
-    id: MongoObjectId = Path(...), current_user: User = Depends(get_current_user)
+    id: MongoObjectId = Path(...), current_user: UserSchema = Depends(get_current_user)
 ):
     chat = chat_repo.get_chat(id)
 

@@ -13,13 +13,13 @@ from app.filters import (
     PsuFilters,
 )
 from app.helpers import normalize_filters
-from app.schemas.pc_config_schema import Components, PcConfig, PcConfigContext
+from app.schemas.pc_config_schema import ComponentsSchema, PcConfigContext
 from app.schemas.component_schema import (
-    Cpu,
-    Gpu,
-    Ram,
-    Motherboard,
-    PowerSupply,
+    CpuSchema,
+    GpuSchema,
+    RamSchema,
+    MotherboardSchema,
+    PowerSupplySchema,
 )
 from app.repos.component_repo import CpuRepo, GpuRepo, RamRepo, MbRepo, PsuRepo
 from app.repos import config_repo
@@ -48,19 +48,19 @@ def function_tool_and_filter_normalizer(func: Callable):
 
 
 @function_tool_and_filter_normalizer
-def find_cpu(filters: CpuFilters, count: int = COMPONENT_COUNT) -> list[Cpu]:
+def find_cpu(filters: CpuFilters, count: int = COMPONENT_COUNT) -> list[CpuSchema]:
     """finds CPU's in DB"""
     return CpuRepo(db).find(filters, limit=count)
 
 
 @function_tool_and_filter_normalizer
-def find_gpu(filters: GpuFilters, count: int = COMPONENT_COUNT) -> list[Gpu]:
+def find_gpu(filters: GpuFilters, count: int = COMPONENT_COUNT) -> list[GpuSchema]:
     """finds GPU's in DB"""
     return GpuRepo(db).find(filters, limit=count)
 
 
 @function_tool_and_filter_normalizer
-def find_ram(filters: RamFilters, count: int = COMPONENT_COUNT) -> list[Ram]:
+def find_ram(filters: RamFilters, count: int = COMPONENT_COUNT) -> list[RamSchema]:
     """finds RAM modules in DB"""
     return RamRepo(db).find(filters, limit=count)
 
@@ -68,13 +68,15 @@ def find_ram(filters: RamFilters, count: int = COMPONENT_COUNT) -> list[Ram]:
 @function_tool_and_filter_normalizer
 def find_motherboard(
     filters: MotherboardFilters, count: int = COMPONENT_COUNT
-) -> list[Motherboard]:
+) -> list[MotherboardSchema]:
     """finds motherboards in DB"""
     return MbRepo(db).find(filters, limit=count)
 
 
 @function_tool_and_filter_normalizer
-def find_psu(filters: PsuFilters, count: int = COMPONENT_COUNT) -> list[PowerSupply]:
+def find_psu(
+    filters: PsuFilters, count: int = COMPONENT_COUNT
+) -> list[PowerSupplySchema]:
     """finds power supplies in DB"""
     return PsuRepo(db).find(filters, limit=count)
 
@@ -82,7 +84,7 @@ def find_psu(filters: PsuFilters, count: int = COMPONENT_COUNT) -> list[PowerSup
 @function_tool
 def add_component(
     wrapper: RunContextWrapper[PcConfigContext],
-    components: Components,
+    components: ComponentsSchema,
 ):
     """Adds a components to the PC config"""
     build_id = wrapper.context._id

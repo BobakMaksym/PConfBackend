@@ -1,20 +1,26 @@
 from pydantic import BaseModel, Field, model_validator
 from pydantic_extra_types.mongo_object_id import MongoObjectId
 
-from app.schemas.component_schema import Cpu, Gpu, Ram, PowerSupply, Motherboard
+from app.schemas.component_schema import (
+    CpuSchema,
+    GpuSchema,
+    RamSchema,
+    PowerSupplySchema,
+    MotherboardSchema,
+)
 from app.rules_engine.manager import rule_manager
-from app.schemas.base import BaseDbModel
+from app.schemas.base import BaseDbSchema
 
 
-class PcConfigId(BaseDbModel):
+class PcConfigId(BaseDbSchema):
     pass
 
 
-class PcConfigContext(BaseDbModel):
+class PcConfigContext(BaseDbSchema):
     """PC config context"""
 
 
-class Components(BaseModel):
+class ComponentsSchema(BaseModel):
     cpu: MongoObjectId | None = None
     gpu: MongoObjectId | None = None
     ram: MongoObjectId | None = None
@@ -22,23 +28,23 @@ class Components(BaseModel):
     motherboard: MongoObjectId | None = None
 
 
-class PcComponentsId(Components, BaseDbModel):
+class PcComponentsId(ComponentsSchema, BaseDbSchema):
     """model for the builds collection"""
 
     user_id: MongoObjectId
 
 
-class PcConfig(BaseDbModel):
+class PcConfigSchema(BaseDbSchema):
     # To update the list of errors,
     # you need to call `update_errors` or `model_dump`
 
     user_id: MongoObjectId
 
-    cpu: Cpu | None = None
-    ram: Ram | None = None
-    motherboard: Motherboard | None = None
-    gpu: Gpu | None = None
-    psu: PowerSupply | None = None
+    cpu: CpuSchema | None = None
+    ram: RamSchema | None = None
+    motherboard: MotherboardSchema | None = None
+    gpu: GpuSchema | None = None
+    psu: PowerSupplySchema | None = None
 
     # when adding components dynamically, errors does not change
     errors: list[str | None] = Field(

@@ -4,7 +4,7 @@ from pymongo.collection import Collection
 from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 from app.helpers import COLLECTIONS
-from app.schemas.pc_config_schema import PcConfig, PcComponentsId
+from app.schemas.pc_config_schema import PcConfigSchema, PcComponentsId
 
 
 logger = logging.getLogger("app")
@@ -15,7 +15,7 @@ class ConfigRepo:
         self.col: Collection = db["builds"]
 
     def create(self, user_id: MongoObjectId) -> MongoObjectId:
-        build = PcConfig(user_id=user_id)
+        build = PcConfigSchema(user_id=user_id)
         res = self.col.insert_one(build.model_dump_for_db())
 
         return res.inserted_id
@@ -23,7 +23,7 @@ class ConfigRepo:
     def delete(self, build_id: MongoObjectId):
         self.col.delete_one({"_id": build_id})
 
-    def load(self, build_id: MongoObjectId) -> PcConfig | None:
+    def load(self, build_id: MongoObjectId) -> PcConfigSchema | None:
         """deprecated, use `get_config`"""
 
         doc = self.col.find_one({"_id": build_id})
@@ -36,7 +36,7 @@ class ConfigRepo:
             return None
         return PcComponentsId(**config)
 
-    def get_config_errors(self, config_id: MongoObjectId) -> PcConfig | None:
+    def get_config_errors(self, config_id: MongoObjectId) -> PcConfigSchema | None:
         errors = self.col.find_one({"_id": config_id}, {"errors": 1})
 
         return errors
@@ -97,4 +97,4 @@ class ConfigRepo:
         if not build:
             return None
 
-        return PcConfig(**build[0])
+        return PcConfigSchema(**build[0])

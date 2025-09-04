@@ -2,7 +2,7 @@ from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 
-class BaseDbModel(BaseModel):
+class BaseDbSchema(BaseModel):
     """
     Basic model for working with objects from the database
     """

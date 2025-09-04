@@ -1,9 +1,9 @@
 from pydantic import Field
 
-from app.schemas.base import BaseDbModel
+from app.schemas.base import BaseDbSchema
 
 
-class Cpu(BaseDbModel):
+class CpuSchema(BaseDbSchema):
     manufacturer: str | None = Field(default=None)
     model: str | None = Field(default=None)
 
@@ -18,7 +18,7 @@ class Cpu(BaseDbModel):
     threads: int | None = Field(default=None)
 
 
-class Ram(BaseDbModel):
+class RamSchema(BaseDbSchema):
     manufacturer: str
     model: str
 
@@ -32,7 +32,7 @@ class Ram(BaseDbModel):
     lighting: bool | None = None
 
 
-class Gpu(BaseDbModel):
+class GpuSchema(BaseDbSchema):
     manufacturer: str
     model: str
     model_gpu: str
@@ -50,7 +50,7 @@ class Gpu(BaseDbModel):
     lighting: bool | None = None
 
 
-class Motherboard(BaseDbModel):
+class MotherboardSchema(BaseDbSchema):
     manufacturer: str
     model: str
 
@@ -67,7 +67,7 @@ class Motherboard(BaseDbModel):
     wifi: bool | None = None
 
 
-class PowerSupply(BaseDbModel):
+class PowerSupplySchema(BaseDbSchema):
 
     manufacturer: str
     model: str
@@ -98,7 +98,7 @@ class PowerSupply(BaseDbModel):
 
 if __name__ == "__main__":
 
-    cpu = Cpu(
+    cpu = CpuSchema(
         manufacturer="AMD",
         model="Ryzen 5 5600X",
         socket="AM4",
@@ -109,7 +109,7 @@ if __name__ == "__main__":
         cores=6,
         threads=12,
     )
-    ram = Ram(
+    ram = RamSchema(
         manufacturer="Corsair",
         model="Vengeance LPX",
         type="DDR5",
@@ -117,7 +117,7 @@ if __name__ == "__main__":
         capacity=16,  # 16 GB total
         speed=3200,  # in MHz
     )
-    gpu = Gpu(
+    gpu = GpuSchema(
         manufacturer="NVIDIA",
         model="GeForce RTX 3060",
         model_gpu="GA106",
@@ -125,7 +125,7 @@ if __name__ == "__main__":
         memory_type="GDDR6",
         power_consumption=170,  # in W
     )
-    motherboard = Motherboard(
+    motherboard = MotherboardSchema(
         manufacturer="MSI",
         model="B550M PRO-VDH WIFI",
         socket="AM5",
@@ -135,7 +135,7 @@ if __name__ == "__main__":
         m2_count=2,
         chipset="B550",
     )
-    psu = PowerSupply(
+    psu = PowerSupplySchema(
         manufacturer="be quiet!",
         model="Pure Power 12 M",
         form_factor="ATX",

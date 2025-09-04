@@ -8,8 +8,8 @@ from pydantic import ValidationError
 from app.api.deps.user_deps import get_current_user
 from app.core.config import settings
 from app.core.security import create_access_token, create_refresh_token
-from app.schemas.auth_schema import TokenSchema, TokenPayload
-from app.schemas.user_schema import UserOut, User
+from app.schemas.auth_schema import TokenSchema, TokenPayloadSchema
+from app.schemas.user_schema import UserOutSchema, UserSchema
 from app.services.user_service import UserService
 
 
@@ -38,9 +38,11 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()) -> Any:
 
 
 @auth_router.post(
-    "/test-token", summary="Test if the access token is valid", response_model=UserOut
+    "/test-token",
+    summary="Test if the access token is valid",
+    response_model=UserOutSchema,
 )
-async def test_token(user: User = Depends(get_current_user)):
+async def test_token(user: UserSchema = Depends(get_current_user)):
     return user
 
 
@@ -52,7 +54,7 @@ async def refresh_token(refresh_token: str = Body(...)):
             settings.JWT_REFRESH_SECRET_KEY,
             algorithms=[settings.ALGORITHM],
         )
-        token_data = TokenPayload(**payload)
+        token_data = TokenPayloadSchema(**payload)
     except (jwt.JWTError, ValidationError):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

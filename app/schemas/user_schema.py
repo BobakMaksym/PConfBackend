@@ -3,16 +3,16 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, EmailStr, Field
 
-from app.schemas.base import BaseDbModel
+from app.schemas.base import BaseDbSchema
 
 
-class UserAuth(BaseModel):
+class UserAuthSchema(BaseModel):
     email: EmailStr = Field(..., description="user email")
     username: str = Field(..., min_length=5, max_length=50, description="user username")
     password: str = Field(..., min_length=5, max_length=24, description="user password")
 
 
-class UserOut(BaseDbModel):
+class UserOutSchema(BaseDbSchema):
     username: str
     email: EmailStr
     first_name: Optional[str] = None
@@ -20,12 +20,12 @@ class UserOut(BaseDbModel):
     disabled: Optional[bool] = False
 
 
-class UserUpdate(BaseModel):
+class UserUpdateSchema(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
 
 
-class User(BaseDbModel):
+class UserSchema(BaseDbSchema):
     username: str
     email: EmailStr
     hashed_password: str

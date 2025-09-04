@@ -1,17 +1,17 @@
 from pymongo.database import Database
 
-from app.schemas.base import BaseDbModel as Component
+from app.schemas.base import BaseDbSchema as Component
 from app.schemas.component_schema import (
-    Cpu,
-    Gpu,
-    Ram,
-    Motherboard,
-    PowerSupply,
+    CpuSchema,
+    GpuSchema,
+    RamSchema,
+    MotherboardSchema,
+    PowerSupplySchema,
 )
 
 
 class BaseComponentRepo:
-    model: Cpu = None
+    model: CpuSchema = None
     collection: str = None
     mongo_search_index: str = None
 
@@ -50,27 +50,27 @@ class BaseComponentRepo:
 
 
 class CpuRepo(BaseComponentRepo):
-    model = Cpu
+    model = CpuSchema
     collection = "cpu"
     mongo_search_index = "cpu_search_index"
 
 
 class GpuRepo(BaseComponentRepo):
-    model = Gpu
+    model = GpuSchema
     collection = "gpu"
     mongo_search_index = "gpu_search_index"
 
 
 class RamRepo(BaseComponentRepo):
-    model = Ram
+    model = RamSchema
     collection = "ram"
 
 
 class MbRepo(BaseComponentRepo):
-    model = Motherboard
+    model = MotherboardSchema
     collection = "motherboard"
 
 
 class PsuRepo(BaseComponentRepo):
-    model = PowerSupply
+    model = PowerSupplySchema
     collection = "psu"
