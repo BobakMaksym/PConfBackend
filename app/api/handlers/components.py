@@ -2,11 +2,13 @@ from typing import Callable, Type, Annotated
 import logging
 
 from fastapi import APIRouter, Query
+from fastapi_filter import FilterDepends
 from pydantic import BaseModel
 
 from app.core import utils
+from app.filters_.component_filters import CpuFilter
 from app.filters import (
-    CpuFilters,
+    # CpuFilters,
     GpuFilters,
     MotherboardFilters,
     PsuFilters,
@@ -43,7 +45,7 @@ def make_find_endpoint(
     component_router.get(path, summary=summary)(endpoint)
 
 
-make_find_endpoint("/find/cpu", "find_cpu", CpuFilters, CpuService, "Find CPUs")
+# make_find_endpoint("/find/cpu", "find_cpu", CpuFilters, CpuService, "Find CPUs")
 make_find_endpoint("/find/gpu", "find_gpu", GpuFilters, GpuService, "Find GPUs")
 make_find_endpoint("/find/ram", "find_ram", RamFilters, RamService, "Find RAM modules")
 make_find_endpoint(
@@ -56,14 +58,12 @@ make_find_endpoint(
 make_find_endpoint("/find/psu", "find_psu", PsuFilters, PsuService, "Find PSUs")
 
 
-# @component_router.get("/find/cpu", summary="Find CPUs")
-# async def find_cpu(
-#     # filters: CpuFilters = Query(...),
-#     filters: Annotated[CpuFilters, Query(...)],
-#     # count: int = Query(12, description="Number of CPUs to return"),
-# ):
-#     result = CpuService.find(filters)
-#     return utils.json_encoder([r.model_dump(by_alias=True) for r in result])
+@component_router.get("/find/cpu", summary="Find CPUs")
+async def find_cpu(
+    filters: CpuFilter = FilterDepends(CpuFilter),
+):
+    result = CpuService.find(filters)
+    return utils.json_encoder([r.model_dump(by_alias=True) for r in result])
 
 
 # @component_router.get("/find/gpu", summary="Find GPUs")
