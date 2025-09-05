@@ -1,5 +1,5 @@
 from types import new_class
-from typing import ClassVar
+from typing import ClassVar, Optional
 
 from fastapi_filter.contrib.mongoengine import Filter
 from mongoengine import Document
@@ -32,11 +32,11 @@ def create_filter_class(model: Document, fields: dict[str, list[str]]):
                 f_name_full = f"{f_name}__{f_value}"
 
             if f_value == "in":
-                annotations[f_name_full] = list[model_fields[f_name]]
+                annotations[f_name_full] = Optional[list[model_fields[f_name]]]
                 default_values[f_name_full] = None
                 continue
 
-            annotations[f_name_full] = model_fields[f_name]
+            annotations[f_name_full] = Optional[model_fields[f_name]]
             default_values[f_name_full] = None
 
     def init_class_namespace(ns: dict):
