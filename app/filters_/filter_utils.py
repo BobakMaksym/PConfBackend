@@ -3,6 +3,7 @@ from typing import ClassVar, Optional
 
 from fastapi_filter.contrib.mongoengine import Filter
 from mongoengine import Document
+from pydantic import ConfigDict
 from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 
@@ -41,18 +42,20 @@ def create_filter_class(model: Document, fields: dict[str, list[str]]):
 
     def init_class_namespace(ns: dict):
         """Function for initializing the class namespace"""
+
         ns["__module__"] = __name__
-
-        annotations["Constants"] = ClassVar[type]
-        ns["__annotations__"] = annotations
-
-        ns.update(default_values)
 
         class Constants(Filter.Constants): ...
 
         Constants.model = model
 
+        ns["__annotations__"] = annotations
+        ns["__annotations__"]["Constants"] = ClassVar[type]
+        ns["__annotations__"]["model_config"] = ClassVar[type]
+
+        ns.update(default_values)
         ns["Constants"] = Constants
+        ns["model_config"] = ConfigDict(str_to_lower=True)
 
     new_filter_class = new_class(
         name="CustomFilterClass",
