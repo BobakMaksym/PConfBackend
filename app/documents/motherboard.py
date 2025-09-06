@@ -6,14 +6,14 @@ from app.documents.base import BaseComponentDocument
 class MotherboardDocument(BaseComponentDocument):
     meta = {"collection": "motherboard"}
 
-    socket = f.StringField(required=True)
-    form_factor = f.StringField(required=True)
-    ram_type = f.StringField(required=True)
-    ram_slots = f.IntField(required=True)
-    m2_count = f.IntField()
+    socket: str = f.StringField(required=True)
+    form_factor: str = f.StringField(required=True)
+    ram_type: str = f.StringField(required=True)
+    ram_slots: int = f.IntField(required=True)
+    m2_count: int = f.IntField()
 
-    chipset = f.StringField(required=True)
+    chipset: str = f.StringField(required=True)
 
-    lighting = f.BooleanField()
-    vrm_heatsink = f.BooleanField()
-    wifi = f.BooleanField()
+    lighting: bool = f.BooleanField()
+    vrm_heatsink: bool = f.BooleanField()
+    wifi: bool = f.BooleanField()

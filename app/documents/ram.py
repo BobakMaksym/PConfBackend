@@ -6,11 +6,11 @@ from app.documents.base import BaseComponentDocument
 class RamDocument(BaseComponentDocument):
     meta = {"collection": "ram"}
 
-    type = f.StringField(required=True)
-    modules = f.IntField(required=True)
-    capacity = f.IntField(required=True)
-    speed = f.IntField(required=True)
+    type: str = f.StringField(required=True)
+    modules: int = f.IntField(required=True)
+    capacity: int = f.IntField(required=True)
+    speed: int = f.IntField(required=True)
 
-    cooling = f.BooleanField()
-    colour = f.StringField()
-    lighting = f.BooleanField()
+    cooling: bool = f.BooleanField()
+    colour: str = f.StringField()
+    lighting: bool = f.BooleanField()
