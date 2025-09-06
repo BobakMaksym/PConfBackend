@@ -1,17 +1,99 @@
-from app.documents import CpuDocument
+from app.documents import (
+    CpuDocument,
+    GpuDocument,
+    MotherboardDocument,
+    PsuDocument,
+    RamDocument,
+)
 from app.filters_.filter_utils import create_filter_class
 
 
-CpuFilter = create_filter_class(
+STR_SUFFIXES = ("exact", "in")
+INT_SUFFIXES = ("exact", "in", "lte", "gte")
+BOOL_SUFFIXES = ("exact",)
+
+id_model_manufacturer = {
+    "id": STR_SUFFIXES,
+    "model": ("exact", "in", "contains"),
+    "manufacturer": STR_SUFFIXES,
+}
+
+
+CpuFilters = create_filter_class(
     model=CpuDocument,
     fields={
-        "id": ["exact", "in"],
-        "model": ["exact", "in", "contains"],
-        "manufacturer": ["exact", "in"],
-        "socket": ["exact", "in"],
-        "ram_types": ["exact", "in", "contains"],
-        "cores": ["exact", "gte", "lte"],
-        "threads": ["exact", "gte", "lte"],
-        "igp": ["exact"],
+        **id_model_manufacturer,
+        "socket": STR_SUFFIXES,
+        "ram_types": STR_SUFFIXES,
+        "cores": INT_SUFFIXES,
+        "threads": INT_SUFFIXES,
+        "igp": BOOL_SUFFIXES,
+    },
+)
+
+GpuFilters = create_filter_class(
+    model=GpuDocument,
+    fields={
+        **id_model_manufacturer,
+        "model_gpu": STR_SUFFIXES,
+        "memory_size": INT_SUFFIXES,
+        "memory_type": STR_SUFFIXES,
+        "monitors": INT_SUFFIXES,
+        "power_consumption": INT_SUFFIXES,
+        "additional_power": STR_SUFFIXES,
+        "fans": INT_SUFFIXES,
+        "lighting": BOOL_SUFFIXES,
+    },
+)
+
+MotherboardFilters = create_filter_class(
+    model=MotherboardDocument,
+    fields={
+        **id_model_manufacturer,
+        "socket": STR_SUFFIXES,
+        "form_factor": STR_SUFFIXES,
+        "ram_type": STR_SUFFIXES,
+        "ram_slots": INT_SUFFIXES,
+        "m2_count": INT_SUFFIXES,
+        "chipset": STR_SUFFIXES,
+        "lighting": BOOL_SUFFIXES,
+        "vrm_heatsink": BOOL_SUFFIXES,
+        "wifi": BOOL_SUFFIXES,
+    },
+)
+
+PsuFilters = create_filter_class(
+    model=PsuDocument,
+    fields={
+        **id_model_manufacturer,
+        "form_factor": STR_SUFFIXES,
+        "power": INT_SUFFIXES,
+        "mb_and_cpu_powersupply": STR_SUFFIXES,
+        "efficiency": INT_SUFFIXES,
+        "plus_12v": INT_SUFFIXES,
+        "pci_e_8pin_6_2": INT_SUFFIXES,
+        "pci_e_16pin": INT_SUFFIXES,
+        "pci_e_6pin": INT_SUFFIXES,
+        "pci_e_8pin": INT_SUFFIXES,
+        "cable_system": STR_SUFFIXES,
+        "certification": STR_SUFFIXES,
+        "cooling_system": STR_SUFFIXES,
+        "fan_bearing": STR_SUFFIXES,
+        "manufacturers_warranty": INT_SUFFIXES,
+        "dimensions": STR_SUFFIXES,
+    },
+)
+
+RamFilters = create_filter_class(
+    model=RamDocument,
+    fields={
+        **id_model_manufacturer,
+        "type": STR_SUFFIXES,
+        "modules": INT_SUFFIXES,
+        "capacity": INT_SUFFIXES,
+        "speed": INT_SUFFIXES,
+        "cooling": BOOL_SUFFIXES,
+        "colour": STR_SUFFIXES,
+        "lighting": BOOL_SUFFIXES,
     },
 )
