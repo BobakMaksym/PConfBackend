@@ -5,7 +5,7 @@ import logging
 from agents import RunContextWrapper, function_tool
 
 from app.db import db
-from app.filters import (
+from app.filters_.filters_ai import (
     CpuFilters,
     GpuFilters,
     RamFilters,
