@@ -1,10 +1,22 @@
+from enum import StrEnum
 from types import new_class
-from typing import ClassVar, Optional
+from typing import ClassVar, Literal, Optional
 
 from fastapi_filter.contrib.mongoengine import Filter
 from mongoengine import Document
 from pydantic import ConfigDict
 from pydantic_extra_types.mongo_object_id import MongoObjectId
+
+
+class FilterLookup(StrEnum):
+    EXACT = "exact"
+    CONTAINS = "contains"
+    IN = "in"
+    GTE = "gte"
+    LTE = "lte"
+
+
+FieldSuffix = Literal["exact", "contains", "in", "gte", "lte"]
 
 
 def get_annotations_from_model(model: Document):
@@ -17,7 +29,9 @@ def get_annotations_from_model(model: Document):
     return annotations
 
 
-def create_filter_class(model: Document, fields: dict[str, list[str]]):
+def create_filter_class(
+    model: Document, fields: dict[str, list[FieldSuffix | FilterLookup]]
+):
 
     model_fields = get_annotations_from_model(model)
 
@@ -58,7 +72,7 @@ def create_filter_class(model: Document, fields: dict[str, list[str]]):
         ns["model_config"] = ConfigDict(str_to_lower=True)
 
     new_filter_class = new_class(
-        name="CustomFilterClass",
+        name=f"{model.__class__.__name__}Filters",
         bases=(Filter,),
         kwds={},
         exec_body=init_class_namespace,
