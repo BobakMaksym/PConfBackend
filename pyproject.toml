@@ -26,3 +26,7 @@ dev = [
     "ipykernel>=6.29.5",
     "ipython>=9.0.2",
 ]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
