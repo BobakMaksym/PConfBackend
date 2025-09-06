@@ -1,14 +1,12 @@
-from typing import Callable, Type, Annotated
+from typing import Callable, Type
 import logging
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter
 from fastapi_filter import FilterDepends
 from pydantic import BaseModel
 
-from app.core import utils
-from app.filters_.component_filters import CpuFilter
-from app.filters import (
-    # CpuFilters,
+from app.filters_.component_filters import (
+    CpuFilters,
     GpuFilters,
     MotherboardFilters,
     PsuFilters,
@@ -34,7 +32,7 @@ def make_find_endpoint(
     service_class: Callable,
     summary: str = None,
 ):
-    async def endpoint(filters: Annotated[filter_model, Query(...)]):
+    async def endpoint(filters: filter_model = FilterDepends(filter_model)):
         components = service_class.find(filters)
         return [
             component.model_dump(mode="json", by_alias=True) for component in components
@@ -45,25 +43,25 @@ def make_find_endpoint(
     component_router.get(path, summary=summary)(endpoint)
 
 
-# make_find_endpoint("/find/cpu", "find_cpu", CpuFilters, CpuService, "Find CPUs")
-make_find_endpoint("/find/gpu", "find_gpu", GpuFilters, GpuService, "Find GPUs")
-make_find_endpoint("/find/ram", "find_ram", RamFilters, RamService, "Find RAM modules")
+make_find_endpoint("/cpu", "find_cpu", CpuFilters, CpuService, "Find CPUs")
+make_find_endpoint("/gpu", "find_gpu", GpuFilters, GpuService, "Find GPUs")
+make_find_endpoint("/ram", "find_ram", RamFilters, RamService, "Find RAM modules")
 make_find_endpoint(
-    "/find/motherboard",
+    "/motherboard",
     "find_motherboard",
     MotherboardFilters,
     MotherboardService,
     "Find motherboards",
 )
-make_find_endpoint("/find/psu", "find_psu", PsuFilters, PsuService, "Find PSUs")
+make_find_endpoint("/psu", "find_psu", PsuFilters, PsuService, "Find PSUs")
 
 
-@component_router.get("/find/cpu", summary="Find CPUs")
-async def find_cpu(
-    filters: CpuFilter = FilterDepends(CpuFilter),
-):
-    result = CpuService.find(filters)
-    return utils.json_encoder([r.model_dump(by_alias=True) for r in result])
+# @component_router.get("/find/cpu", summary="Find CPUs")
+# async def find_cpu(
+#     filters: CpuFilter = FilterDepends(CpuFilter),
+# ):
+#     result = CpuService.find(filters)
+#     return utils.json_encoder([r.model_dump(by_alias=True) for r in result])
 
 
 # @component_router.get("/find/gpu", summary="Find GPUs")

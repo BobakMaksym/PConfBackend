@@ -1,5 +1,7 @@
 from pymongo.database import Database
 
+from fastapi_filter.contrib.mongoengine import Filter
+
 from app.documents import (
     CpuDocument,
     GpuDocument,
@@ -26,9 +28,10 @@ class BaseComponentRepo:
         """the method is no longer needed"""
         pass
 
-    def find(self, filters: dict, limit: int) -> list[Component]:
+    def find(self, filters: Filter, limit: int) -> list[Component]:
 
-        component_model = filters.pop("model", None)
+        # component_model = filters.pop("model", None)
+        component_model = None
 
         docs = []
 
@@ -47,7 +50,7 @@ class BaseComponentRepo:
             docs = self.collection.objects().aggregate(pipeline)
 
         else:
-            docs = self.collection.objects(**filters).limit(limit)
+            docs = filters.filter(self.collection.objects().limit(limit))
 
         components = [self.schema.model_validate(doc) for doc in docs]
 

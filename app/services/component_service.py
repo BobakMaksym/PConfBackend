@@ -26,7 +26,7 @@ class BaseComponentService(AbstractComponentService):
 
     @classmethod
     def find(cls, filters, count=COMPONENT_COUNT) -> list[Any]:
-        filters = normalize_filters(filters)
+        # filters = normalize_filters(filters)
         return cls.repo(db).find(filters, limit=count)
 
 
