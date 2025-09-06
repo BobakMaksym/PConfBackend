@@ -5,7 +5,7 @@ from app.documents import (
     PsuDocument,
     RamDocument,
 )
-from app.filters_.filter_utils import create_filter_class
+from app.filters.filter_utils import create_filter_class
 
 
 STR_SUFFIXES = ("exact", "in")

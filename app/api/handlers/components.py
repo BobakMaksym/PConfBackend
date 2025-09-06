@@ -5,7 +5,7 @@ from fastapi import APIRouter
 from fastapi_filter import FilterDepends
 from pydantic import BaseModel
 
-from app.filters_.component_filters import (
+from app.filters.component_filters import (
     CpuFilters,
     GpuFilters,
     MotherboardFilters,
