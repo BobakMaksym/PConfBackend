@@ -31,6 +31,9 @@ class Settings(BaseSettings):
 
     # Typesense
     TYPESENSE_API_KEY: str
+    TYPESENSE_HOST: str
+    TYPESENSE_PORT: int
+    TYPESENSE_PROTOCOL: str
 
     # Agents
     WORKFLOW_NAME: str = "AI Chat"
