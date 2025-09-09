@@ -1,3 +1,5 @@
+from abc import ABC, abstractmethod
+
 from pymongo.database import Database
 
 from fastapi_filter.contrib.mongoengine import Filter
@@ -19,10 +21,19 @@ from app.schemas.component_schema import (
 )
 
 
-class BaseComponentRepo:
-    schema: CpuSchema = None
-    collection: CpuDocument = None
-    mongo_search_index: str = None
+class IComponentRepo(ABC):
+    schema: CpuSchema
+    collection: CpuDocument
+    mongo_search_index: str
+
+    @abstractmethod
+    def find(self, filters: Filter, limit: int) -> list[Component]: ...
+
+
+class BaseComponentRepo(IComponentRepo):
+    schema: CpuSchema
+    collection: CpuDocument
+    mongo_search_index: str
 
     def __init__(self, db: Database):
         """the method is no longer needed"""
@@ -82,3 +93,12 @@ class MbRepo(BaseComponentRepo):
 class PsuRepo(BaseComponentRepo):
     schema = PowerSupplySchema
     collection = PsuDocument
+
+
+repos = {
+    "cpu": CpuRepo,
+    "ram": RamRepo,
+    "gpu": GpuRepo,
+    "psu": PsuRepo,
+    "motherboard": MbRepo,
+}
