@@ -100,8 +100,8 @@ class BaseTypesenseRepo(IIndexRepo):
 
     # ---- Documents ----
 
-    def upsert_doc(self, doc):
-        self.coll.documents.upsert(document=doc)
+    def upsert_doc(self, doc: SearchSchema):
+        self.coll.documents.upsert(doc.model_dump(mode="json"))
 
     def delete_doc(self, id: MongoObjectId):
         self.coll.documents[str(id)].delete()
