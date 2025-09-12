@@ -3,11 +3,12 @@ from typing import Any
 from logging import getLogger
 
 from typesense.client import Client
+from typesense.collection import Collection
 from typesense import exceptions as e
+from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 from app.core.configs.typesense_config import ComponentCollections, schemas, config_dict
 from app.schemas.base import BaseDbSchema
-from app.repos.component_repo import repos, IComponentRepo
 
 
 logger = getLogger("app")
@@ -20,80 +21,132 @@ class SearchSchema(BaseDbSchema):
     model: str
 
 
-class ISearchCollectionRepository(ABC):
-    @abstractmethod
-    def drop_collection(self, collection: ComponentCollections) -> None: ...
+class IIndexRepo(ABC):
+    collection: ComponentCollections
 
     @abstractmethod
-    def drop_all_collections(self) -> None: ...
+    def __init__(self, client: Any): ...
+
+    @property
+    @abstractmethod
+    def coll(self) -> Collection: ...
+
+    # Collections
 
     @abstractmethod
-    def init_collection(self, collection: ComponentCollections) -> None: ...
+    def init_collection(self) -> None: ...
 
     @abstractmethod
-    def init_all_collections(self) -> None: ...
+    def drop_collection(self) -> None: ...
+
+    # Documents
+
+    @abstractmethod
+    def upsert_doc(self, doc: SearchSchema): ...
+
+    @abstractmethod
+    def delete_doc(self, id: MongoObjectId): ...
+
+    @abstractmethod
+    def list_documents(self) -> Any: ...
+
+
+class ICollectionIndexRepo(ABC):
+    @abstractmethod
+    def __init__(self, client):
+        self._client = client
+
+    # @abstractmethod
+    # def add_collection(self, coll: ComponentCollections) -> None: ...
+
+    # @abstractmethod
+    # def drop_all_collections(self) -> None: ...
+
+    # @abstractmethod
+    # def init_all_collections(self) -> None: ...
 
     @abstractmethod
     def list_collections(self) -> list[str]: ...
 
 
-class ISearchDocumentRepository(ABC):
-    @abstractmethod
-    def list_documents(self, collection: ComponentCollections) -> Any: ...
+class BaseTypesenseRepo(IIndexRepo):
+    collection: ComponentCollections
 
-
-class TypesenseRepository(ISearchCollectionRepository, ISearchDocumentRepository):
     def __init__(self, client: Client) -> None:
         self._client = client
 
+    @property
+    def coll(self) -> Collection:
+        return self._client.collections[self.collection]
+
     # ---- Collections ----
-    def drop_collection(self, collection: ComponentCollections) -> None:
+
+    def init_collection(self) -> None:
         try:
-            self._client.collections[collection].delete()
-            logger.info("Deleted %s collection", collection)
+            self._client.collections.create(schemas[self.collection])
+            logger.info("%s collection was created", self.collection)
+        except e.ObjectAlreadyExists:
+            logger.info("%s collection already exists", self.collection)
+
+    def drop_collection(self) -> None:
+        try:
+            self._client.collections[self.collection].delete()
+            logger.info("Deleted %s collection", self.collection)
         except e.ObjectNotFound:
             logger.warning(
                 "Tried to delete %s collection, but collection doesn't exist",
-                collection,
+                self.collection,
             )
 
-    def drop_all_collections(self) -> None:
-        for collection in ComponentCollections:
-            self.drop_collection(collection)
+    # ---- Documents ----
 
-    def init_collection(self, collection: ComponentCollections) -> None:
-        try:
-            self._client.collections.create(schemas[collection])
-            logger.info("%s collection was created", collection)
-        except e.ObjectAlreadyExists:
-            logger.info("%s collection already exists", collection)
+    def upsert_doc(self, doc):
+        self.coll.documents.upsert(document=doc)
 
-    def init_all_collections(self) -> None:
-        for collection in ComponentCollections:
-            self.init_collection(collection)
+    def delete_doc(self, id: MongoObjectId):
+        self.coll.documents[str(id)].delete()
+
+    def list_documents(self) -> Any:
+        return self.coll.documents.documents
+
+
+class TypesenseCollIndexRepo(ICollectionIndexRepo):
+    def __init__(self, client: Client):
+        self._client = client
+        self._cols: set[Collection] = set()
+
+    # def add_collection(self, coll: ComponentCollections):
+    #     ts_coll = self._client.collections[coll]
+    #     self._cols.add(ts_coll)
+
+    # def drop_all_collections(self) -> None:
+    #     for coll in self._cols:
+    #         self.drop_collection(collection)
+
+    # def init_all_collections(self) -> None:
+    #     for coll in self._cols:
+    #         self.init_collection(collection)
 
     def list_collections(self) -> list[str]:
         collections_info = self._client.collections.retrieve()
         return [coll["name"] for coll in collections_info]
 
-    # ---- Documents ----
-    def list_documents(self, collection: ComponentCollections) -> Any:
-        return self._client.collections[collection].documents.documents
+
+class CpuIndexRepo(BaseTypesenseRepo):
+    collection = ComponentCollections.CPU
 
 
-def upload_data_to_collection(
-    collection: ComponentCollections,
-    documents: list[SearchSchema] | None = None,
-):
-    repo: IComponentRepo = repos[collection]
+class GpuIndexRepo(BaseTypesenseRepo):
+    collection = ComponentCollections.GPU
 
-    documents = repo.collection._get_collection().find({})
 
-    doc_inserted_count = 0
-    for doc in documents:
+class RamIndexRepo(BaseTypesenseRepo):
+    collection = ComponentCollections.RAM
 
-        doc = SearchSchema.model_validate(doc).model_dump(mode="json")
-        client.collections[collection].documents.upsert(doc)
-        doc_inserted_count += 1
 
-    return {"inserted": doc_inserted_count}
+class PsuIndexRepo(BaseTypesenseRepo):
+    collection = ComponentCollections.PSU
+
+
+class MotherboardIndexRepo(BaseTypesenseRepo):
+    collection = ComponentCollections.MOTHERBOARD

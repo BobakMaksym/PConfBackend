@@ -29,6 +29,9 @@ class IComponentRepo(ABC):
     @abstractmethod
     def find(self, filters: Filter, limit: int) -> list[Component]: ...
 
+    @abstractmethod
+    def get_all(self) -> list[Component]: ...
+
 
 class BaseComponentRepo(IComponentRepo):
     schema: CpuSchema
@@ -66,6 +69,11 @@ class BaseComponentRepo(IComponentRepo):
         components = [self.schema.model_validate(doc) for doc in docs]
 
         return components
+
+    def get_all(self):
+        docs = self.collection.objects()
+
+        return [self.schema.model_validate(doc) for doc in docs]
 
 
 class CpuRepo(BaseComponentRepo):
