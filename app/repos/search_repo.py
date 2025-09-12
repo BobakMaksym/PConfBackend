@@ -1,3 +1,5 @@
+from abc import ABC, abstractmethod
+from typing import Any
 from logging import getLogger
 
 from typesense.client import Client
@@ -18,33 +20,65 @@ class SearchSchema(BaseDbSchema):
     model: str
 
 
-def drop_collection(collection: ComponentCollections):
-    try:
-        client.collections[collection].delete()
-        logger.info("delete %s collection", collection)
-    except e.ObjectNotFound:
-        logger.error(
-            "try to delete %s collection, but collection doesn't exist", collection
-        )
+class ISearchCollectionRepository(ABC):
+    @abstractmethod
+    def drop_collection(self, collection: ComponentCollections) -> None: ...
+
+    @abstractmethod
+    def drop_all_collections(self) -> None: ...
+
+    @abstractmethod
+    def init_collection(self, collection: ComponentCollections) -> None: ...
+
+    @abstractmethod
+    def init_all_collections(self) -> None: ...
+
+    @abstractmethod
+    def list_collections(self) -> list[str]: ...
 
 
-def drop_all_collections():
-    for collection in ComponentCollections:
-        drop_collection(collection)
+class ISearchDocumentRepository(ABC):
+    @abstractmethod
+    def list_documents(self, collection: ComponentCollections) -> Any: ...
 
 
-def init_collection(collection: ComponentCollections):
-    try:
-        client.collections.create(schemas[collection])
-        logger.info("%s collection was created in typesense", collection)
-    except e.ObjectAlreadyExists:
-        logger.info("%s collection already created in typesense", collection)
+class TypesenseRepository(ISearchCollectionRepository, ISearchDocumentRepository):
+    def __init__(self, client: Client) -> None:
+        self._client = client
 
+    # ---- Collections ----
+    def drop_collection(self, collection: ComponentCollections) -> None:
+        try:
+            self._client.collections[collection].delete()
+            logger.info("Deleted %s collection", collection)
+        except e.ObjectNotFound:
+            logger.warning(
+                "Tried to delete %s collection, but collection doesn't exist",
+                collection,
+            )
 
-def init_all_collections():
-    """initialize collections in typesense if they do not exist"""
-    for collection in ComponentCollections:
-        init_collection(collection)
+    def drop_all_collections(self) -> None:
+        for collection in ComponentCollections:
+            self.drop_collection(collection)
+
+    def init_collection(self, collection: ComponentCollections) -> None:
+        try:
+            self._client.collections.create(schemas[collection])
+            logger.info("%s collection was created", collection)
+        except e.ObjectAlreadyExists:
+            logger.info("%s collection already exists", collection)
+
+    def init_all_collections(self) -> None:
+        for collection in ComponentCollections:
+            self.init_collection(collection)
+
+    def list_collections(self) -> list[str]:
+        collections_info = self._client.collections.retrieve()
+        return [coll["name"] for coll in collections_info]
+
+    # ---- Documents ----
+    def list_documents(self, collection: ComponentCollections) -> Any:
+        return self._client.collections[collection].documents.documents
 
 
 def upload_data_to_collection(
@@ -63,14 +97,3 @@ def upload_data_to_collection(
         doc_inserted_count += 1
 
     return {"inserted": doc_inserted_count}
-
-
-def list_document_in_collection(collection: ComponentCollections):
-    docs = client.collections[collection].documents.documents
-    return docs
-
-
-def list_collections():
-    collection_info = client.collections.retrieve()
-    collection_names = [coll["name"] for coll in collection_info]
-    return collection_names
