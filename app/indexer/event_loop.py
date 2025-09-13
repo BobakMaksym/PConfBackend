@@ -4,13 +4,13 @@ from mongoengine import connect
 from typesense.client import Client
 
 from app.core.config import settings
-
-connect(db=settings.DATABASE, host=settings.MONGO_CONNECTION_STRING)
-
-from app.db import db
 from app.core.configs.typesense_config import config_dict
+from app.db import db
 from app.schemas.change_stream_schema import ChangeStreamSchema
-from app.schemas.base import BaseDbSchema
+
+from app.indexer.dispatcher import ChangeStreamProcessor
+from app.indexer.handler import DeleteHandler, InsertHandler, UpdateHandler
+from app.indexer.repo import TypesenseIndexRepo
 
 
 logging.basicConfig(level=logging.INFO)
@@ -19,11 +19,10 @@ logger = logging.getLogger(__name__)
 logger.info("start")
 
 
+connect(db=settings.DATABASE, host=settings.MONGO_CONNECTION_STRING)
+
 ts_client = Client(config_dict=config_dict)
-
-
-class DocumentSchema(BaseDbSchema):
-    model: str
+index_repo = TypesenseIndexRepo(client=ts_client)
 
 
 pipeline = [
@@ -36,50 +35,17 @@ pipeline = [
 ]
 
 
+processor = ChangeStreamProcessor(
+    handlers={
+        "delete": DeleteHandler(index_repo),
+        "update": UpdateHandler(index_repo),
+        "insert": InsertHandler(index_repo),
+    }
+)
+
+
 def run():
     with db.watch(pipeline, full_document="updateLookup") as stream:
-
-        for change in stream:
-
-            change = ChangeStreamSchema(**change)
-
-            if change.operation_type == "delete":
-
-                id = str(change.id)
-                coll = change.ns.coll
-
-                ts_client.collections[coll].documents[id].delete()
-
-                logger.info("delete %s in %s", str(id), coll)
-
-            elif change.operation_type == "update":
-
-                if not change.update_description:
-                    continue
-
-                id = change.id
-                coll = change.ns.coll
-
-                document = DocumentSchema(
-                    id=id,
-                    model=change.update_description["updatedFields"]["model"],
-                ).model_dump(mode="json")
-                ts_client.collections[coll].documents.upsert(document)  # type: ignore
-
-                logger.info("upsert %s in %s", str(id), coll)
-
-            elif change.operation_type == "insert":
-
-                if not change.full_document:
-                    continue
-
-                id = change.id
-                coll = change.ns.coll
-
-                document = DocumentSchema(
-                    id=id,
-                    model=change.full_document["model"],
-                ).model_dump(mode="json")
-                ts_client.collections[coll].documents.upsert(document)  # type: ignore
-
-                logger.info("insert* or update %s in %s", str(id), coll)
+        for raw_change in stream:
+            change = ChangeStreamSchema(**raw_change)
+            processor.process(change)

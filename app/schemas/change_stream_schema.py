@@ -10,11 +10,12 @@ class Namespace(BaseModel):
     coll: str
 
 
+op_types = Literal["insert", "update", "delete"]
+
+
 class ChangeStreamSchema(BaseModel):
     document_key: dict[str, MongoObjectId] = Field(validation_alias="documentKey")
-    operation_type: Literal["insert", "update", "delete"] = Field(
-        validation_alias="operationType"
-    )
+    operation_type: op_types = Field(validation_alias="operationType")
     ns: Namespace
 
     # Поля для різних типів операцій
