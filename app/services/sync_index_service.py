@@ -83,3 +83,16 @@ class PsuIndexSyncService(BaseComponentIndexSyncService):
 class MotherboardIndexSyncService(BaseComponentIndexSyncService):
     def __init__(self, db_repo: MbRepo, index_repo: MotherboardIndexRepo):
         super().__init__(db_repo=db_repo, index_repo=index_repo)
+
+
+class TsCollectionInitializer:
+    def __init__(self, *index_repo: IIndexRepo):
+        self.index_repos = index_repo
+
+    def init_all(self):
+        for repo in self.index_repos:
+            repo.init_collection()
+
+    def drop_all(self):
+        for repo in self.index_repos:
+            repo.drop_collection()
