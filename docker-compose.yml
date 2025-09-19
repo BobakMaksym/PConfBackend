@@ -1,4 +1,19 @@
 services:
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    hostname: rabbitmq
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    env_file: ".env"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBIT_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBIT_PASSWORD}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
   typesense:
     image: typesense/typesense:28.0
     restart: on-failure
@@ -10,4 +25,5 @@ services:
     command: '--data-dir /data --api-key=${TYPESENSE_API_KEY} --enable-cors'
 
 volumes:
+  rabbitmq-data:
   typesense_data:
