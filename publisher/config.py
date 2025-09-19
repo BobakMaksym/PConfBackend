@@ -1,6 +1,7 @@
 import logging
 from typing import Literal
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -20,6 +21,14 @@ class Config(BaseSettings):
     TYPESENSE_HOST: str
     TYPESENSE_PORT: int
     TYPESENSE_PROTOCOL: str
+
+    # Rabbit
+    RABBIT_HOST: str
+    RABBIT_PORT: int
+    RABBIT_USERNAME: str
+    RABBIT_PASSWORD: str
+    RABBIT_EXCHANGE: str = Field(default="")  # default AMQP direct
+    RABBIT_ROUTING_KEY: str
 
     # Logger
     LOG_LEVEL: Literal["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"]
