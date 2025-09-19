@@ -1,6 +1,7 @@
 import logging
 from typing import Literal
 
+from pika import ConnectionParameters, PlainCredentials
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -43,3 +44,13 @@ def configure_logging(level: int = logging.INFO):
         datefmt="%Y-%m-%d %H:%M:%S",
         format="[%(asctime)s.%(msecs)03d] %(funcName)20s %(module)s:%(lineno)d %(levelname)-8s - %(message)s\n",
     )
+
+
+rabbit_connection_params = ConnectionParameters(
+    host=config.RABBIT_HOST,
+    port=config.RABBIT_PORT,
+    credentials=PlainCredentials(
+        username=config.RABBIT_USERNAME,
+        password=config.RABBIT_PASSWORD,
+    ),
+)
