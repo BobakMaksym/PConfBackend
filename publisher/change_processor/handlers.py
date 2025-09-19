@@ -1,6 +1,7 @@
 import logging
 from typing import TYPE_CHECKING
 
+from config import config as conf
 from interfaces import IChangeHandler
 
 if TYPE_CHECKING:
@@ -12,20 +13,11 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def test_log(change: "Change"):
-
-    message = change.model_dump_json()
-
-    # rabbit.publish_message(message)
-
-    logger.info("\n%s", message)
-
-
 def produce_message(message: "Change", channel: "BlockingChannel"):
     msg = message.model_dump_json()
     channel.basic_publish(
-        exchange="",
-        routing_key="components",
+        exchange=conf.RABBIT_EXCHANGE,
+        routing_key=conf.RABBIT_ROUTING_KEY,
         body=msg,
     )
 
@@ -36,7 +28,6 @@ class DeleteHandler(IChangeHandler):
         id, coll = change.id, change.ns.coll
 
         produce_message(message=change, channel=channel)
-        test_log(change)
 
         pass
 
@@ -47,7 +38,6 @@ class UpdateHandler(IChangeHandler):
         id, coll = change.id, change.ns.coll
 
         produce_message(message=change, channel=channel)
-        test_log(change)
 
         pass
 
@@ -58,6 +48,5 @@ class InsertHandler(IChangeHandler):
         id, coll = change.id, change.ns.coll
 
         produce_message(message=change, channel=channel)
-        test_log(change)
 
         pass
