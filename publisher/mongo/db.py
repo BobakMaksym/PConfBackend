@@ -1,10 +1,12 @@
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from pymongo import MongoClient
 
 if TYPE_CHECKING:
     from pymongo.database import Database
     from pymongo.typings import _Pipeline
+
+    from interfaces import IChangeProcessor
 
 from schemas import Change
 
@@ -23,7 +25,7 @@ class Mongo:
     def client(self) -> MongoClient:
         return self._client
 
-    def watch_changes(self, processor: Any, pipeline: "_Pipeline"):
+    def watch_changes(self, processor: "IChangeProcessor", pipeline: "_Pipeline"):
         with self.database.watch(pipeline, full_document="updateLookup") as stream:
             for raw_change in stream:
                 change = Change(**raw_change)
