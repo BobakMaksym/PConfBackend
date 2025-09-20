@@ -4,6 +4,7 @@ from typing import Literal
 from pika import ConnectionParameters, PlainCredentials
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from typesense.configuration import ConfigDict, NodeConfigDict
 
 
 class Config(BaseSettings):
@@ -53,4 +54,16 @@ rabbit_connection_params = ConnectionParameters(
         username=config.RABBIT_USERNAME,
         password=config.RABBIT_PASSWORD,
     ),
+)
+
+typesense_config = ConfigDict(
+    nodes=[
+        NodeConfigDict(
+            host=config.TYPESENSE_HOST,
+            port=config.TYPESENSE_PORT,
+            protocol=config.TYPESENSE_PROTOCOL,
+        )
+    ],
+    api_key=config.TYPESENSE_API_KEY,
+    connection_timeout_seconds=5,
 )
