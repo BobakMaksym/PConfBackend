@@ -1,6 +1,6 @@
 from typing import Any
 
-from pydantic import BaseModel, computed_field, Field
+from pydantic import BaseModel, ConfigDict, computed_field, Field
 from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 from enums import Operation
@@ -12,16 +12,22 @@ class Namespace(BaseModel):
 
 
 class Change(BaseModel):
-    document_key: dict[str, MongoObjectId] = Field(validation_alias="documentKey")
-    operation_type: Operation = Field(validation_alias="operationType")
+    model_config = ConfigDict(
+        from_attributes=True,
+        validate_by_alias=True,
+        serialize_by_alias=True,
+    )
+
+    document_key: dict[str, MongoObjectId] = Field(alias="documentKey")
+    operation_type: Operation = Field(alias="operationType")
     ns: Namespace
 
     # Поля для різних типів операцій
     full_document: dict[str, MongoObjectId | Any] | None = Field(
-        default=None, validation_alias="fullDocument"
+        default=None, alias="fullDocument"
     )
     update_description: dict[str, Any] | None = Field(
-        default=None, validation_alias="updateDescription"
+        default=None, alias="updateDescription"
     )
 
     @computed_field
