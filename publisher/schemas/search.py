@@ -3,7 +3,7 @@ from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 
-class Message(BaseModel):
+class IndexDoc(BaseModel):
     model_config = ConfigDict(
         from_attributes=True,
         validate_by_alias=True,
@@ -21,7 +21,7 @@ class Message(BaseModel):
 if __name__ == "__main__":
     from bson import ObjectId
 
-    m = Message(_id=ObjectId(), model="amd r5 3600")  # type: ignore
+    m = IndexDoc(_id=ObjectId(), model="amd r5 3600")  # type: ignore
     print(m)
     print(m.model_dump_json())
     print(type(m.model_dump_json()))
