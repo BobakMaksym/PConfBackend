@@ -1,8 +1,9 @@
 import logging
-from typing import TYPE_CHECKING
+from typing import Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pika.adapters.blocking_connection import BlockingChannel
+    from pika.spec import Basic, BasicProperties
 
 from config import config as conf
 from rabbit.base import RabbitContext
@@ -26,6 +27,26 @@ class ComponentUpdateMixin:
         )
 
         logger.info("%s", message)
+
+    def consume_messages(
+        self,
+        on_message_callback: Callable[
+            [
+                "BlockingChannel",
+                "Basic.Deliver",
+                "BasicProperties",
+                bytes,
+            ],
+            None,
+        ],
+    ):
+        self.channel.basic_qos(prefetch_count=1)
+        self.channel.queue_declare(conf.RABBIT_ROUTING_KEY)
+        self.channel.basic_consume(
+            queue=conf.RABBIT_ROUTING_KEY,
+            on_message_callback=on_message_callback,
+        )
+        self.channel.start_consuming()
 
 
 class ComponentUpdateRabbit(ComponentUpdateMixin, RabbitContext):
