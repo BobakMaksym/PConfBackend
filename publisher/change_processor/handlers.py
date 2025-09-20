@@ -21,32 +21,27 @@ def produce_message(message: "Change", channel: "BlockingChannel"):
         body=msg,
     )
 
+    logger.info(
+        "Publish to Q: operation=%r, coll=%r, id=%r",
+        message.operation_type.value,
+        message.ns.coll,
+        str(message.id),
+    )
+
 
 class DeleteHandler(IChangeHandler):
 
     def handle(self, change: "Change", channel: "BlockingChannel"):
-        id, coll = change.id, change.ns.coll
-
         produce_message(message=change, channel=channel)
-
-        pass
 
 
 class UpdateHandler(IChangeHandler):
 
     def handle(self, change: "Change", channel: "BlockingChannel"):
-        id, coll = change.id, change.ns.coll
-
         produce_message(message=change, channel=channel)
-
-        pass
 
 
 class InsertHandler(IChangeHandler):
 
     def handle(self, change: "Change", channel: "BlockingChannel"):
-        id, coll = change.id, change.ns.coll
-
         produce_message(message=change, channel=channel)
-
-        pass
