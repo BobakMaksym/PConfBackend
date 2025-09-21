@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from pymongo.database import Database
     from pymongo.typings import _Pipeline
 
-    from interfaces import IChangeProcessor
+    from change_processor import IChangeProcessor
 
 from schemas import Change
 

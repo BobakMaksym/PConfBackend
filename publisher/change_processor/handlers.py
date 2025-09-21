@@ -1,8 +1,8 @@
+from abc import ABC, abstractmethod
 import logging
 from typing import TYPE_CHECKING
 
 from config import config as conf
-from interfaces import IChangeHandler
 
 if TYPE_CHECKING:
     from pika.adapters.blocking_connection import BlockingChannel
@@ -27,6 +27,16 @@ def produce_message(message: "Change", channel: "BlockingChannel"):
         message.ns.coll,
         str(message.id),
     )
+
+
+class IChangeHandler(ABC):
+
+    @abstractmethod
+    def handle(
+        self,
+        change: "Change",
+        channel: "BlockingChannel",
+    ): ...
 
 
 class DeleteHandler(IChangeHandler):
