@@ -36,7 +36,7 @@ class BaseOperationHandler(IChangeHandler):
         return self._channel
 
     def handle(self, change: "Change"):
-        msg = change.model_dump_json()
+        msg = change.model_dump_json(exclude_none=True)
         self.channel.basic_publish(
             exchange=conf.RABBIT_EXCHANGE,
             routing_key=conf.RABBIT_ROUTING_KEY,
@@ -44,10 +44,11 @@ class BaseOperationHandler(IChangeHandler):
         )
 
         logger.info(
-            "Publish to Q: operation=%r, coll=%r, id=%r",
+            "Publish message to Q: operation=%r, coll=%r, id=%r; msg: %s",
             change.operation_type.value,
             change.ns.coll,
             str(change.id),
+            msg,
         )
 
 
