@@ -13,45 +13,48 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def produce_message(message: "Change", channel: "BlockingChannel"):
-    msg = message.model_dump_json()
-    channel.basic_publish(
-        exchange=conf.RABBIT_EXCHANGE,
-        routing_key=conf.RABBIT_ROUTING_KEY,
-        body=msg,
-    )
-
-    logger.info(
-        "Publish to Q: operation=%r, coll=%r, id=%r",
-        message.operation_type.value,
-        message.ns.coll,
-        str(message.id),
-    )
-
-
 class IChangeHandler(ABC):
+
+    def __init__(
+        self,
+        channel: "BlockingChannel",
+    ): ...
 
     @abstractmethod
     def handle(
         self,
         change: "Change",
-        channel: "BlockingChannel",
     ): ...
 
 
-class DeleteHandler(IChangeHandler):
+class BaseOperationHandler(IChangeHandler):
+    def __init__(self, channel: "BlockingChannel"):
+        self._channel = channel
 
-    def handle(self, change: "Change", channel: "BlockingChannel"):
-        produce_message(message=change, channel=channel)
+    @property
+    def channel(self):
+        return self._channel
+
+    def handle(self, change: "Change"):
+        msg = change.model_dump_json()
+        self.channel.basic_publish(
+            exchange=conf.RABBIT_EXCHANGE,
+            routing_key=conf.RABBIT_ROUTING_KEY,
+            body=msg,
+        )
+
+        logger.info(
+            "Publish to Q: operation=%r, coll=%r, id=%r",
+            change.operation_type.value,
+            change.ns.coll,
+            str(change.id),
+        )
 
 
-class UpdateHandler(IChangeHandler):
-
-    def handle(self, change: "Change", channel: "BlockingChannel"):
-        produce_message(message=change, channel=channel)
+class DeleteHandler(BaseOperationHandler): ...
 
 
-class InsertHandler(IChangeHandler):
+class UpdateHandler(BaseOperationHandler): ...
 
-    def handle(self, change: "Change", channel: "BlockingChannel"):
-        produce_message(message=change, channel=channel)
+
+class InsertHandler(BaseOperationHandler): ...
