@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class IHandler(ABC):
+class IIndexChangeHandler(ABC):
     @abstractmethod
     def __init__(self, index_repo: "IIndex"): ...
 
@@ -20,7 +20,7 @@ class IHandler(ABC):
     def handle(self, change: "Change"): ...
 
 
-class DeleteHandler(IHandler):
+class IndexDeleteHandler(IIndexChangeHandler):
     def __init__(self, index_repo: "IIndex"):
         self.index_repo = index_repo
 
@@ -29,7 +29,7 @@ class DeleteHandler(IHandler):
         self.index_repo.delete(collection=coll, id=id)
 
 
-class UpdateHandler(IHandler):
+class IndexUpdateHandler(IIndexChangeHandler):
     def __init__(self, index_repo: "IIndex"):
         self.index_repo = index_repo
 
@@ -38,7 +38,7 @@ class UpdateHandler(IHandler):
         self.index_repo.upsert(collection=change.ns.coll, doc=new_doc)
 
 
-class InsertHandler(IHandler):
+class IndexInsertHandler(IIndexChangeHandler):
     def __init__(self, index_repo: "IIndex"):
         self.index_repo = index_repo
 

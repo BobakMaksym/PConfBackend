@@ -10,8 +10,8 @@ if TYPE_CHECKING:
 
 from index.index_repo import Index
 from rabbit.component_updates import ComponentUpdateRabbit
-from index.handlers import DeleteHandler, InsertHandler, UpdateHandler
-from index.processor import ChangeProcessor
+from index.handlers import IndexDeleteHandler, IndexUpdateHandler, IndexInsertHandler
+from index.processor import IndexChangeProcessor
 from enums import Operation
 from schemas import Change
 
@@ -24,11 +24,11 @@ logger = logging.getLogger(__name__)
 
 index_repo = Index(client=Client(config_dict=typesense_config))
 
-processor = ChangeProcessor(
+processor = IndexChangeProcessor(
     handlers={
-        Operation.DELETE: DeleteHandler(index_repo=index_repo),
-        Operation.UPDATE: UpdateHandler(index_repo=index_repo),
-        Operation.INSERT: InsertHandler(index_repo=index_repo),
+        Operation.DELETE: IndexDeleteHandler(index_repo=index_repo),
+        Operation.UPDATE: IndexUpdateHandler(index_repo=index_repo),
+        Operation.INSERT: IndexInsertHandler(index_repo=index_repo),
     },
 )
 

@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 import logging
 
 if TYPE_CHECKING:
-    from index.handlers import IHandler
+    from index.handlers import IIndexChangeHandler
     from enums import Operation
     from schemas import Change
 
@@ -10,10 +10,10 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class ChangeProcessor:
+class IndexChangeProcessor:
     def __init__(
         self,
-        handlers: dict["Operation", "IHandler"],
+        handlers: dict["Operation", "IIndexChangeHandler"],
     ):
         self._handlers = handlers
 
