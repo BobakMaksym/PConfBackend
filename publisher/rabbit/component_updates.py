@@ -21,7 +21,7 @@ class ComponentUpdateMixin:
     def publish_message(self, message: str):
 
         self.channel.basic_publish(
-            exchange="",  # conf.RABBIT_EXCHANGE,
+            exchange=conf.RABBIT_EXCHANGE,
             routing_key=conf.RABBIT_ROUTING_KEY,
             body=message,  # type: ignore
         )
