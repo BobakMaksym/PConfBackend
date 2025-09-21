@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 import logging
 
@@ -10,7 +11,18 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class IndexChangeProcessor:
+class IIndexChangeProcessor(ABC):
+    @abstractmethod
+    def __init__(
+        self,
+        handlers: dict["Operation", "IIndexChangeHandler"],
+    ): ...
+
+    def process(self, change: "Change"): ...
+
+
+class IndexChangeProcessor(IIndexChangeProcessor):
+
     def __init__(
         self,
         handlers: dict["Operation", "IIndexChangeHandler"],
