@@ -1,7 +1,11 @@
 from enum import StrEnum
-from logging import getLogger
 
+from typesense.client import Client
 from typesense.configuration import ConfigDict, NodeConfigDict
+from typesense.types.collection import (
+    CollectionCreateSchema,
+    RegularCollectionFieldSchema,
+)
 
 from app.core.config import settings
 
@@ -14,16 +18,26 @@ class ComponentCollections(StrEnum):
     MOTHERBOARD = "motherboard"
 
 
+class ComponentType(StrEnum):
+    CPU = "cpu"
+    GPU = "gpu"
+    RAM = "ram"
+    PSU = "psu"
+    MOTHERBOARD = "motherboard"
+
+
 schemas = {}
-for collection in ComponentCollections:
-    schema = {
-        "name": collection,
-        "fields": [
-            {"name": "id", "type": "string"},
-            {"name": "model", "type": "string"},
+
+component_schemas = schemas
+for collection in ComponentType:
+    schema = CollectionCreateSchema(
+        name=collection.value,
+        fields=[
+            RegularCollectionFieldSchema(name="id", type="string"),
+            RegularCollectionFieldSchema(name="model", type="string"),
         ],
-    }
-    schemas[collection] = schema
+    )
+    component_schemas[collection.value] = schema
 
 
 config_dict = ConfigDict(
@@ -37,3 +51,7 @@ config_dict = ConfigDict(
     api_key=settings.TYPESENSE_API_KEY,
     connection_timeout_seconds=5,
 )
+
+
+def get_client(config_dict: ConfigDict = config_dict):
+    return Client(config_dict=config_dict)
