@@ -4,7 +4,10 @@ from app.documents.base import BaseComponentDocument
 
 
 class PsuDocument(BaseComponentDocument):
-    meta = {"collection": "psu"}
+    meta = {
+        "collection": "psu",
+        "strict": False,
+    }
 
     form_factor: str = f.StringField(required=True)
     power: int = f.IntField(required=True)
