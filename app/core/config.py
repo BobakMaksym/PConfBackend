@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "PConf AI"
 
+    CREATE_NEW_SEARCH_INDEX_WHEN_RESTART: bool
+
     # JWT
     JWT_SECRET_KEY: str
     JWT_REFRESH_SECRET_KEY: str
