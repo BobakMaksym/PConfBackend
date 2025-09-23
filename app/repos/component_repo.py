@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
-
-from pymongo.database import Database
+from typing import Any
 
 from fastapi_filter.contrib.mongoengine import Filter
 
@@ -38,7 +37,7 @@ class BaseComponentRepo(IComponentRepo):
     collection: CpuDocument
     mongo_search_index: str
 
-    def __init__(self, db: Database):
+    def __init__(self, db: Any = None):
         """the method is no longer needed"""
         pass
 
@@ -110,3 +109,5 @@ repos = {
     "psu": PsuRepo,
     "motherboard": MbRepo,
 }
+
+component_repos = repos

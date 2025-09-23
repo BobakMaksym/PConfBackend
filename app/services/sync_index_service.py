@@ -1,98 +1,59 @@
-from abc import ABC, abstractmethod
-from typing import Any
+from typing import TYPE_CHECKING, Iterable
+from logging import getLogger
 
-from pydantic_extra_types.mongo_object_id import MongoObjectId
+from typesense.types.collection import CollectionCreateSchema
 
-from app.repos.component_repo import IComponentRepo
-from app.repos.search_repo import (
-    SearchSchema,
-    IIndexRepo,
-    CpuIndexRepo,
-    GpuIndexRepo,
-    RamIndexRepo,
-    PsuIndexRepo,
-    MotherboardIndexRepo,
-)
-from app.repos.component_repo import (
-    CpuRepo,
-    RamRepo,
-    GpuRepo,
-    PsuRepo,
-    MbRepo,
-)
+from app.core.configs.typesense_config import ComponentType
+from app.repos.index_repo import SearchIndexRepo
+from app.schemas.index_schema import IndexSchema
+
+if TYPE_CHECKING:
+    from app.repos.component_repo import IComponentRepo
 
 
-class IIndexSyncService(ABC):
-    @abstractmethod
-    def __init__(self, db_repo: IComponentRepo, index_repo: IIndexRepo): ...
-
-    @abstractmethod
-    def upsert(self, doc: SearchSchema): ...
-
-    @abstractmethod
-    def delete(self, id: MongoObjectId): ...
-
-    @abstractmethod
-    def sync_all(self) -> dict[str, Any]: ...
+logger = getLogger("app")
 
 
-class BaseComponentIndexSyncService(IIndexSyncService):
-    def __init__(self, db_repo: IComponentRepo, index_repo: IIndexRepo):
-        self.db_repo = db_repo
-        self.index_repo = index_repo
+class SyncSearchIndex:
+    def __init__(
+        self,
+        db_repos: dict[str, "IComponentRepo"],
+        index_repo: SearchIndexRepo,
+        coll_schemas: dict[ComponentType, CollectionCreateSchema],
+    ):
+        self._db_repos = db_repos
+        self._index_repo = index_repo
+        self._coll_schemas = coll_schemas
 
-    def upsert(self, doc):
-        self.index_repo.upsert_doc(doc)
+    def create_coll_all(self, collections: Iterable[str] = ComponentType):
+        """
+        creates collections for all types of components in the index
+        """
+        for coll in collections:
+            self._index_repo.create(self._coll_schemas[coll])
 
-    def delete(self, id):
-        self.index_repo.delete_doc(id)
+    def sync_coll(self, coll: ComponentType):
+        """
+        synchronizes data in specific collection
+        """
+        component_repo = self._db_repos[coll]()
 
-    def sync_all(self):
-        documents = self.db_repo.get_all()
+        db_docs = component_repo.get_all()
 
-        doc_inserted_count = 0
-        for doc in documents:
-            search_doc = SearchSchema.model_validate(doc)
-            self.index_repo.upsert_doc(search_doc)
+        index_docs = [IndexSchema.model_validate(doc) for doc in db_docs]
 
-            doc_inserted_count += 1
+        self._index_repo.add_all_docs_to_coll(coll=coll, docs=index_docs)
 
-        return {"inserted": doc_inserted_count}
+    def sync_coll_all(self, collections: Iterable[str] = ComponentType):
+        """
+        synchronizes data across all collections
+        """
+        for coll in collections:
+            self.sync_coll(coll=coll)
 
-
-class CpuIndexSyncService(BaseComponentIndexSyncService):
-    def __init__(self, db_repo: CpuRepo, index_repo: CpuIndexRepo):
-        super().__init__(db_repo=db_repo, index_repo=index_repo)
-
-
-class GpuIndexSyncService(BaseComponentIndexSyncService):
-    def __init__(self, db_repo: GpuRepo, index_repo: GpuIndexRepo):
-        super().__init__(db_repo=db_repo, index_repo=index_repo)
-
-
-class RamIndexSyncService(BaseComponentIndexSyncService):
-    def __init__(self, db_repo: RamRepo, index_repo: RamIndexRepo):
-        super().__init__(db_repo=db_repo, index_repo=index_repo)
-
-
-class PsuIndexSyncService(BaseComponentIndexSyncService):
-    def __init__(self, db_repo: PsuRepo, index_repo: PsuIndexRepo):
-        super().__init__(db_repo=db_repo, index_repo=index_repo)
-
-
-class MotherboardIndexSyncService(BaseComponentIndexSyncService):
-    def __init__(self, db_repo: MbRepo, index_repo: MotherboardIndexRepo):
-        super().__init__(db_repo=db_repo, index_repo=index_repo)
-
-
-class TsCollectionInitializer:
-    def __init__(self, *index_repo: IIndexRepo):
-        self.index_repos = index_repo
-
-    def init_all(self):
-        for repo in self.index_repos:
-            repo.init_collection()
-
-    def drop_all(self):
-        for repo in self.index_repos:
-            repo.drop_collection()
+    def drop_all(self, collections: Iterable[str] = ComponentType):
+        """
+        deletes all collection and data
+        """
+        for coll in collections:
+            self._index_repo.drop(coll=coll)
