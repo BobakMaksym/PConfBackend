@@ -23,7 +23,8 @@ from app.schemas.component_schema import (
 class IComponentRepo(ABC):
     schema: CpuSchema
     collection: CpuDocument
-    mongo_search_index: str
+
+    def __init__(self, db: Any = None): ...
 
     @abstractmethod
     def find(self, filters: Filter, limit: int) -> list[Component]: ...
@@ -35,7 +36,6 @@ class IComponentRepo(ABC):
 class BaseComponentRepo(IComponentRepo):
     schema: CpuSchema
     collection: CpuDocument
-    mongo_search_index: str
 
     def __init__(self, db: Any = None):
         """the method is no longer needed"""
@@ -78,13 +78,11 @@ class BaseComponentRepo(IComponentRepo):
 class CpuRepo(BaseComponentRepo):
     schema = CpuSchema
     collection = CpuDocument
-    mongo_search_index = "cpu_search_index"
 
 
 class GpuRepo(BaseComponentRepo):
     schema = GpuSchema
     collection = GpuDocument
-    mongo_search_index = "gpu_search_index"
 
 
 class RamRepo(BaseComponentRepo):
