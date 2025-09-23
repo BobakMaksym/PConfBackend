@@ -1,7 +1,7 @@
-from typing import Callable, Type
+from typing import Type
 import logging
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi_filter import FilterDepends
 from pydantic import BaseModel
 
@@ -13,12 +13,14 @@ from app.filters.component_filters import (
     RamFilters,
 )
 from app.services.component_service import (
+    IComponentService,
     CpuService,
     GpuService,
     RamService,
     PsuService,
     MotherboardService,
 )
+from app.core.configs.typesense_config import ComponentType
 
 component_router = APIRouter()
 
@@ -29,8 +31,8 @@ def make_find_endpoint(
     path: str,
     endpoint_name: str,
     filter_model: Type[BaseModel],
-    service_class: Callable,
-    summary: str = None,
+    service_class: IComponentService,
+    summary: str | None = None,
 ):
     async def endpoint(filters: filter_model = FilterDepends(filter_model)):
         components = service_class.find(filters)
@@ -43,17 +45,28 @@ def make_find_endpoint(
     component_router.get(path, summary=summary)(endpoint)
 
 
-make_find_endpoint("/cpu", "find_cpu", CpuFilters, CpuService, "Find CPUs")
-make_find_endpoint("/gpu", "find_gpu", GpuFilters, GpuService, "Find GPUs")
-make_find_endpoint("/ram", "find_ram", RamFilters, RamService, "Find RAM modules")
+make_find_endpoint("/cpu", "find_cpu", CpuFilters, CpuService(), "Find CPUs")
+make_find_endpoint("/gpu", "find_gpu", GpuFilters, GpuService(), "Find GPUs")
+make_find_endpoint("/ram", "find_ram", RamFilters, RamService(), "Find RAM modules")
 make_find_endpoint(
     "/motherboard",
     "find_motherboard",
     MotherboardFilters,
-    MotherboardService,
+    MotherboardService(),
     "Find motherboards",
 )
-make_find_endpoint("/psu", "find_psu", PsuFilters, PsuService, "Find PSUs")
+make_find_endpoint("/psu", "find_psu", PsuFilters, PsuService(), "Find PSUs")
+
+
+@component_router.get("/search/{component_type}")
+async def search_component(
+    request: Request,
+    component_type: ComponentType,
+    query: str,
+    page: int = 1,
+):
+    res = request.app.state.search_index.search(component_type, query, page)
+    return res
 
 
 # @component_router.get("/find/cpu", summary="Find CPUs")
