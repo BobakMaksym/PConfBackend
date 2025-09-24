@@ -36,21 +36,23 @@ class SearchIndexRepo:
         )
         return search_res
 
-    def search(self, coll: ComponentType, query: str, page: int = 1):
+    def search(
+        self,
+        coll: ComponentType,
+        query: str,
+        page: int = 1,
+        per_page: int = 10,
+    ) -> SearchResultSchema:
         raw_search_result = self._search(
             coll=coll,
             search_params={
                 "q": query,
                 "query_by": "model",
                 "page": page,
-                "per_page": 10,
+                "per_page": per_page,
             },
         )
-        return raw_search_result
-
-    def ai_search(self, coll: ComponentType, query: str, page: int = 1):
-        raw_search_result = self.search(coll, query, page)
-        return SearchResultSchema(**raw_search_result)
+        return SearchResultSchema.model_validate(raw_search_result)
 
     def get_coll(self, coll: ComponentType) -> Collection | None:
         """
