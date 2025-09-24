@@ -8,13 +8,18 @@ from app.documents import (
 from app.filters.filter_utils import create_filter_class
 
 
-STR_SUFFIXES = ("exact", "in")
-INT_SUFFIXES = ("exact", "in", "lte", "gte")
-BOOL_SUFFIXES = ("exact",)
+EXACT = "exact"
+IN = "in"
+LTE = "lte"
+GTE = "gte"
+
+STR_SUFFIXES = (EXACT, IN)
+INT_SUFFIXES = (EXACT, IN, LTE, GTE)
+BOOL_SUFFIXES = (EXACT,)
 
 id_model_manufacturer = {
     "id": STR_SUFFIXES,
-    "model": ("exact", "in", "contains"),
+    "model": (EXACT,),
     "manufacturer": STR_SUFFIXES,
 }
 

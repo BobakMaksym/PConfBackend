@@ -24,6 +24,7 @@ class IComponentRepo(ABC):
     schema: CpuSchema
     collection: CpuDocument
 
+    @abstractmethod
     def __init__(self, db: Any = None): ...
 
     @abstractmethod
@@ -42,28 +43,7 @@ class BaseComponentRepo(IComponentRepo):
         pass
 
     def find(self, filters: Filter, limit: int) -> list[Component]:
-
-        # component_model = filters.pop("model", None)
-        component_model = None
-
-        docs = []
-
-        # aggregation pipeline with atlas search if `model` is passed
-        if component_model:
-            pipeline = [
-                {
-                    "$search": {
-                        "index": self.mongo_search_index,
-                        "text": {"query": component_model, "path": "model"},
-                    }
-                },
-                {"$match": filters},
-                {"$limit": limit},
-            ]
-            docs = self.collection.objects().aggregate(pipeline)
-
-        else:
-            docs = filters.filter(self.collection.objects().limit(limit))
+        docs = filters.filter(self.collection.objects().limit(limit))
 
         components = [self.schema.model_validate(doc) for doc in docs]
 
