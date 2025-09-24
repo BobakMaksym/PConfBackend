@@ -1,7 +1,7 @@
 from typing import Type
 import logging
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Query
 from fastapi_filter import FilterDepends
 from pydantic import BaseModel
 
@@ -20,11 +20,14 @@ from app.services.component_service import (
     PsuService,
     MotherboardService,
 )
-from app.core.configs.typesense_config import ComponentType
+from app.core.configs.typesense_config import ComponentType, get_client
+from app.repos.index_repo import SearchIndexRepo
 
 component_router = APIRouter()
 
 logger = logging.getLogger("app")
+
+index = SearchIndexRepo(client=get_client())
 
 
 def make_find_endpoint(
@@ -45,27 +48,29 @@ def make_find_endpoint(
     component_router.get(path, summary=summary)(endpoint)
 
 
-make_find_endpoint("/cpu", "find_cpu", CpuFilters, CpuService(), "Find CPUs")
-make_find_endpoint("/gpu", "find_gpu", GpuFilters, GpuService(), "Find GPUs")
-make_find_endpoint("/ram", "find_ram", RamFilters, RamService(), "Find RAM modules")
+make_find_endpoint("/cpu", "find_cpu", CpuFilters, CpuService(index), "Find CPUs")
+make_find_endpoint("/gpu", "find_gpu", GpuFilters, GpuService(index), "Find GPUs")
+make_find_endpoint(
+    "/ram", "find_ram", RamFilters, RamService(index), "Find RAM modules"
+)
 make_find_endpoint(
     "/motherboard",
     "find_motherboard",
     MotherboardFilters,
-    MotherboardService(),
+    MotherboardService(index),
     "Find motherboards",
 )
-make_find_endpoint("/psu", "find_psu", PsuFilters, PsuService(), "Find PSUs")
+make_find_endpoint("/psu", "find_psu", PsuFilters, PsuService(index), "Find PSUs")
 
 
 @component_router.get("/search/{component_type}")
 async def search_component(
-    request: Request,
     component_type: ComponentType,
     query: str,
-    page: int = 1,
+    page: int = Query(default=1, gt=0),
+    per_page: int = Query(default=1, gt=0)
 ):
-    res = request.app.state.search_index.search(component_type, query, page)
+    res = index.search(component_type, query, page, per_page)
     return res
 
 
