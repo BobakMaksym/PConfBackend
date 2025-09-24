@@ -1,19 +1,31 @@
-from pydantic import BaseModel, ConfigDict, Field, computed_field
+from pydantic import BaseModel, Field, computed_field
 from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 
+class Document(BaseModel):
+    id: MongoObjectId
+    model: str
+
+
 class Hit(BaseModel):
-    document: dict[str, MongoObjectId | str]
+    document: Document
+
+
+class RequestParams(BaseModel):
+    collection_name: str
+    first_q: str
+    per_page: int
+    q: str
 
 
 class SearchResultSchema(BaseModel):
-    model_config = ConfigDict()
-
     found: int
     out_of: int
     page: int
+    request_params: RequestParams
+
     hits_raw: list[Hit] = Field(alias="hits", exclude=True)
 
     @computed_field
-    def hits(self) -> list[dict[str, MongoObjectId | str]]:
+    def hits(self) -> list[Document]:
         return [hit.document for hit in self.hits_raw]
