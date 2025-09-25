@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Type
+
+from fastapi_filter.contrib.mongoengine import Filter
 
 from app.repos.component_repo import (
     IComponentRepo,
@@ -20,14 +22,15 @@ class IComponentService(ABC):
     @abstractmethod
     def find(
         self,
-        filters: dict,
-        count: int,
-        page: int,
+        filters: Filter,
+        count: int = COMPONENT_COUNT,
+        page: int = 1,
+        per_page: int = 10,
     ) -> list[Any]: ...
 
 
 class BaseComponentService(IComponentService):
-    repo: IComponentRepo
+    repo: Type[IComponentRepo]
     index_coll: ComponentType
 
     def __init__(self, index: SearchIndexRepo):
@@ -52,8 +55,7 @@ class BaseComponentService(IComponentService):
 
             filters.model = None
             filters.id__in = ids
-            
-            
+
             search_result.found
             search_result.request_params.per_page
 

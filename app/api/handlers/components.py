@@ -1,9 +1,9 @@
 from typing import Type
 import logging
 
-from fastapi import APIRouter, Request, Query
+from fastapi import APIRouter, Query
 from fastapi_filter import FilterDepends
-from pydantic import BaseModel
+from fastapi_filter.contrib.mongoengine import Filter
 
 from app.filters.component_filters import (
     CpuFilters,
@@ -33,11 +33,11 @@ index = SearchIndexRepo(client=get_client())
 def make_find_endpoint(
     path: str,
     endpoint_name: str,
-    filter_model: Type[BaseModel],
+    filter_model: Type[Filter],
     service_class: IComponentService,
     summary: str | None = None,
 ):
-    async def endpoint(filters: filter_model = FilterDepends(filter_model)):
+    async def endpoint(filters: Filter = FilterDepends(filter_model)):
         components = service_class.find(filters)
         return [
             component.model_dump(mode="json", by_alias=True) for component in components
@@ -68,7 +68,7 @@ async def search_component(
     component_type: ComponentType,
     query: str,
     page: int = Query(default=1, gt=0),
-    per_page: int = Query(default=1, gt=0)
+    per_page: int = Query(default=1, gt=0),
 ):
     res = index.search(component_type, query, page, per_page)
     return res
