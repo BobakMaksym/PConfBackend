@@ -1,6 +1,6 @@
 from enum import StrEnum
 from types import new_class
-from typing import ClassVar, Literal, Optional
+from typing import ClassVar, Literal, Optional, Type, Iterable
 
 from fastapi_filter.contrib.mongoengine import Filter
 from mongoengine import Document
@@ -19,7 +19,7 @@ class FilterLookup(StrEnum):
 FieldSuffix = Literal["exact", "contains", "in", "gte", "lte"]
 
 
-def get_annotations_from_model(model: Document):
+def get_annotations_from_model(model: Type[Document]):
     annotations = model.__annotations__
     annotations["id"] = MongoObjectId
     for cls in model.__mro__:
@@ -30,8 +30,9 @@ def get_annotations_from_model(model: Document):
 
 
 def create_filter_class(
-    model: Document, fields: dict[str, list[FieldSuffix | FilterLookup]]
-):
+    model: Type[Document],
+    fields: dict[str, Iterable[FieldSuffix]],
+) -> Type[Filter]:
 
     model_fields = get_annotations_from_model(model)
 
