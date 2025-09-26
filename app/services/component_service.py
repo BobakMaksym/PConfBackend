@@ -42,18 +42,19 @@ class BaseComponentService(IComponentService):
         sort_by: Iterable[str] | None = None,
     ) -> Page:
 
-        model = filters.model
-        filters.model = None
+        model = filters.model  # type: ignore
+        filters.model = None  # type: ignore
 
         # retrieve the count of documents from DB
         component_count = self.repo().count(filters=filters)
 
         # searching for models in the index and adding the found IDs to filters
         if model:
+            # get all documents on one page
             search_result = self.index.search(
                 coll=self.index_coll,
                 query=model,
-                page=page,
+                page=1,
                 per_page=component_count,
             )
             ids = [doc.id for doc in search_result.hits]
