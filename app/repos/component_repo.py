@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Type
+from typing import Any, Type, Iterable
 
 from fastapi_filter.contrib.mongoengine import Filter
 
@@ -32,6 +32,18 @@ class IComponentRepo(ABC):
     def find(self, filters: Filter, limit: int) -> list[BaseDbSchema]: ...
 
     @abstractmethod
+    def filter(
+        self,
+        filters: Filter,
+        offset: int,
+        limit: int,
+        sort_by: Iterable[str] | None = None,
+    ) -> list[BaseDbSchema]: ...
+
+    @abstractmethod
+    def count(self, filters: Filter) -> int: ...
+
+    @abstractmethod
     def get_all(self) -> list[BaseDbSchema]: ...
 
 
@@ -47,6 +59,26 @@ class BaseComponentRepo(IComponentRepo):
         components = [self.schema.model_validate(doc) for doc in docs]
 
         return components
+
+    def filter(
+        self,
+        filters: Filter,
+        offset: int,
+        limit: int,
+        sort_by: Iterable[str] | None = None,
+    ) -> list[BaseDbSchema]:
+        cursor = self.collection.objects().skip(offset).limit(limit)  # type: ignore
+
+        if sort_by:
+            cursor = cursor.order_by(*sort_by)
+
+        cursor = filters.filter(query=cursor)
+
+        return [self.schema.model_validate(doc) for doc in cursor]
+
+    def count(self, filters: Filter) -> int:
+        count = filters.filter(self.collection.objects()).count()  # type: ignore
+        return count
 
     def get_all(self):
         docs = self.collection.objects()  # type: ignore
