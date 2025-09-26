@@ -1,15 +1,14 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from typing import Any, Type, Iterable, TYPE_CHECKING
 
 from fastapi_filter.contrib.mongoengine import Filter
+from pydantic import BaseModel
 
 if TYPE_CHECKING:
     from app.repos.component_repo import IComponentRepo
 
 
-@dataclass
-class Page:
+class Page(BaseModel):
     curr_page: int
     per_page: int
     total_pages: int
