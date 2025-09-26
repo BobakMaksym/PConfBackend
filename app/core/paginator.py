@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Type, Iterable
+from typing import Any, Type, Iterable, TYPE_CHECKING
 
 from fastapi_filter.contrib.mongoengine import Filter
-from pydantic import BaseModel
-from mongoengine import Document
+
+if TYPE_CHECKING:
+    from app.repos.component_repo import IComponentRepo
 
 
 @dataclass
@@ -22,61 +23,41 @@ class IPaginator(ABC):
     @abstractmethod
     def __init__(
         self,
-        document: Type[Document],
-        filter: Type[Filter],
-        schema: Type[BaseModel] | None = None,
+        repo: Type["IComponentRepo"],
     ): ...
 
     @abstractmethod
     def paginate(
         self,
-        page: int,
+        filters: Filter,
+        page: int = 1,
         per_page: int = 10,
-        filters: Filter | None = None,
         sort_by: Iterable[str] | None = None,
     ) -> Page: ...
 
 
 class Paginator(IPaginator):
-    def __init__(
-        self,
-        document: Type[Document],
-        filter: Type[Filter],
-        schema: Type[BaseModel] | None = None,
-    ):
-        self.document = document
-        self.schema = schema
-        self.filter = filter
+    def __init__(self, repo: "IComponentRepo"):
+        self.repo = repo
 
     def paginate(
         self,
-        page: int,
+        filters: Filter,
+        page: int = 1,
         per_page: int = 10,
-        filters: Filter | None = None,
         sort_by: Iterable[str] | None = None,
     ):
         offset = (page - 1) * per_page
 
-        # building a query
-
-        cursor = self.document.objects().skip(offset).limit(per_page)  # type: ignore
-        if sort_by:
-            cursor = cursor.order_by(*sort_by)
-
-        if filters:
-            cursor = filters.filter(query=cursor)
-            total_items = filters.filter(query=self.document.objects()).count()  # type: ignore
-        else:
-            total_items = self.document.objects.count()  # type: ignore
+        components = self.repo.filter(
+            filters=filters,
+            offset=offset,
+            limit=per_page,
+            sort_by=sort_by,
+        )
+        total_items = self.repo.count(filters=filters)
 
         total_pages = (total_items + per_page - 1) // per_page
-
-        # data serialization
-
-        if self.schema:
-            data = [self.schema.model_validate(doc) for doc in cursor]
-        else:
-            data = list(cursor)
 
         has_next = True if page < total_pages else False
         has_prev = True if page > 1 else False
@@ -88,5 +69,5 @@ class Paginator(IPaginator):
             total_items=total_items,
             has_next=has_next,
             has_prev=has_prev,
-            data=data,
+            data=components,
         )
