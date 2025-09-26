@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Any, Type
+from typing import Type, Iterable
 
 from fastapi_filter.contrib.mongoengine import Filter
 
+from app.core.paginator import Paginator, Page
 from app.repos.component_repo import (
     IComponentRepo,
     CpuRepo,
@@ -15,18 +16,15 @@ from app.repos.index_repo import SearchIndexRepo
 from app.core.configs.typesense_config import ComponentType
 
 
-COMPONENT_COUNT = 500
-
-
 class IComponentService(ABC):
     @abstractmethod
     def find(
         self,
         filters: Filter,
-        count: int = COMPONENT_COUNT,
         page: int = 1,
         per_page: int = 10,
-    ) -> list[Any]: ...
+        sort_by: Iterable[str] | None = None,
+    ) -> Page: ...
 
 
 class BaseComponentService(IComponentService):
@@ -39,27 +37,35 @@ class BaseComponentService(IComponentService):
     def find(
         self,
         filters,
-        count=COMPONENT_COUNT,
         page=1,
         per_page: int = 10,
-    ) -> list[Any]:
+        sort_by: Iterable[str] | None = None,
+    ) -> Page:
 
-        if filters.model:
+        model = filters.model
+        filters.model = None
+
+        # retrieve the count of documents from DB
+        component_count = self.repo().count(filters=filters)
+
+        # searching for models in the index and adding the found IDs to filters
+        if model:
             search_result = self.index.search(
                 coll=self.index_coll,
-                query=filters.model,
+                query=model,
                 page=page,
-                per_page=per_page,
+                per_page=component_count,
             )
             ids = [doc.id for doc in search_result.hits]
 
-            filters.model = None
             filters.id__in = ids
 
-            search_result.found
-            search_result.request_params.per_page
+        paginator = Paginator(repo=self.repo())
+        requested_page = paginator.paginate(
+            filters=filters, page=page, per_page=per_page, sort_by=sort_by
+        )
 
-        return self.repo().find(filters, limit=count)
+        return requested_page
 
 
 class CpuService(BaseComponentService):
