@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 if TYPE_CHECKING:
     from app.repos.component_repo import IComponentRepo
+    from app.repos.index_repo import SearchIndexRepo
 
 
 class Page(BaseModel):
@@ -69,4 +70,45 @@ class Paginator(IPaginator):
             has_next=has_next,
             has_prev=has_prev,
             data=components,
+        )
+
+
+class IndexPaginator(IPaginator):
+    def __init__(self, repo: "SearchIndexRepo"):
+        self.repo = repo
+
+    def paginate(
+        self,
+        filters: Filter,
+        page: int = 1,
+        per_page: int = 10,
+        sort_by: Iterable[str] | None = None,
+    ):
+
+        model = filters.model  # type: ignore
+        filters.model = None  # type: ignore
+
+        search_result = self.repo.search(
+            coll="test_coll",
+            query=model,
+            filter_by=filters,
+            page=page,
+            per_page=per_page,
+        )
+
+        total_items = search_result.found
+
+        total_pages = (total_items + per_page - 1) // per_page
+
+        has_next = True if page < total_pages else False
+        has_prev = True if page > 1 else False
+
+        return Page(
+            curr_page=search_result.page,
+            per_page=per_page,
+            total_pages=total_pages,
+            total_items=total_items,
+            has_next=has_next,
+            has_prev=has_prev,
+            data=search_result.hits,
         )
