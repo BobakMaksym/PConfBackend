@@ -1,9 +1,11 @@
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, Field, computed_field, ConfigDict
 from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 
 class Document(BaseModel):
-    id: MongoObjectId
+    model_config = ConfigDict(extra="allow")
+
+    # id: MongoObjectId
     model: str
 
 

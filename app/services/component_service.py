@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Type, Iterable
+import logging
 
 from fastapi_filter.contrib.mongoengine import Filter
 
-from app.core.paginator import Paginator, Page
+from app.core.paginator import Paginator, Page, IndexPaginator
 from app.repos.component_repo import (
     IComponentRepo,
     CpuRepo,
@@ -14,6 +15,9 @@ from app.repos.component_repo import (
 )
 from app.repos.index_repo import SearchIndexRepo
 from app.core.configs.typesense_config import ComponentType
+
+
+logger = logging.getLogger("app")
 
 
 class IComponentService(ABC):
@@ -43,29 +47,22 @@ class BaseComponentService(IComponentService):
     ) -> Page:
 
         model = filters.model  # type: ignore
-        filters.model = None  # type: ignore
 
-        # retrieve the count of documents from DB
-        component_count = self.repo().count(filters=filters)
-
-        # searching for models in the index and adding the found IDs to filters
         if model:
-            # get all documents on one page
-            search_result = self.index.search(
-                coll=self.index_coll,
-                query=model,
-                page=1,
-                per_page=component_count,
-            )
-            ids = [doc.id for doc in search_result.hits]
+            logger.info("спрацював пагінатор по індексу")
 
-            filters.id__in = ids
+            paginator = IndexPaginator(self.index)
+            requested_page = paginator.paginate(
+                filters=filters, page=page, per_page=per_page, sort_by=sort_by
+            )
+            return requested_page
+
+        logger.info("спрацював пагінатор по БД")
 
         paginator = Paginator(repo=self.repo())
         requested_page = paginator.paginate(
             filters=filters, page=page, per_page=per_page, sort_by=sort_by
         )
-
         return requested_page
 
 
