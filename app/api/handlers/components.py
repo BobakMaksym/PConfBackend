@@ -1,4 +1,4 @@
-from typing import Iterable, Type
+from typing import Type
 import logging
 
 from fastapi import APIRouter, Query
@@ -40,7 +40,7 @@ def make_find_endpoint(
     async def endpoint(
         filters: Filter = FilterDepends(filter_model),
         page: int = Query(default=1, gt=0),
-        per_page: int = Query(default=10, gt=0),
+        per_page: int = Query(default=10, gt=0, lt=100),
         sort_by: list[str] | None = Query(default=None, example=["id", "-cores"]),
     ):
         component_page = service_class.find(
