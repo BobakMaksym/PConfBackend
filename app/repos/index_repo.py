@@ -1,5 +1,7 @@
 from logging import getLogger
+from pprint import pprint
 
+from fastapi_filter.contrib.mongoengine import Filter
 from typesense.client import Client
 from typesense.collection import Collection
 from typesense import exceptions as e
@@ -12,6 +14,40 @@ from app.schemas.index_search_res_schema import SearchResultSchema
 
 
 logger = getLogger("app")
+
+
+OPERATORS = {
+    "exact": ":=",
+    "gte": ":>=",
+    "lte": ":<=",
+    "gt": ":>",
+    "lt": ":<",
+    "in": ":=[{values}]",
+}
+
+
+def build_filter_by(filters: dict) -> str:
+    expressions = []
+    for key, value in filters.items():
+        if value is None:
+            continue
+
+        # split "field__op"
+        if "__" in key:
+            field, op = key.split("__", 1)
+        else:
+            field, op = key, "exact"
+            print(field, op)
+
+        if op == "in":
+            values = ",".join(map(str, value))
+            expr = f"{field}:=[{values}]"
+        else:
+            expr = f"{field}{OPERATORS[op]}{value}"
+
+        expressions.append(expr)
+
+    return " && ".join(expressions)
 
 
 class SearchIndexRepo:
@@ -40,17 +76,26 @@ class SearchIndexRepo:
         self,
         coll: ComponentType,
         query: str,
+        filter_by: Filter | None = None,
         page: int = 1,
         per_page: int = 10,
     ) -> SearchResultSchema:
+        search_params: SearchParameters = {
+            "q": query,
+            "query_by": "model",
+            "page": page,
+            "per_page": per_page,
+        }
+        if filter_by:
+            raw_filters = filter_by.model_dump(mode="json")
+            filters = build_filter_by(raw_filters)
+            search_params.update(filter_by=filters)
+
+        logger.error(search_params)
+
         raw_search_result = self._search(
             coll=coll,
-            search_params={
-                "q": query,
-                "query_by": "model",
-                "page": page,
-                "per_page": per_page,
-            },
+            search_params=search_params,
         )
         return SearchResultSchema.model_validate(raw_search_result)
 
