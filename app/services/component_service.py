@@ -51,7 +51,7 @@ class BaseComponentService(IComponentService):
         if model:
             logger.info("спрацював пагінатор по індексу")
 
-            paginator = IndexPaginator(self.index)
+            paginator = IndexPaginator(self.index, coll=self.index_coll)
             requested_page = paginator.paginate(
                 filters=filters, page=page, per_page=per_page, sort_by=sort_by
             )
