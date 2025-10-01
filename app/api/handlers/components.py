@@ -21,13 +21,26 @@ from app.services.component_service import (
     MotherboardService,
 )
 from app.core.configs.typesense_config import ComponentType, get_client
-from app.repos.index_repo import SearchIndexRepo
+from app.repos.index_repo import (
+    CpuIndexRepo,
+    GpuIndexRepo,
+    MotherboardIndexRepo,
+    PsuIndexRepo,
+    RamIndexRepo,
+)
 
 component_router = APIRouter()
 
 logger = logging.getLogger("app")
 
-index = SearchIndexRepo(client=get_client())
+
+client = get_client()
+
+cpu_index_repo = CpuIndexRepo(client=client)
+gpu_index_repo = GpuIndexRepo(client=client)
+ram_index_repo = RamIndexRepo(client=client)
+psu_index_repo = PsuIndexRepo(client=client)
+motherboard_index_repo = MotherboardIndexRepo(client=client)
 
 
 def make_find_endpoint(
@@ -56,19 +69,25 @@ def make_find_endpoint(
     component_router.get(path, summary=summary)(endpoint)
 
 
-make_find_endpoint("/cpu", "find_cpu", CpuFilters, CpuService(index), "Find CPUs")
-make_find_endpoint("/gpu", "find_gpu", GpuFilters, GpuService(index), "Find GPUs")
 make_find_endpoint(
-    "/ram", "find_ram", RamFilters, RamService(index), "Find RAM modules"
+    "/cpu", "find_cpu", CpuFilters, CpuService(cpu_index_repo), "Find CPUs"
+)
+make_find_endpoint(
+    "/gpu", "find_gpu", GpuFilters, GpuService(gpu_index_repo), "Find GPUs"
+)
+make_find_endpoint(
+    "/ram", "find_ram", RamFilters, RamService(ram_index_repo), "Find RAM modules"
 )
 make_find_endpoint(
     "/motherboard",
     "find_motherboard",
     MotherboardFilters,
-    MotherboardService(index),
+    MotherboardService(motherboard_index_repo),
     "Find motherboards",
 )
-make_find_endpoint("/psu", "find_psu", PsuFilters, PsuService(index), "Find PSUs")
+make_find_endpoint(
+    "/psu", "find_psu", PsuFilters, PsuService(psu_index_repo), "Find PSUs"
+)
 
 
 @component_router.get("/search/{component_type}")
