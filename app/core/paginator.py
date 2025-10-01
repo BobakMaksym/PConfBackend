@@ -6,8 +6,7 @@ from pydantic import BaseModel
 
 if TYPE_CHECKING:
     from app.repos.component_repo import IComponentRepo
-    from app.repos.index_repo import SearchIndexRepo
-    from app.core.configs.typesense_config import ComponentType
+    from app.repos.index_repo import IComponentIndexRepo
 
 
 class Page(BaseModel):
@@ -75,9 +74,8 @@ class Paginator(IPaginator):
 
 
 class IndexPaginator(IPaginator):
-    def __init__(self, repo: "SearchIndexRepo", coll: "ComponentType"):
+    def __init__(self, repo: "IComponentIndexRepo"):
         self.repo = repo
-        self.coll = coll
 
     def paginate(
         self,
@@ -91,7 +89,6 @@ class IndexPaginator(IPaginator):
         filters.model = None  # type: ignore
 
         search_result = self.repo.search(
-            coll=self.coll,
             query=model,
             filter_by=filters,
             page=page,
