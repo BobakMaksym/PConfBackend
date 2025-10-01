@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "PConf AI"
 
     CREATE_NEW_SEARCH_INDEX_WHEN_RESTART: bool
+    DROP_SEARCH_INDEX_WHEN_RESTART: bool
 
     # JWT
     JWT_SECRET_KEY: str
