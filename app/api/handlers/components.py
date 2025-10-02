@@ -20,7 +20,7 @@ from app.services.component_service import (
     PsuService,
     MotherboardService,
 )
-from app.core.configs.typesense_config import ComponentType, get_client
+from app.core.configs.typesense_config import get_client
 from app.repos.index_repo import (
     CpuIndexRepo,
     GpuIndexRepo,
@@ -33,14 +33,12 @@ component_router = APIRouter()
 
 logger = logging.getLogger("app")
 
-
-client = get_client()
-
-cpu_index_repo = CpuIndexRepo(client=client)
-gpu_index_repo = GpuIndexRepo(client=client)
-ram_index_repo = RamIndexRepo(client=client)
-psu_index_repo = PsuIndexRepo(client=client)
-motherboard_index_repo = MotherboardIndexRepo(client=client)
+index_client = get_client()
+cpu_service = CpuService(CpuIndexRepo(client=index_client))
+gpu_service = GpuService(GpuIndexRepo(client=index_client))
+ram_service = RamService(RamIndexRepo(client=index_client))
+motherboard_service = MotherboardService(MotherboardIndexRepo(client=index_client))
+psu_service = PsuService(PsuIndexRepo(client=index_client))
 
 
 def make_find_endpoint(
@@ -69,77 +67,14 @@ def make_find_endpoint(
     component_router.get(path, summary=summary)(endpoint)
 
 
-make_find_endpoint(
-    "/cpu", "find_cpu", CpuFilters, CpuService(cpu_index_repo), "Find CPUs"
-)
-make_find_endpoint(
-    "/gpu", "find_gpu", GpuFilters, GpuService(gpu_index_repo), "Find GPUs"
-)
-make_find_endpoint(
-    "/ram", "find_ram", RamFilters, RamService(ram_index_repo), "Find RAM modules"
-)
+make_find_endpoint("/cpu", "find_cpu", CpuFilters, cpu_service, "Find CPUs")
+make_find_endpoint("/gpu", "find_gpu", GpuFilters, gpu_service, "Find GPUs")
+make_find_endpoint("/ram", "find_ram", RamFilters, ram_service, "Find RAM modules")
 make_find_endpoint(
     "/motherboard",
     "find_motherboard",
     MotherboardFilters,
-    MotherboardService(motherboard_index_repo),
+    motherboard_service,
     "Find motherboards",
 )
-make_find_endpoint(
-    "/psu", "find_psu", PsuFilters, PsuService(psu_index_repo), "Find PSUs"
-)
-
-
-@component_router.get("/search/{component_type}")
-async def search_component(
-    component_type: ComponentType,
-    query: str,
-    page: int = Query(default=1, gt=0),
-    per_page: int = Query(default=1, gt=0),
-):
-    res = index.search(component_type, query, page, per_page)
-    return res
-
-
-# @component_router.get("/find/cpu", summary="Find CPUs")
-# async def find_cpu(
-#     filters: CpuFilter = FilterDepends(CpuFilter),
-# ):
-#     result = CpuService.find(filters)
-#     return utils.json_encoder([r.model_dump(by_alias=True) for r in result])
-
-
-# @component_router.get("/find/gpu", summary="Find GPUs")
-# async def find_gpu(
-#     filters: GpuFilters = Query(...),
-#     # count: int = Query(12, description="Number of GPUs to return"),
-# ):
-#     result = GpuService.find(filters)
-#     return utils.json_encoder([r.model_dump(by_alias=True) for r in result])
-
-
-# @component_router.get("/find/ram", summary="Find RAM modules")
-# async def find_ram(
-#     filters: RamFilters = Query(...),
-#     # count: int = Query(12, description="Number of RAM modules to return"),
-# ):
-#     result = RamService.find(filters)
-#     return utils.json_encoder([r.model_dump(by_alias=True) for r in result])
-
-
-# @component_router.get("/find/motherboard", summary="Find motherboards")
-# async def find_motherboard(
-#     filters: MotherboardFilters = Query(...),
-#     # count: int = Query(12, description="Number of motherboards to return"),
-# ):
-#     result = MotherboardService.find(filters)
-#     return utils.json_encoder([r.model_dump(by_alias=True) for r in result])
-
-
-# @component_router.get("/find/psu", summary="Find power supplies")
-# async def find_psu(
-#     filters: PsuFilters = Query(...),
-#     # count: int = Query(12, description="Number of PSUs to return"),
-# ):
-#     result = PsuService.find(filters)
-#     return utils.json_encoder([r.model_dump(by_alias=True) for r in result])
+make_find_endpoint("/psu", "find_psu", PsuFilters, psu_service, "Find PSUs")
