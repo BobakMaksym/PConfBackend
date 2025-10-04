@@ -4,6 +4,7 @@ from pydantic import BaseModel, ConfigDict, computed_field, Field
 from pydantic_extra_types.mongo_object_id import MongoObjectId
 
 from enums import Operation
+from schemas.search import IndexDoc
 
 
 class Namespace(BaseModel):
@@ -23,9 +24,7 @@ class Change(BaseModel):
     ns: Namespace
 
     # Поля для різних типів операцій
-    full_document: dict[str, MongoObjectId | Any] | None = Field(
-        default=None, alias="fullDocument"
-    )
+    full_document: IndexDoc | None = Field(default=None, alias="fullDocument")
     update_description: dict[str, Any] | None = Field(
         default=None, alias="updateDescription"
     )

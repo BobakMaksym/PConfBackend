@@ -43,7 +43,7 @@ class Index(IIndex):
 
     def upsert(self, collection: Collection, doc: IndexDoc) -> None:
         try:
-            new_doc = doc.model_dump(mode="json")
+            new_doc = doc.model_dump(mode="json", exclude_none=True)
             response = self.client.collections[collection].documents.upsert(new_doc)
 
             msg = "Upserted document %r into collection %r in Typesense: %s"

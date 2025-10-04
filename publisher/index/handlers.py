@@ -35,12 +35,14 @@ class IndexDeleteHandler(BaseIndexHandler):
 class IndexUpdateHandler(BaseIndexHandler):
 
     def handle(self, change: "Change"):
-        new_doc = IndexDoc(**change.full_document)
+        # new_doc = IndexDoc(**change.full_document)
+        new_doc = IndexDoc.model_validate(change.full_document)
         self.index_repo.upsert(collection=change.ns.coll, doc=new_doc)
 
 
 class IndexInsertHandler(BaseIndexHandler):
 
     def handle(self, change: "Change"):
-        new_doc = IndexDoc(**change.full_document)
+        # new_doc = IndexDoc(**change.full_document)
+        new_doc = IndexDoc.model_validate(change.full_document)
         self.index_repo.upsert(collection=change.ns.coll, doc=new_doc)

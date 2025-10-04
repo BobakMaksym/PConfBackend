@@ -8,13 +8,14 @@ class IndexDoc(BaseModel):
         from_attributes=True,
         validate_by_alias=True,
         serialize_by_alias=True,
+        extra="allow",
     )
 
     id: MongoObjectId = Field(
         validation_alias=AliasChoices("id", "_id"),
         serialization_alias="id",
     )
-    model: str
+    model: str | None = None
 
 
 if __name__ == "__main__":
