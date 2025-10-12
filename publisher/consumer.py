@@ -1,13 +1,14 @@
+import asyncio
 import logging
+
 from typesense.client import Client
 
-from config import typesense_config, rabbit_connection_params, configure_logging
+from config import typesense_config, config as conf, configure_logging
 from enums import Operation
 from index.index_repo import Index
 from index.handlers import IndexDeleteHandler, IndexUpdateHandler, IndexInsertHandler
 from index.processor import IndexChangeProcessor
-from rabbit.component_updates import ComponentUpdateRabbit
-from rabbit.consume_new_msg import ConsumeNewMessage
+from rabbit.asyncio_rabbit import AsyncioRabbit
 
 
 configure_logging()
@@ -15,7 +16,7 @@ configure_logging()
 logger = logging.getLogger(__name__)
 
 
-def main():
+async def main():
     index_repo = Index(client=Client(config_dict=typesense_config))
 
     processor = IndexChangeProcessor(
@@ -25,17 +26,13 @@ def main():
             Operation.INSERT: IndexInsertHandler(index_repo=index_repo),
         },
     )
-
-    consume_new_message = ConsumeNewMessage(processor=processor)
-
-    with ComponentUpdateRabbit(connection_params=rabbit_connection_params) as rabbit:
-        rabbit.create_queue()
-
-        rabbit.consume_messages(on_message_callback=consume_new_message)
+    async with AsyncioRabbit(conf.RABBIT_CONNECTION_STR_ASYNC) as rabbit:
+        rabbit.set_message_processor(processor=processor)
+        await rabbit.consume_messages()
 
 
 if __name__ == "__main__":
     try:
-        main()
+        asyncio.run(main())
     except KeyboardInterrupt:
         exit(0)

@@ -1,3 +1,5 @@
+import asyncio
+
 from change_processor import (
     ChangeProcessor,
     DeleteHandler,
@@ -5,42 +7,37 @@ from change_processor import (
     UpdateHandler,
     pipeline,
 )
-from config import config as conf, configure_logging, rabbit_connection_params
+from config import config as conf, configure_logging
 from enums import Operation
-from mongo.db import Mongo
-
-from rabbit import ComponentUpdateRabbit
+from mongo.db_async import AsyncMongo
 
 
 configure_logging()
 
 
-def main():
+from rabbit.asyncio_rabbit import AsyncioRabbit
 
-    mongo = Mongo(
-        connection_str=conf.MONGO_CONNECTION_STRING,
-        database=conf.MONGO_DATABASE,
-        uuidRepresentation="standard",
-    )
 
-    with ComponentUpdateRabbit(connection_params=rabbit_connection_params) as rabbit:
-        rabbit.create_queue()
+async def main():
 
-        channel = rabbit.channel
-
+    async with AsyncioRabbit(conf.RABBIT_CONNECTION_STR_ASYNC) as rabbit:
+        mongo = AsyncMongo(
+            connection_str=conf.MONGO_CONNECTION_STRING,
+            database=conf.MONGO_DATABASE,
+        )
         processor = ChangeProcessor(
             handlers={
-                Operation.DELETE: DeleteHandler(channel=channel),
-                Operation.UPDATE: UpdateHandler(channel=channel),
-                Operation.INSERT: InsertHandler(channel=channel),
+                Operation.DELETE: DeleteHandler(broker=rabbit),
+                Operation.UPDATE: UpdateHandler(broker=rabbit),
+                Operation.INSERT: InsertHandler(broker=rabbit),
             }
         )
 
-        mongo.watch_changes(processor=processor, pipeline=pipeline)
+        await mongo.watch_changes(processor, pipeline)
 
 
 if __name__ == "__main__":
     try:
-        main()
+        asyncio.run(main())
     except KeyboardInterrupt:
         exit(0)
