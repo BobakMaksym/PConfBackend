@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+import logging
 
 from pymongo import MongoClient
 
@@ -9,6 +10,8 @@ if TYPE_CHECKING:
     from change_processor import IChangeProcessor
 
 from schemas import Change
+
+logger = logging.getLogger(__name__)
 
 
 class Mongo:
@@ -28,5 +31,11 @@ class Mongo:
     def watch_changes(self, processor: "IChangeProcessor", pipeline: "_Pipeline"):
         with self.database.watch(pipeline, full_document="updateLookup") as stream:
             for raw_change in stream:
-                change = Change(**raw_change)
-                processor.process(change)
+
+                try:
+                    change = Change(**raw_change)
+                except Exception:
+                    logger.exception("Failed to parse Change from raw_change; skipping")
+                    continue
+
+                processor.publish(change)
