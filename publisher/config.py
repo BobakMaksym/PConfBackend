@@ -2,9 +2,11 @@ import logging
 from typing import Literal
 
 from pika import ConnectionParameters, PlainCredentials
-from pydantic import Field
+from pydantic import Field, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typesense.configuration import ConfigDict, NodeConfigDict
+
+from yarl import URL
 
 
 class Config(BaseSettings):
@@ -32,6 +34,29 @@ class Config(BaseSettings):
     RABBIT_EXCHANGE: str = Field(default="")  # default AMQP direct
     RABBIT_ROUTING_KEY: str
 
+    @computed_field
+    @property
+    def RABBIT_CONNECTION_STR_ASYNC(self) -> URL:
+        return URL.build(
+            scheme="amqp",
+            user=self.RABBIT_USERNAME,
+            password=self.RABBIT_PASSWORD,
+            host=self.RABBIT_HOST,
+            port=self.RABBIT_PORT,
+        )
+
+    @computed_field
+    @property
+    def RABBIT_CONNECTION_STR(self) -> ConnectionParameters:
+        return ConnectionParameters(
+            host=config.RABBIT_HOST,
+            port=config.RABBIT_PORT,
+            credentials=PlainCredentials(
+                username=config.RABBIT_USERNAME,
+                password=config.RABBIT_PASSWORD,
+            ),
+        )
+
     # Logger
     LOG_LEVEL: Literal["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"]
 
@@ -46,15 +71,6 @@ def configure_logging(level: int = logging.INFO):
         format="[%(asctime)s.%(msecs)03d] %(funcName)20s %(module)s:%(lineno)d %(levelname)-8s - %(message)s\n",
     )
 
-
-rabbit_connection_params = ConnectionParameters(
-    host=config.RABBIT_HOST,
-    port=config.RABBIT_PORT,
-    credentials=PlainCredentials(
-        username=config.RABBIT_USERNAME,
-        password=config.RABBIT_PASSWORD,
-    ),
-)
 
 typesense_config = ConfigDict(
     nodes=[
