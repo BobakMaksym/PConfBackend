@@ -21,27 +21,23 @@ class IChangeHandler(ABC):
     ): ...
 
     @abstractmethod
-    def handle(
+    async def handle(
         self,
         change: "Change",
     ): ...
 
 
 class BaseOperationHandler(IChangeHandler):
-    def __init__(self, channel: "BlockingChannel"):
-        self._channel = channel
+    def __init__(self, broker):
+        self._broker = broker
 
     @property
-    def channel(self):
-        return self._channel
+    def broker(self):
+        return self._broker
 
-    def handle(self, change: "Change"):
+    async def handle(self, change: "Change"):
         msg = change.model_dump_json(exclude_none=True)
-        self.channel.basic_publish(
-            exchange=conf.RABBIT_EXCHANGE,
-            routing_key=conf.RABBIT_ROUTING_KEY,
-            body=msg,
-        )
+        await self.broker.publish_message(msg)
 
         logger.info(
             "Publish message to Q: operation=%r, coll=%r, id=%r; msg: %s",

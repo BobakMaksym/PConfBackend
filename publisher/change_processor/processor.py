@@ -12,7 +12,7 @@ class IChangeProcessor:
         handlers: dict["Operation", "IChangeHandler"],
     ) -> None: ...
 
-    def process(self, change: "Change") -> None: ...
+    async def process(self, change: "Change") -> None: ...
 
 
 class ChangeProcessor(IChangeProcessor):
@@ -22,6 +22,6 @@ class ChangeProcessor(IChangeProcessor):
     ):
         self._handlers = handlers
 
-    def process(self, change: "Change"):
+    async def process(self, change: "Change"):
         handler = self._handlers[change.operation_type]
-        handler.handle(change=change)
+        await handler.handle(change=change)
