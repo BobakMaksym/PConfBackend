@@ -43,25 +43,35 @@ class BaseComponentService(IComponentService):
         per_page: int = 10,
         sort_by: Iterable[str] | None = None,
     ) -> Page:
+        try:
+            model = filters.model  # type: ignore
 
-        model = filters.model  # type: ignore
+            if model:
+                logger.info("the index paginator worked")
 
-        if model:
-            logger.info("спрацював пагінатор по індексу")
+                paginator = IndexPaginator(self.index)
+                requested_page = paginator.paginate(
+                    filters=filters, page=page, per_page=per_page, sort_by=sort_by
+                )
 
-            paginator = IndexPaginator(self.index)
+                logger.critical("\n\npage:\n%s", requested_page)
+
+                return requested_page
+
+            logger.info("the database paginator worked")
+
+            paginator = Paginator(repo=self.repo())
             requested_page = paginator.paginate(
                 filters=filters, page=page, per_page=per_page, sort_by=sort_by
             )
+
+            logger.critical("\n\npage:\n%s", requested_page)
+
             return requested_page
 
-        logger.info("спрацював пагінатор по БД")
-
-        paginator = Paginator(repo=self.repo())
-        requested_page = paginator.paginate(
-            filters=filters, page=page, per_page=per_page, sort_by=sort_by
-        )
-        return requested_page
+        except Exception as e:
+            logger.error("error: %s", e)
+            raise
 
 
 class CpuService(BaseComponentService):

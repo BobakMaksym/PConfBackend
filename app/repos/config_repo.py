@@ -1,5 +1,6 @@
 import logging
 
+from bson import ObjectId
 from pymongo.collection import Collection
 from pydantic_extra_types.mongo_object_id import MongoObjectId
 
@@ -15,10 +16,11 @@ class ConfigRepo:
         self.col: Collection = db["builds"]
 
     def create(self, user_id: MongoObjectId) -> MongoObjectId:
-        build = PcConfigSchema(user_id=user_id)
-        res = self.col.insert_one(build.model_dump_for_db())
+        oid = MongoObjectId(ObjectId())
+        build = PcConfigSchema(id=oid, user_id=user_id)
+        self.col.insert_one(build.model_dump_for_db())
 
-        return res.inserted_id
+        return oid
 
     def delete(self, build_id: MongoObjectId):
         self.col.delete_one({"_id": build_id})

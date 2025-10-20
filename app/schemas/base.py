@@ -14,10 +14,8 @@ class BaseDbSchema(BaseModel):
         serialize_by_alias=True,
     )
 
-    id: MongoObjectId | None = Field(
-        validation_alias=AliasChoices("id", "_id"),
-        serialization_alias="id",
-        default=None,
+    id: MongoObjectId = Field(
+        validation_alias=AliasChoices("id", "_id"), serialization_alias="id"
     )
 
     def model_dump_for_db(self, *args, **kwargs):
