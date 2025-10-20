@@ -1,10 +1,11 @@
+from copy import deepcopy
 from functools import wraps
-from typing import Any, Callable
+from typing import Any, Callable, cast
 import logging
 
 from agents import RunContextWrapper, function_tool
 
-from app.db import db
+from app.core.configs.typesense_config import get_client
 from app.filters.filters_ai import (
     CpuFilters,
     GpuFilters,
@@ -12,8 +13,18 @@ from app.filters.filters_ai import (
     MotherboardFilters,
     PsuFilters,
 )
-from app.helpers import normalize_filters
-from app.schemas.pc_config_schema import ComponentsSchema, PcConfigContext
+from app.filters.component_filters import (
+    CpuFilters as CpuDbFilters,
+    GpuFilters as GpuDbFilters,
+    RamFilters as RamDbFilters,
+    MotherboardFilters as MotherboardDbFilters,
+    PsuFilters as PsuDbFilters,
+)
+from app.schemas.pc_config_schema import (
+    ComponentsSchema,
+    PcConfigContext,
+    PcConfigSchema,
+)
 from app.schemas.component_schema import (
     CpuSchema,
     GpuSchema,
@@ -21,88 +32,153 @@ from app.schemas.component_schema import (
     MotherboardSchema,
     PowerSupplySchema,
 )
-from app.repos.component_repo import CpuRepo, GpuRepo, RamRepo, MbRepo, PsuRepo
+from app.services.component_service import (
+    CpuService,
+    GpuService,
+    RamService,
+    MotherboardService,
+    PsuService,
+)
 from app.repos import config_repo
-
+from app.core.paginator import Page
+from app.repos.index_repo import (
+    CpuIndexRepo,
+    GpuIndexRepo,
+    RamIndexRepo,
+    PsuIndexRepo,
+    MotherboardIndexRepo,
+)
 
 COMPONENT_COUNT = 2
 
 logger = logging.getLogger("app")
 
 
-def function_tool_and_filter_normalizer(func: Callable):
+def function_tool_find_decorator(func: Callable):
     """Decorator: normalizes filters and applies function_tool."""
 
     @function_tool
     @wraps(func)
-    def wrapper(filters, count):
+    def wrapper(filters, page: int = 1):
 
-        filters = normalize_filters(filters)
+        # logger.debug(type(filters))
+
+        # filters = normalize_filters(filters)
         logger.debug("%s filters: %s", func.__name__, filters)
 
-        components: list[Any] = func(filters, count)
+        components: list[Any] = func(filters, page)
+
+        comps_copy = deepcopy(components)
+        comps_copy.data = None
+
+        logger.debug("find components: %s", comps_copy)
 
         return components
 
     return wrapper
 
 
-@function_tool_and_filter_normalizer
-def find_cpu(filters: CpuFilters, count: int = COMPONENT_COUNT) -> list[CpuSchema]:
+# function_tool_find_decorator = function_tool
+
+
+def function_tool_find_decorator(func: Callable):
+    @function_tool
+    @wraps(func)
+    def wrapper(filters: CpuFilters, page: int = 1):
+        logger.debug("%s filters: %s", func.__name__, filters)
+        components: list[Any] = func(filters, page)
+        return components
+
+    return wrapper
+
+
+client = get_client()
+CpuIndexRepo(client=client)
+GpuIndexRepo(client=client)
+RamIndexRepo(client=client)
+PsuIndexRepo(client=client)
+MotherboardIndexRepo(client=client)
+
+
+@function_tool_find_decorator
+def find_cpu(filters: CpuFilters, page: int = 1) -> list[CpuSchema]:
     """finds CPU's in DB"""
-    return CpuRepo(db).find(filters, limit=count)
+
+    filters = CpuDbFilters(**filters.model_dump(mode="json"))
+
+    return CpuService(CpuIndexRepo(client=client)).find(filters=filters, page=page).data
 
 
-@function_tool_and_filter_normalizer
-def find_gpu(filters: GpuFilters, count: int = COMPONENT_COUNT) -> list[GpuSchema]:
+@function_tool_find_decorator
+def find_gpu(filters: GpuFilters, page: int = 1) -> list[GpuSchema]:
     """finds GPU's in DB"""
-    return GpuRepo(db).find(filters, limit=count)
+
+    filters = GpuDbFilters(**filters.model_dump(mode="json"))
+
+    return GpuService(GpuIndexRepo(client=client)).find(filters=filters, page=page).data
 
 
-@function_tool_and_filter_normalizer
-def find_ram(filters: RamFilters, count: int = COMPONENT_COUNT) -> list[RamSchema]:
+@function_tool_find_decorator
+def find_ram(filters: RamFilters, page: int = 1) -> list[RamSchema,]:
     """finds RAM modules in DB"""
-    return RamRepo(db).find(filters, limit=count)
+
+    filters = RamDbFilters(**filters.model_dump(mode="json"))
+
+    return RamService(RamIndexRepo(client=client)).find(filters=filters, page=page).data
 
 
-@function_tool_and_filter_normalizer
+@function_tool_find_decorator
 def find_motherboard(
-    filters: MotherboardFilters, count: int = COMPONENT_COUNT
+    filters: MotherboardFilters, page: int = 1
 ) -> list[MotherboardSchema]:
     """finds motherboards in DB"""
-    return MbRepo(db).find(filters, limit=count)
+
+    filters = MotherboardDbFilters(**filters.model_dump(mode="json"))
+
+    return (
+        MotherboardService(MotherboardIndexRepo(client=client))
+        .find(filters=filters, page=page)
+        .data
+    )
 
 
-@function_tool_and_filter_normalizer
-def find_psu(
-    filters: PsuFilters, count: int = COMPONENT_COUNT
-) -> list[PowerSupplySchema]:
+@function_tool_find_decorator
+def find_psu(filters: PsuFilters, page: int = 1) -> list[PowerSupplySchema]:
     """finds power supplies in DB"""
-    return PsuRepo(db).find(filters, limit=count)
+
+    filters = PsuDbFilters(**filters.model_dump(mode="json"))
+
+    return PsuService(PsuIndexRepo(client=client)).find(filters=filters, page=page).data
 
 
 @function_tool
 def add_component(
     wrapper: RunContextWrapper[PcConfigContext],
     components: ComponentsSchema,
-):
+    # ):
+) -> PcConfigSchema:
     """Adds a components to the PC config"""
-    build_id = wrapper.context._id
+    # logger.debug("\ncall add_component function\n")
+    try:
+        build_id = wrapper.context.id
 
-    comp_types = components.model_dump(exclude_none=True).keys()
-    for comp_t in comp_types:
-        comp_id = getattr(components, comp_t)
-        config_repo.add_component(build_id, comp_t, comp_id)
+        comp_types = components.model_dump(exclude_none=True).keys()
+        for comp_t in comp_types:
+            comp_id = getattr(components, comp_t)
+            config_repo.add_component(build_id, comp_t, comp_id)
 
-    build = config_repo.get_full_build(build_id)
+        build = cast(PcConfigSchema, config_repo.get_full_build(build_id))
+        return build
 
-    return build
+    except Exception as e:
+        logger.critical("\n\nerror: %s\n", e)
+        raise
 
 
 @function_tool
 def get_configuration(wrapper: RunContextWrapper[PcConfigContext]):
     """Get the current state of the PC config"""
-    id_ = wrapper.context._id
+    id_ = wrapper.context.id
     build = config_repo.get_full_build(id_)
 
     return build
