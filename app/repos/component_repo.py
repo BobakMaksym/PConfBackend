@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any, Type, Iterable
+import logging
 
 from fastapi_filter.contrib.mongoengine import Filter
 
@@ -21,6 +22,8 @@ from app.schemas.component_schema import (
     PowerSupplySchema,
     SsdSchema,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class IComponentRepo(ABC):
