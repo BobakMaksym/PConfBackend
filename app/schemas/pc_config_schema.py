@@ -6,6 +6,7 @@ from app.schemas.component_schema import (
     GpuSchema,
     RamSchema,
     PowerSupplySchema,
+    SsdSchema,
     MotherboardSchema,
 )
 from app.rules_engine.manager import rule_manager
@@ -24,8 +25,9 @@ class ComponentsSchema(BaseModel):
     cpu: MongoObjectId | None = None
     gpu: MongoObjectId | None = None
     ram: MongoObjectId | None = None
-    psu: MongoObjectId | None = None
+    ssd: MongoObjectId | None = None
     motherboard: MongoObjectId | None = None
+    psu: MongoObjectId | None = None
 
 
 class PcComponentsId(ComponentsSchema, BaseDbSchema):
@@ -42,8 +44,9 @@ class PcConfigSchema(BaseDbSchema):
 
     cpu: CpuSchema | None = None
     ram: RamSchema | None = None
-    motherboard: MotherboardSchema | None = None
     gpu: GpuSchema | None = None
+    motherboard: MotherboardSchema | None = None
+    ssd: SsdSchema | None = None
     psu: PowerSupplySchema | None = None
 
     # when adding components dynamically, errors does not change

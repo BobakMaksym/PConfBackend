@@ -5,6 +5,7 @@ from app.documents.motherboard import MotherboardDocument
 from app.documents.psu import PsuDocument
 from app.documents.ram import RamDocument
 from app.documents.user import UserDocument
+from app.documents.ssd import SsdDocument
 
 
 component_docs = {
@@ -13,6 +14,7 @@ component_docs = {
     "motherboard": MotherboardDocument,
     "psu": PsuDocument,
     "ram": RamDocument,
+    "ssd": SsdDocument,
 }
 
 __all__ = (
@@ -23,5 +25,6 @@ __all__ = (
     MotherboardDocument,
     PsuDocument,
     RamDocument,
+    SsdDocument,
     UserDocument,
 )

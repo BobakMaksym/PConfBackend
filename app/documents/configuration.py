@@ -5,6 +5,7 @@ from app.documents.gpu import GpuDocument
 from app.documents.motherboard import MotherboardDocument
 from app.documents.psu import PsuDocument
 from app.documents.ram import RamDocument
+from app.documents.ssd import SsdDocument
 
 
 class ConfigDocument(Document):
@@ -14,6 +15,7 @@ class ConfigDocument(Document):
 
     cpu = f.ReferenceField(CpuDocument, reverse_delete_rule=NULLIFY)
     ram = f.ReferenceField(RamDocument, reverse_delete_rule=NULLIFY)
-    motherboard = f.ReferenceField(MotherboardDocument, reverse_delete_rule=NULLIFY)
     gpu = f.ReferenceField(GpuDocument, reverse_delete_rule=NULLIFY)
+    motherboard = f.ReferenceField(MotherboardDocument, reverse_delete_rule=NULLIFY)
+    ssd = f.ReferenceField(SsdDocument, reverse_delete_rule=NULLIFY)
     psu = f.ReferenceField(PsuDocument, reverse_delete_rule=NULLIFY)
