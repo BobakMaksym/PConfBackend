@@ -5,13 +5,14 @@ from fastapi import FastAPI
 from app.core.config import settings as conf
 from app.core.configs.typesense_config import get_client
 from app.db import connect_mongoengine
-from app.repos.component_repo import CpuRepo, GpuRepo, MbRepo, PsuRepo, RamRepo
+from app.repos.component_repo import CpuRepo, GpuRepo, MbRepo, PsuRepo, RamRepo, SsdRepo
 from app.repos.index_repo import (
     CpuIndexRepo,
     GpuIndexRepo,
     RamIndexRepo,
     PsuIndexRepo,
     MotherboardIndexRepo,
+    SsdIndexRepo,
 )
 from app.use_case.sync_search_index_case import SyncSearchIndexUseCase
 
@@ -32,6 +33,7 @@ async def lifespan(app: FastAPI):
             (RamRepo(), RamIndexRepo(client=client)),
             (PsuRepo(), PsuIndexRepo(client=client)),
             (MbRepo(), MotherboardIndexRepo(client=client)),
+            (SsdRepo(), SsdIndexRepo(client=client)),
         ]
     )
 
