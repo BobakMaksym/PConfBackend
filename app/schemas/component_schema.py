@@ -3,10 +3,12 @@ from pydantic import Field
 from app.schemas.base import BaseDbSchema
 
 
-class CpuSchema(BaseDbSchema):
-    manufacturer: str | None = Field(default=None)
-    model: str | None = Field(default=None)
+class BaseDbComponentSchema(BaseDbSchema):
+    manufacturer: str
+    model: str
 
+
+class CpuSchema(BaseDbComponentSchema):
     socket: str | None = Field(default=None)
     ram_types: str | None = Field(default=None)
     igp: bool | None = Field(default=None)
@@ -18,10 +20,7 @@ class CpuSchema(BaseDbSchema):
     threads: int | None = Field(default=None)
 
 
-class RamSchema(BaseDbSchema):
-    manufacturer: str
-    model: str
-
+class RamSchema(BaseDbComponentSchema):
     type: str
     modules: int
     capacity: int
@@ -32,9 +31,7 @@ class RamSchema(BaseDbSchema):
     lighting: bool | None = None
 
 
-class GpuSchema(BaseDbSchema):
-    manufacturer: str
-    model: str
+class GpuSchema(BaseDbComponentSchema):
     model_gpu: str
 
     memory_size: int
@@ -50,10 +47,7 @@ class GpuSchema(BaseDbSchema):
     lighting: bool | None = None
 
 
-class MotherboardSchema(BaseDbSchema):
-    manufacturer: str
-    model: str
-
+class MotherboardSchema(BaseDbComponentSchema):
     socket: str
     form_factor: str
     ram_type: str
@@ -67,10 +61,21 @@ class MotherboardSchema(BaseDbSchema):
     wifi: bool | None = None
 
 
-class PowerSupplySchema(BaseDbSchema):
+class SsdSchema(BaseDbComponentSchema):
+    form_factor: str
 
-    manufacturer: str
-    model: str
+    volume: int | None = None
+    read_speed: int | None = None
+    write_speed: int | None = None
+
+    controller: str | None = None
+    interface_m2: str | None = None
+    memory_type: str | None = None
+    nvme: bool | None = None
+    radiator: bool | None = None
+
+
+class PowerSupplySchema(BaseDbComponentSchema):
     form_factor: str
     power: int
 
