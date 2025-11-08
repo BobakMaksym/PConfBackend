@@ -4,6 +4,7 @@ from app.documents import (
     MotherboardDocument,
     PsuDocument,
     RamDocument,
+    SsdDocument,
 )
 from app.filters.filter_utils import create_filter_class
 
@@ -100,5 +101,22 @@ RamFilters = create_filter_class(
         "cooling": BOOL_SUFFIXES,
         "colour": STR_SUFFIXES,
         "lighting": BOOL_SUFFIXES,
+    },
+)
+
+
+SsdFilters = create_filter_class(
+    model=SsdDocument,
+    fields={
+        **id_model_manufacturer,
+        "form_factor": STR_SUFFIXES,
+        "volume": INT_SUFFIXES,
+        "read_speed": INT_SUFFIXES,
+        "write_speed": INT_SUFFIXES,
+        "controller": STR_SUFFIXES,
+        "interface_m2": STR_SUFFIXES,
+        "memory_type": STR_SUFFIXES,
+        "nvme": BOOL_SUFFIXES,
+        "radiator": BOOL_SUFFIXES,
     },
 )
