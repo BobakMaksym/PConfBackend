@@ -11,6 +11,7 @@ from app.filters.component_filters import (
     MotherboardFilters,
     PsuFilters,
     RamFilters,
+    SsdFilters,
 )
 from app.services.component_service import (
     IComponentService,
@@ -19,6 +20,7 @@ from app.services.component_service import (
     RamService,
     PsuService,
     MotherboardService,
+    SsdService,
 )
 from app.core.configs.typesense_config import get_client
 from app.repos.index_repo import (
@@ -27,6 +29,7 @@ from app.repos.index_repo import (
     MotherboardIndexRepo,
     PsuIndexRepo,
     RamIndexRepo,
+    SsdIndexRepo,
 )
 
 component_router = APIRouter()
@@ -39,6 +42,7 @@ gpu_service = GpuService(GpuIndexRepo(client=index_client))
 ram_service = RamService(RamIndexRepo(client=index_client))
 motherboard_service = MotherboardService(MotherboardIndexRepo(client=index_client))
 psu_service = PsuService(PsuIndexRepo(client=index_client))
+ssd_service = SsdService(SsdIndexRepo(client=index_client))
 
 
 def make_find_endpoint(
@@ -70,6 +74,7 @@ def make_find_endpoint(
 make_find_endpoint("/cpu", "find_cpu", CpuFilters, cpu_service, "Find CPUs")
 make_find_endpoint("/gpu", "find_gpu", GpuFilters, gpu_service, "Find GPUs")
 make_find_endpoint("/ram", "find_ram", RamFilters, ram_service, "Find RAM modules")
+make_find_endpoint("/ssd", "find_ssd", SsdFilters, ssd_service, "Find SSDs")
 make_find_endpoint(
     "/motherboard",
     "find_motherboard",
