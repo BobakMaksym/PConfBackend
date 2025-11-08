@@ -10,6 +10,7 @@ from app.documents import (
     MotherboardDocument,
     RamDocument,
     PsuDocument,
+    SsdDocument,
 )
 from app.schemas.base import BaseDbSchema
 from app.schemas.component_schema import (
@@ -18,6 +19,7 @@ from app.schemas.component_schema import (
     RamSchema,
     MotherboardSchema,
     PowerSupplySchema,
+    SsdSchema,
 )
 
 
@@ -111,12 +113,18 @@ class PsuRepo(BaseComponentRepo):
     collection = PsuDocument
 
 
+class SsdRepo(BaseComponentRepo):
+    schema = SsdSchema
+    collection = SsdDocument
+
+
 repos = {
     "cpu": CpuRepo,
     "ram": RamRepo,
     "gpu": GpuRepo,
     "psu": PsuRepo,
     "motherboard": MbRepo,
+    "ssd": SsdRepo,
 }
 
 component_repos = repos

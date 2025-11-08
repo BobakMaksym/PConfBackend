@@ -12,6 +12,7 @@ from app.repos.component_repo import (
     RamRepo,
     MbRepo,
     PsuRepo,
+    SsdRepo,
 )
 from app.repos.index_repo import IComponentIndexRepo
 
@@ -92,3 +93,7 @@ class MotherboardService(BaseComponentService):
 
 class PsuService(BaseComponentService):
     repo = PsuRepo
+
+
+class SsdService(BaseComponentService):
+    repo = SsdRepo

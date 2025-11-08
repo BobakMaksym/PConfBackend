@@ -16,6 +16,7 @@ from app.core.configs.typesense_config import (
     schema_gpu,
     schema_motherboard,
     schema_psu,
+    schema_ssd,
 )
 from app.core.configs.typesense_component_schemas import (
     BaseIndexSchema,
@@ -24,6 +25,7 @@ from app.core.configs.typesense_component_schemas import (
     GpuIndexSchema,
     MotherboardIndexSchema,
     PowerSupplyIndexSchema,
+    SsdIndexSchema,
 )
 from app.schemas.index_search_res_schema import SearchResultSchema
 
@@ -206,3 +208,9 @@ class MotherboardIndexRepo(BaseComponentIndexRepo):
     coll = ComponentType.MOTHERBOARD
     index_coll_schema = schema_motherboard
     schema = MotherboardIndexSchema
+
+
+class SsdIndexRepo(BaseComponentIndexRepo):
+    coll = ComponentType.SSD
+    index_coll_schema = schema_ssd
+    schema = SsdIndexSchema
