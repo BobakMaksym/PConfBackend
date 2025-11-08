@@ -71,11 +71,24 @@ class MotherboardIndexSchema(BaseIndexSchema):
     wifi: bool | None = None
 
 
+class SsdIndexSchema(BaseIndexSchema):
+    form_factor: str
+
+    volume: int | None = None
+    read_speed: int | None = None
+    write_speed: int | None = None
+
+    controller: str | None = None
+    interface_m2: str | None = None
+    memory_type: str | None = None
+    nvme: bool | None = None
+    radiator: bool | None = None
+
+
 class PowerSupplyIndexSchema(BaseIndexSchema):
     form_factor: str | None = None
     power: int | None = None
 
-    # Корисні поля, допускають None
     mb_and_cpu_powersupply: str | None = None
 
     efficiency: int | None = None

@@ -16,6 +16,7 @@ class ComponentCollections(StrEnum):
     RAM = "ram"
     PSU = "psu"
     MOTHERBOARD = "motherboard"
+    SSD = "ssd"
 
 
 class ComponentType(StrEnum):
@@ -24,6 +25,7 @@ class ComponentType(StrEnum):
     RAM = "ram"
     PSU = "psu"
     MOTHERBOARD = "motherboard"
+    SSD = "ssd"
 
 
 schemas = {}
@@ -90,6 +92,24 @@ schema_gpu = CollectionCreateSchema(
     ],
 )
 
+
+schema_ssd = CollectionCreateSchema(
+    name=ComponentType.SSD,
+    fields=[
+        *common_fields,
+        {"name": "form_factor",     "type": "string",   "optional": True},
+        {"name": "volume",          "type": "int32",    "optional": True},
+        {"name": "read_speed",      "type": "int32",    "optional": True},
+        {"name": "write_speed",     "type": "int32",    "optional": True},
+        {"name": "controller",      "type": "string",   "optional": True},
+        {"name": "interface_m2",    "type": "string",   "optional": True},
+        {"name": "memory_type",     "type": "string",   "optional": True},
+        {"name": "nvme",            "type": "bool",     "optional": True},
+        {"name": "radiator",        "type": "bool",     "optional": True},
+    ],
+)
+
+
 schema_motherboard = CollectionCreateSchema(
     name=ComponentType.MOTHERBOARD,
     fields=[
@@ -130,6 +150,7 @@ component_schemas = {
     ComponentCollections.MOTHERBOARD.value: schema_motherboard,
     ComponentCollections.RAM.value: schema_ram,
     ComponentCollections.PSU.value: schema_psu,
+    ComponentCollections.SSD.value: schema_ssd,
 }
 
 
