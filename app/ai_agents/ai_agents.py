@@ -13,6 +13,7 @@ from app.services.ai_tools import (
     find_ram,
     find_motherboard,
     find_psu,
+    find_ssd,
     get_configuration,
 )
 from app.schemas.pc_config_schema import PcConfigContext
@@ -30,6 +31,7 @@ tools_4_find_components: list[FunctionTool] = [
     find_ram,
     find_motherboard,
     find_psu,
+    find_ssd,
 ]
 
 

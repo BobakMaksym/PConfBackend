@@ -12,6 +12,7 @@ from app.filters.filters_ai import (
     RamFilters,
     MotherboardFilters,
     PsuFilters,
+    SsdFilters,
 )
 from app.filters.component_filters import (
     CpuFilters as CpuDbFilters,
@@ -19,6 +20,7 @@ from app.filters.component_filters import (
     RamFilters as RamDbFilters,
     MotherboardFilters as MotherboardDbFilters,
     PsuFilters as PsuDbFilters,
+    SsdFilters as SsdDbFilters,
 )
 from app.schemas.pc_config_schema import (
     ComponentsSchema,
@@ -31,6 +33,7 @@ from app.schemas.component_schema import (
     RamSchema,
     MotherboardSchema,
     PowerSupplySchema,
+    SsdSchema,
 )
 from app.services.component_service import (
     CpuService,
@@ -38,6 +41,7 @@ from app.services.component_service import (
     RamService,
     MotherboardService,
     PsuService,
+    SsdService,
 )
 from app.repos import config_repo
 from app.core.paginator import Page
@@ -47,6 +51,7 @@ from app.repos.index_repo import (
     RamIndexRepo,
     PsuIndexRepo,
     MotherboardIndexRepo,
+    SsdIndexRepo,
 )
 
 COMPONENT_COUNT = 2
@@ -149,6 +154,16 @@ def find_psu(filters: PsuFilters, page: int = 1) -> list[PowerSupplySchema]:
     filters = PsuDbFilters(**filters.model_dump(mode="json"))
 
     return PsuService(PsuIndexRepo(client=client)).find(filters=filters, page=page).data
+
+
+@function_tool_find_decorator
+def find_ssd(filters: SsdFilters, page: int = 1) -> list[SsdSchema]:
+    """finds SSD's in DB"""
+
+    filters = SsdDbFilters(**filters.model_dump(mode="json"))
+
+    return SsdService(SsdIndexRepo(client=client)).find(filters=filters, page=page).data
+
 
 
 @function_tool

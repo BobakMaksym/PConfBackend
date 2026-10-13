@@ -117,6 +117,35 @@ class PsuFilters(BaseModel):
     # dimensions: Str = None
 
 
+SsdFilters = create_filter_class(
+    model=SsdDocument,
+    fields={
+        **id_model_manufacturer,
+        "form_factor": STR_SUFFIXES,
+        "volume": INT_SUFFIXES,
+        "read_speed": INT_SUFFIXES,
+        "write_speed": INT_SUFFIXES,
+        "controller": STR_SUFFIXES,
+        "interface_m2": STR_SUFFIXES,
+        "memory_type": STR_SUFFIXES,
+        "nvme": BOOL_SUFFIXES,
+        "radiator": BOOL_SUFFIXES,
+    },
+)
+
+
+class SsdFilters(BaseModel):
+    manufacturer: StrOrIn = None
+    model: Str = field(ex=["Samsung 990 EVO Plus MZ-V9S1T0BW"])
+    form_factor: Str = field(ex=["m.2", "2.5"])
+
+    volume: IntOrIn = field(ex=[500, 1024])
+    read_speed: IntOrIn = field(ex=[2000])
+    write_speed: IntOrIn = field(ex=[2000])
+    nvme: Bool = None
+    radiator: Bool = None
+
+
 if __name__ == "__main__":
 
     filters = CpuFilters(
